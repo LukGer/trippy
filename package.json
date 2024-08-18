@@ -7,16 +7,12 @@
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\" --ignore-path .gitignore"
   },
   "devDependencies": {
-    "prettier": "^3.1.1",
+    "prettier": "^3.3.3",
     "turbo": "^2.0.14"
   },
   "engines": {
     "node": ">=18"
   },
-  "name": "with-react-native-web",
-  "packageManager": "bun@1.1.21",
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ]
+  "name": "trippy-root",
+  "packageManager": "pnpm@9.7.1"
 }

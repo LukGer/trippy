@@ -1,0 +1,25 @@
+{
+  "expo": {
+    "name": "trippy",
+    "slug": "trippy",
+    "version": "1.0.0",
+    "platforms": ["ios"],
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "trippy-app",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/images/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "dev.lukger.trippy-dev"
+    },
+    "plugins": ["expo-router"],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
