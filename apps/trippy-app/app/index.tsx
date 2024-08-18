@@ -2,8 +2,8 @@ import { trpc } from "@/utils/trpc";
 import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
 
 export default function IndexPage() {
-  const userQuery = trpc.hello.useQuery({
-    text: "world",
+  const userQuery = trpc.user.getCurrentUser.useQuery({
+    googleId: "123",
   });
 
   return (
@@ -18,7 +18,7 @@ export default function IndexPage() {
       {userQuery.isLoading ? (
         <ActivityIndicator />
       ) : (
-        <Text>{userQuery.data?.greeting}</Text>
+        <Text>{userQuery.data?.user?.email}</Text>
       )}
 
       {userQuery.error && (
