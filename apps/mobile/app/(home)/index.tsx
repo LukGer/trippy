@@ -1,8 +1,10 @@
 import { UserContext } from "@/src/context/UserContext";
 import { trpc } from "@/utils/trpc";
 import { Canvas, LinearGradient, Rect } from "@shopify/react-native-skia";
+import { useQueryClient } from "@tanstack/react-query";
 import { DbUser } from "@trippy/api";
 import { RouterOutputs } from "@trippy/api/src/router";
+import { getQueryKey } from "@trpc/react-query";
 import dayjs from "dayjs";
 import { Image } from "expo-image";
 import { Link, Stack } from "expo-router";
@@ -31,14 +33,16 @@ export default function HomePage() {
         options={{
           title: "Trippy",
           headerLargeTitle: true,
+          headerBlurEffect: "systemUltraThinMaterial",
+          headerTransparent: true,
           headerRight: () => (
             <Link href="/(home)/settings" asChild>
               <TouchableOpacity>
                 <Image
                   source={{ uri: user.pictureUrl ?? "" }}
                   style={{
-                    width: 24,
-                    height: 24,
+                    width: 30,
+                    height: 30,
                     borderRadius: 99,
                   }}
                 />
@@ -110,6 +114,8 @@ function TripList({ trips }: { trips: Trips }) {
 const URGENCY_THRESHOLD = 7;
 
 function TripCard({ trip }: { trip: Trips[number] }) {
+  const queryClient = useQueryClient();
+
   const members = trip.tripsToUsers.map((tripToUser) => tripToUser.user);
 
   const isUrgent =
@@ -117,10 +123,18 @@ function TripCard({ trip }: { trip: Trips[number] }) {
 
   return (
     <Link
-      href={{ pathname: "/(home)/trips/[id]/", params: { id: trip.id } }}
+      href={{ pathname: "/(home)/trips/[id]", params: { id: trip.id } }}
       asChild
     >
-      <TouchableOpacity>
+      <TouchableOpacity
+        activeOpacity={0.8}
+        onPress={() => {
+          queryClient.setQueryData(
+            getQueryKey(trpc.trips.getById, trip.id, "any"),
+            trip
+          );
+        }}
+      >
         <View
           style={{
             borderRadius: 20,

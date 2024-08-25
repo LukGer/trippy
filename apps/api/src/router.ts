@@ -2,7 +2,7 @@ import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "./db";
-import { tripsToUsers, users } from "./db/schema";
+import { trips, tripsToUsers, users } from "./db/schema";
 import { procedure, router } from "./trpc";
 
 export const appRouter = router({
@@ -39,6 +39,27 @@ export const appRouter = router({
       }),
   },
   trips: {
+    getById: procedure.input(z.string()).query(async (opts) => {
+      const trip = await db.query.trips.findFirst({
+        where: eq(trips.id, opts.input),
+        with: {
+          tripsToUsers: {
+            with: {
+              user: true,
+            },
+          },
+        },
+      });
+
+      if (!trip) {
+        throw new Error("Trip not found");
+      }
+
+      return {
+        trip,
+      };
+    }),
+
     getTripsByUserId: procedure
       .input(
         z.object({
