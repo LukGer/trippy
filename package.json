@@ -2,9 +2,10 @@
   "private": true,
   "scripts": {
     "dev": "turbo run dev",
-    "build": "turbo run build",
-    "db:generate": "pnpm run --filter=@repo/api db:generate",
-    "db:push": "pnpm run --filter=@repo/api db:push"
+    "build:app": "pnpm run --filter=@trippy/mobile build",
+    "build:api": "pnpm run --filter=@trippy/api build",
+    "db:generate": "pnpm run --filter=@trippy/api db:generate",
+    "db:push": "pnpm run --filter=@trippy/api db:push"
   },
   "devDependencies": {
     "prettier": "^3.3.3",
