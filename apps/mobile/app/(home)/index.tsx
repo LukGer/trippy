@@ -14,6 +14,7 @@ import {
   ActivityIndicator,
   Alert,
   ScrollView,
+  StatusBar,
   Text,
   TouchableOpacity,
   View,
@@ -31,12 +32,20 @@ export default function HomePage() {
 
   return (
     <>
+      <StatusBar barStyle="dark-content" />
       <Stack.Screen
         options={{
           title: "Trippy",
           headerLargeTitle: true,
           headerBlurEffect: "systemUltraThinMaterial",
           headerTransparent: true,
+          headerTintColor: "black",
+          headerStyle: {
+            backgroundColor: "#FFF",
+          },
+          contentStyle: {
+            backgroundColor: "#FFF",
+          },
           headerRight: () => (
             <Link href="/(home)/settings" asChild>
               <TouchableOpacity>
@@ -125,8 +134,13 @@ function TripCardMenu({ children }: { children: ReactElement }) {
         avoidCollisions={true}
         collisionPadding={0}
       >
-        <Menu.Item key="leave" onSelect={() => Alert.alert("Left group")}>
-          <Menu.ItemIcon ios={""} />
+        <Menu.Label>Trip Menu</Menu.Label>
+        <Menu.Item
+          key="leave"
+          onSelect={() => Alert.alert("Left group")}
+          destructive
+        >
+          <Menu.ItemIcon ios={{ name: "door.left.hand.open" }} />
           <Menu.ItemTitle>Leave</Menu.ItemTitle>
         </Menu.Item>
       </Menu.Content>

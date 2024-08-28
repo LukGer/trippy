@@ -1,3 +1,4 @@
+import { clerkPlugin } from "@clerk/fastify";
 import {
   fastifyTRPCPlugin,
   FastifyTRPCPluginOptions,
@@ -8,6 +9,12 @@ import { appRouter, type AppRouter } from "./router";
 
 const server = fastify({
   maxParamLength: 5000,
+  logger: true,
+});
+
+server.register(clerkPlugin, {
+  publishableKey: process.env.CLERK_PUBLISHABLE_KEY,
+  secretKey: process.env.CLERK_SECRET_KEY,
 });
 
 server.register(fastifyTRPCPlugin, {

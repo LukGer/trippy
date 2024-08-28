@@ -6,12 +6,13 @@
     "./server": "./src/app.ts"
   },
   "scripts": {
-    "build": "esbuild src/server.ts --bundle --platform=node --format=esm --outdir=dist --sourcemap",
+    "build": "esbuild src/server.ts --bundle --platform=node --format=esm --outdir=.",
     "dev": "tsx watch src/server",
     "db:push": "drizzle-kit push",
     "db:generate": "drizzle-kit generate"
   },
   "dependencies": {
+    "@clerk/fastify": "^1.0.35",
     "@neondatabase/serverless": "^0.9.4",
     "@trippy/api": "link:",
     "@trpc/server": "next",

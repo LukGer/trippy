@@ -6,6 +6,7 @@ import {
   ActivityIndicator,
   Pressable,
   ScrollView,
+  StatusBar,
   Text,
   TouchableOpacity,
   useWindowDimensions,
@@ -46,6 +47,7 @@ export default function TripDetailPage() {
 
   return (
     <>
+      <StatusBar barStyle="dark-content" />
       <Stack.Screen
         options={{
           title: data?.trip?.name ?? "",
@@ -54,6 +56,10 @@ export default function TripDetailPage() {
           headerTintColor: "black",
           headerBlurEffect: "systemUltraThinMaterial",
           headerBackTitle: "Home",
+          headerStyle: {
+            backgroundColor: "#FFF",
+          },
+
           headerRight: () => (
             <Link
               href={{
@@ -77,7 +83,9 @@ export default function TripDetailPage() {
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
         contentContainerStyle={{
+          backgroundColor: "#FFF",
           gap: 20,
+          flex: 1,
         }}
       >
         {isLoading && (
@@ -89,6 +97,7 @@ export default function TripDetailPage() {
         <View
           style={{
             paddingHorizontal: 18,
+            flex: 1,
           }}
         >
           {tabs[selectedTab].content}
@@ -148,6 +157,9 @@ function TabButtons({
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={{
         paddingHorizontal: 18,
+      }}
+      style={{
+        flexGrow: 0,
       }}
     >
       {tabs.map((tab, index) => (
