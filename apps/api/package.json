@@ -6,7 +6,8 @@
     "./server": "./src/app.ts"
   },
   "scripts": {
-    "build": "esbuild src/server.ts --bundle --platform=node --format=esm --outdir=.",
+    "start": "node dist/server.js",
+    "build": "esbuild src/server.ts --bundle --platform=node --format=esm --outdir=dist",
     "dev": "tsx watch src/server",
     "db:push": "drizzle-kit push",
     "db:generate": "drizzle-kit generate"
