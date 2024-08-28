@@ -3,21 +3,28 @@
     "version": ">= 10.0.0"
   },
   "build": {
-    "development-simulator": {
-      "developmentClient": true,
-      "distribution": "internal",
-      "ios": {
-        "simulator": true
-      }
-    },
     "development": {
       "developmentClient": true,
-      "distribution": "internal"
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_test_cHJlcGFyZWQtYnVubnktMzguY2xlcmsuYWNjb3VudHMuZGV2JA",
+        "APP_VARIANT": "dev"
+      }
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_test_cHJlcGFyZWQtYnVubnktMzguY2xlcmsuYWNjb3VudHMuZGV2JA",
+        "EXPO_PUBLIC_BACKEND_URL": "https://trippy.lukger.dev/trpc",
+        "APP_VARIANT": "tst"
+      }
     },
-    "production": {}
+    "production": {
+      "distribution": "store",
+      "env": {
+        "APP_VARIANT": "prd"
+      }
+    }
   },
   "submit": {
     "production": {}

@@ -26,7 +26,12 @@ export default function HomeLayout() {
 
   return (
     <UserContext.Provider value={data.user}>
-      <Stack />
+      <Stack>
+        <Stack.Screen
+          name="trips/[id]/settings"
+          options={{ presentation: "formSheet" }}
+        />
+      </Stack>
     </UserContext.Provider>
   );
 }

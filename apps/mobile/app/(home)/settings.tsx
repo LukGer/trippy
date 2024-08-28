@@ -1,5 +1,11 @@
+import { Stack } from "expo-router";
 import { Text } from "react-native";
 
 export default function SettingsPage() {
-  return <Text>Settings</Text>;
+  return (
+    <>
+      <Stack.Screen options={{ headerTintColor: "black" }} />
+      <Text>Settings</Text>
+    </>
+  );
 }

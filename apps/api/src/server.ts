@@ -22,9 +22,11 @@ server.register(fastifyTRPCPlugin, {
   } satisfies FastifyTRPCPluginOptions<AppRouter>["trpcOptions"],
 });
 
+const PORT = parseInt(process.env.PORT ?? "3000", 10);
+
 (async () => {
   try {
-    await server.listen({ port: 3000 });
+    await server.listen({ port: PORT });
   } catch (err) {
     server.log.error(err);
     process.exit(1);

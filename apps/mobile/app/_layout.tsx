@@ -1,3 +1,5 @@
+import "react-native-get-random-values";
+
 import { tokenCache } from "@/utils/auth";
 import { trpc } from "@/utils/trpc";
 import { ClerkLoaded, ClerkProvider } from "@clerk/clerk-expo";
@@ -7,18 +9,24 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { Stack } from "expo-router";
 import { useState } from "react";
+import superjson from "superjson";
 
 import "../global.css";
-
-import "react-native-get-random-values";
 
 dayjs.extend(relativeTime);
 
 const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!;
+const backendUrl = process.env.EXPO_PUBLIC_BACKEND_URL!;
 
 if (!publishableKey) {
   throw new Error(
     "Missing Publishable Key. Please set EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY in your .env"
+  );
+}
+
+if (!backendUrl) {
+  throw new Error(
+    "Missing Backend URL. Please set EXPO_PUBLIC_BACKEND_URL in your .env"
   );
 }
 
@@ -29,7 +37,8 @@ export default function RootLayout() {
     trpc.createClient({
       links: [
         httpBatchLink({
-          url: "http://localhost:3000/trpc",
+          url: backendUrl,
+          transformer: superjson,
         }),
       ],
     })

@@ -9,14 +9,16 @@ import dayjs from "dayjs";
 import { Image } from "expo-image";
 import { Link, Stack } from "expo-router";
 import { SymbolView } from "expo-symbols";
-import { useContext } from "react";
+import { ReactElement, useContext } from "react";
 import {
   ActivityIndicator,
+  Alert,
   ScrollView,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import * as Menu from "zeego/context-menu";
 
 type Trips = RouterOutputs["trips"]["getTripsByUserId"]["trips"];
 
@@ -98,7 +100,9 @@ function TripList({ trips }: { trips: Trips }) {
         </Link>
       </View>
       {upcomingTrips.map((trip) => (
-        <TripCard key={trip.id} trip={trip} />
+        <TripCardMenu key={trip.id}>
+          <TripCard trip={trip} />
+        </TripCardMenu>
       ))}
 
       {pastTrips.length > 0 && (
@@ -108,6 +112,25 @@ function TripList({ trips }: { trips: Trips }) {
         <TripCard key={trip.id} trip={trip} />
       ))}
     </>
+  );
+}
+
+function TripCardMenu({ children }: { children: ReactElement }) {
+  return (
+    <Menu.Root>
+      <Menu.Trigger>{children}</Menu.Trigger>
+      <Menu.Content
+        loop={false}
+        alignOffset={0}
+        avoidCollisions={true}
+        collisionPadding={0}
+      >
+        <Menu.Item key="leave" onSelect={() => Alert.alert("Left group")}>
+          <Menu.ItemIcon ios={""} />
+          <Menu.ItemTitle>Leave</Menu.ItemTitle>
+        </Menu.Item>
+      </Menu.Content>
+    </Menu.Root>
   );
 }
 
