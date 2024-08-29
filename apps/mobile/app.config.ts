@@ -8,7 +8,7 @@ export default (): ExpoConfig => ({
   version: "1.0.0",
   platforms: ["ios"],
   orientation: "portrait",
-  icon: "./assets/images/icon.png",
+  icon: `./assets/images/icon_${variant}.png`,
   scheme: "trippy-app",
   userInterfaceStyle: "automatic",
   splash: {
@@ -17,7 +17,6 @@ export default (): ExpoConfig => ({
     backgroundColor: "#ffffff",
   },
   ios: {
-    supportsTablet: true,
     bundleIdentifier: `dev.lukger.trippy.${variant}`,
   },
   plugins: ["expo-router"],

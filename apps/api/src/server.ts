@@ -29,6 +29,10 @@ server.register(fastifyTRPCPlugin, {
   } satisfies FastifyTRPCPluginOptions<AppRouter>["trpcOptions"],
 });
 
+server.get("/health", async () => {
+  return { ok: true };
+});
+
 const PORT = parseInt(process.env.PORT ?? "3000", 10);
 
 (async () => {
