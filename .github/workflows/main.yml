@@ -21,7 +21,7 @@ jobs:
 
     - name: Build Docker image
       run: |
-        docker buildx build -f apps/api/Dockerfile -t ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/trippy-api:latest 
+        docker buildx build -f apps/api/Dockerfile -t ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/trippy-api:latest .
 
     - name: Push Docker image
       run: |
