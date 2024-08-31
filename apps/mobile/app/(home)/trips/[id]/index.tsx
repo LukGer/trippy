@@ -1,3 +1,4 @@
+import { SPRING } from "@/utils/constants";
 import { trpc } from "@/utils/trpc";
 import { Link, Stack, useLocalSearchParams } from "expo-router";
 import { SymbolView } from "expo-symbols";
@@ -122,8 +123,8 @@ function TabButtons({
   const width = useSharedValue(0);
 
   const sliderStyle = useAnimatedStyle(() => ({
-    left: withSpring(left.value, { duration: 1000, dampingRatio: 1 }),
-    width: withSpring(width.value, { duration: 1000, dampingRatio: 1 }),
+    left: withSpring(left.value, SPRING.smooth),
+    width: withSpring(width.value, SPRING.smooth),
   }));
 
   const measure = (

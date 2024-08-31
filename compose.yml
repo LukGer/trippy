@@ -1,0 +1,15 @@
+services:
+  api:
+    image: trippy-api
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://trippy_owner:k31EaQFwtCjl@ep-odd-bread-a2q9peh3.eu-central-1.aws.neon.tech/trippy?sslmode=require
+      - PORT=3000
+      - CLERK_PUBLISHABLE_KEY=pk_test_cHJlcGFyZWQtYnVubnktMzguY2xlcmsuYWNjb3VudHMuZGV2JA
+      - CLERK_SECRET_KEY=sk_test_BEzdZL3NTFq1FNlg3PjQyM7kX9avLGEfkdOnXVVV1M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
