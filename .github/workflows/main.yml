@@ -20,4 +20,4 @@ jobs:
 
       - name: Build and Push Docker image
         run: |
-          docker buildx build -f apps/api/Dockerfile -t ghcr.io/lukger/trippy/trippy-api:latest --push .
+          docker buildx build -f apps/api/Dockerfile -t ghcr.io/lukger/trippy/trippy-api:latest --platform linux/arm64/v8 --push .
