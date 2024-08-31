@@ -5,7 +5,7 @@
     "build:app": "pnpm run --filter=@trippy/mobile build",
     "db:generate": "pnpm run --filter=@trippy/api db:generate",
     "db:push": "pnpm run --filter=@trippy/api db:push",
-    "dev": "turbo run dev",
+    "dev": "sst dev",
     "sso": "aws sso login --sso-session=lukger",
     "sst": "sst dev"
   },
