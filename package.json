@@ -1,13 +1,16 @@
 {
   "private": true,
   "scripts": {
-    "dev": "turbo run dev",
-    "build:app": "pnpm run --filter=@trippy/mobile build",
     "build:api": "pnpm run --filter=@trippy/api build",
+    "build:app": "pnpm run --filter=@trippy/mobile build",
     "db:generate": "pnpm run --filter=@trippy/api db:generate",
-    "db:push": "pnpm run --filter=@trippy/api db:push"
+    "db:push": "pnpm run --filter=@trippy/api db:push",
+    "dev": "turbo run dev",
+    "sso": "aws sso login --sso-session=lukger",
+    "sst": "sst dev"
   },
   "devDependencies": {
+    "@types/aws-lambda": "8.10.145",
     "prettier": "^3.3.3",
     "turbo": "^2.0.14"
   },
@@ -15,5 +18,8 @@
     "node": ">=18"
   },
   "name": "trippy-root",
-  "packageManager": "pnpm@9.7.1"
+  "packageManager": "pnpm@9.7.1",
+  "dependencies": {
+    "sst": "3.0.81"
+  }
 }

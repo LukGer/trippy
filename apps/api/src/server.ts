@@ -1,23 +1,25 @@
 import { clerkPlugin } from "@clerk/fastify";
+import awsLambdaFastify from "@fastify/aws-lambda";
 import {
   fastifyTRPCPlugin,
   FastifyTRPCPluginOptions,
 } from "@trpc/server/adapters/fastify";
 import fastify from "fastify";
+import { Resource } from "sst";
 import { createContext } from "./context";
 import { appRouter, type AppRouter } from "./router";
 
-const server = fastify({
+const app = fastify({
   maxParamLength: 5000,
   logger: true,
 });
 
-server.register(clerkPlugin, {
-  publishableKey: process.env.CLERK_PUBLISHABLE_KEY,
-  secretKey: process.env.CLERK_SECRET_KEY,
+app.register(clerkPlugin, {
+  publishableKey: Resource.ClerkPublishableKey.value,
+  secretKey: Resource.ClerkSecretKey.value,
 });
 
-server.register(fastifyTRPCPlugin, {
+app.register(fastifyTRPCPlugin, {
   prefix: "/trpc",
   trpcOptions: {
     router: appRouter,
@@ -29,17 +31,8 @@ server.register(fastifyTRPCPlugin, {
   } satisfies FastifyTRPCPluginOptions<AppRouter>["trpcOptions"],
 });
 
-server.get("/health", async () => {
+app.get("/health", async () => {
   return { ok: true };
 });
 
-const PORT = parseInt(process.env.PORT ?? "3000", 10);
-
-(async () => {
-  try {
-    await server.listen({ port: PORT });
-  } catch (err) {
-    server.log.error(err);
-    process.exit(1);
-  }
-})();
+export const handler = awsLambdaFastify(app);

@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@clerk/fastify": "^1.0.35",
+    "@fastify/aws-lambda": "^4.1.0",
     "@neondatabase/serverless": "^0.9.4",
     "@trippy/api": "link:",
     "@trpc/server": "next",
