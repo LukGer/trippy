@@ -39,6 +39,80 @@ export const appRouter = router({
       }),
   },
   trips: {
+    create: procedure
+      .input(
+        z.object({
+          name: z.string(),
+          imageUrl: z.optional(z.string()),
+          startDate: z.date(),
+          endDate: z.date(),
+          memberIds: z.array(z.string()),
+        })
+      )
+      .mutation(async (opts) => {
+        await db.transaction(async (tx) => {
+          const trip = await tx
+            .insert(trips)
+            .values({
+              name: opts.input.name,
+              imageUrl: opts.input.imageUrl,
+              startDate: opts.input.startDate,
+              endDate: opts.input.endDate,
+            })
+            .returning()
+            .execute();
+
+          opts.input.memberIds.forEach((memberId) => {
+            tx.insert(tripsToUsers)
+              .values({
+                tripId: trip[0].id,
+                userId: memberId,
+              })
+              .onConflictDoNothing()
+              .execute();
+          });
+        });
+      }),
+    update: procedure
+      .input(
+        z.object({
+          id: z.string(),
+          name: z.string(),
+          imageUrl: z.optional(z.string()),
+          startDate: z.date(),
+          endDate: z.date(),
+          memberIds: z.array(z.string()),
+        })
+      )
+      .mutation(async (opts) => {
+        await db.transaction(async (tx) => {
+          await tx
+            .update(trips)
+            .set({
+              name: opts.input.name,
+              imageUrl: opts.input.imageUrl,
+              startDate: opts.input.startDate,
+              endDate: opts.input.endDate,
+            })
+            .where(eq(trips.id, opts.input.id))
+            .execute();
+
+          await tx
+            .delete(tripsToUsers)
+            .where(eq(tripsToUsers.tripId, opts.input.id))
+            .execute();
+
+          opts.input.memberIds.forEach((memberId) => {
+            tx.insert(tripsToUsers)
+              .values({
+                tripId: opts.input.id,
+                userId: memberId,
+              })
+              .onConflictDoNothing()
+              .execute();
+          });
+        });
+      }),
     getById: procedure.input(z.string()).query(async (opts) => {
       const trip = await db.query.trips.findFirst({
         where: eq(trips.id, opts.input),
@@ -59,7 +133,6 @@ export const appRouter = router({
         trip,
       };
     }),
-
     getTripsByUserId: procedure
       .input(
         z.object({

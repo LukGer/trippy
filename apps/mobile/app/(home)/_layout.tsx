@@ -21,11 +21,7 @@ export default function HomeLayout() {
   }
 
   if (isLoading) {
-    return (
-      <View style={{ flex: 1 }}>
-        <ActivityIndicator />;
-      </View>
-    );
+    return <ActivityIndicator />;
   }
 
   if (!data?.user) {
@@ -35,14 +31,15 @@ export default function HomeLayout() {
   if (isError) {
     return (
       <View style={{ flex: 1 }}>
-        <Text className="text-red-600">{error.message}</Text>
+        <Text>Error</Text>
+        <Text>{error.message}</Text>
       </View>
     );
   }
 
   return (
     <UserContext.Provider value={data.user}>
-      <Stack></Stack>
+      <Stack />
     </UserContext.Provider>
   );
 }

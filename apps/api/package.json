@@ -2,9 +2,6 @@
   "name": "@trippy/api",
   "version": "0.0.0",
   "private": true,
-  "exports": {
-    "./server": "./src/app.ts"
-  },
   "scripts": {
     "start": "node dist/server.js",
     "build": "esbuild src/server.ts --bundle --platform=node --format=esm --outdir=dist",
@@ -16,7 +13,6 @@
     "@clerk/fastify": "^1.0.35",
     "@fastify/aws-lambda": "^4.1.0",
     "@neondatabase/serverless": "^0.9.4",
-    "@trippy/api": "link:",
     "@trpc/server": "next",
     "drizzle-orm": "^0.33.0",
     "fastify": "^4.28.1",

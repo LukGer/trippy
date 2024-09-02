@@ -1,6 +1,10 @@
 import { SPRING } from "@/utils/constants";
 import { trpc } from "@/utils/trpc";
-import { Calendar, toDateId } from "@marceloterreiro/flash-calendar";
+import {
+  Calendar,
+  fromDateId,
+  toDateId,
+} from "@marceloterreiro/flash-calendar";
 import { DbUser } from "@trippy/api";
 import { RouterOutputs } from "@trippy/api/src/router";
 import dayjs from "dayjs";
@@ -32,6 +36,20 @@ export default function TripSettingsPage() {
 
   const { data, isLoading } = trpc.trips.getById.useQuery(tripId);
 
+  const updateTrip = trpc.trips.update.useMutation();
+
+  const [imageUrl, setImageUrl] = useState(data?.trip?.imageUrl ?? "");
+  const [name, setName] = useState(data?.trip?.name);
+  const [startDate, setStartDate] = useState(
+    toDateId(data?.trip?.startDate ?? new Date())
+  );
+  const [endDate, setEndDate] = useState(
+    toDateId(data?.trip?.endDate ?? new Date())
+  );
+  const [members, setMembers] = useState(
+    data?.trip.tripsToUsers.map((t) => t.user) ?? []
+  );
+
   if (isLoading) return null;
 
   return (
@@ -41,42 +59,53 @@ export default function TripSettingsPage() {
           title: "Settings",
           headerTintColor: "black",
           headerBackTitle: "Back",
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => {
+                updateTrip.mutate({
+                  id: tripId,
+                  name: name!,
+                  startDate: fromDateId(startDate),
+                  endDate: fromDateId(endDate),
+                  memberIds: members.map((m) => m.id),
+                });
+              }}
+            >
+              <Text style={{ color: "#007AFF", fontWeight: "bold" }}>Save</Text>
+            </TouchableOpacity>
+          ),
         }}
       />
-      {!data?.trip ? <ActivityIndicator /> : <Settings trip={data.trip} />}
-    </>
-  );
-}
+      {!data?.trip ? (
+        <ActivityIndicator />
+      ) : (
+        <View className="flex flex-col px-4 pt-4 gap-6 items-center">
+          <TripImage imageUrl={imageUrl} setImageUrl={setImageUrl} />
 
-function Settings({ trip }: { trip: Trip }) {
-  const [imageUrl, setImageUrl] = useState(trip.imageUrl ?? "");
-  const [name, setName] = useState(trip.name);
-  const [startDate, setStartDate] = useState(toDateId(trip.startDate));
-  const [endDate, setEndDate] = useState(toDateId(trip.endDate));
-  const [members, setMembers] = useState(trip.tripsToUsers.map((t) => t.user));
+          <View style={styles.container}>
+            <View style={styles.item}>
+              <Text style={styles.itemTitle}>Name</Text>
 
-  return (
-    <View className="flex flex-col px-4 pt-4 gap-6 items-center">
-      <TripImage imageUrl={imageUrl} setImageUrl={setImageUrl} />
-
-      <View style={styles.container}>
-        <View style={styles.item}>
-          <Text style={styles.itemTitle}>Name</Text>
-
-          <TextInput
-            style={{ flex: 1, textAlign: "right" }}
-            value={name ?? ""}
-            onChangeText={setName}
-          />
+              <TextInput
+                style={{ flex: 1, textAlign: "right" }}
+                value={name ?? ""}
+                onChangeText={setName}
+              />
+            </View>
+            <View style={styles.seperator} />
+            <DateInput
+              label="Start date"
+              date={startDate}
+              setDate={setStartDate}
+            />
+            <View style={styles.seperator} />
+            <DateInput label="End date" date={endDate} setDate={setEndDate} />
+            <View style={styles.seperator} />
+            <MembersInput members={members} setMembers={setMembers} />
+          </View>
         </View>
-        <View style={styles.seperator} />
-        <DateInput label="Start date" date={startDate} setDate={setStartDate} />
-        <View style={styles.seperator} />
-        <DateInput label="End date" date={endDate} setDate={setEndDate} />
-        <View style={styles.seperator} />
-        <MembersInput members={members} setMembers={setMembers} />
-      </View>
-    </View>
+      )}
+    </>
   );
 }
 
