@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "expo run:ios",
     "build": "eas build --local --platform ios",
-    "lint": "expo lint"
+    "lint": "expo lint",
+    "android": "expo run:android",
+    "ios": "expo run:ios"
   },
   "jest": {
     "preset": "jest-expo"

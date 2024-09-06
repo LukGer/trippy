@@ -15,15 +15,6 @@ declare module "sst" {
       "type": "sst.sst.Secret"
       "value": string
     }
-    "trippy-router": {
-      "type": "sst.aws.Router"
-      "url": string
-    }
-    "trpc": {
-      "name": string
-      "type": "sst.aws.Function"
-      "url": string
-    }
   }
 }
 export {}

@@ -5,19 +5,15 @@
   "scripts": {
     "start": "node dist/server.js",
     "build": "esbuild src/server.ts --bundle --platform=node --format=esm --outdir=dist",
-    "dev": "tsx watch src/server",
+    "dev": "sst shell --stage dev -- wrangler dev worker.ts",
     "db:push": "drizzle-kit push",
     "db:generate": "drizzle-kit generate"
   },
   "dependencies": {
-    "@clerk/fastify": "^1.0.35",
-    "@fastify/aws-lambda": "^4.1.0",
     "@neondatabase/serverless": "^0.9.4",
     "@trpc/server": "next",
     "drizzle-orm": "^0.33.0",
-    "fastify": "^4.28.1",
     "superjson": "^2.2.1",
-    "ts-node": "^10.9.2",
     "zod": "^3.22.4"
   },
   "devDependencies": {
@@ -25,6 +21,7 @@
     "drizzle-kit": "^0.24.0",
     "esbuild": "^0.23.1",
     "tsx": "^4.17.0",
-    "typescript": "~5.3.3"
+    "typescript": "~5.3.3",
+    "wrangler": "^3.74.0"
   }
 }

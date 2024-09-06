@@ -1,7 +1,9 @@
-import { secret } from "./secret";
+import { domain } from "./dns";
+import { allSecrets } from "./secret";
 
-export const api = new sst.aws.Function("trpc", {
+export const api = new sst.cloudflare.Worker("api", {
+  handler: "./apps/api/worker.ts",
   url: true,
-  handler: "./apps/api/src/server.handler",
-  link: [secret.ClerkSecretKey, secret.ClerkPublishableKey, secret.DatabaseUrl],
+  link: [...allSecrets],
+  domain: "api." + domain,
 });

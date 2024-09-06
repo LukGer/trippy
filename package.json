@@ -3,24 +3,17 @@
   "private": true,
   "scripts": {
     "build:api": "pnpm run --filter=@trippy/api build",
-    "build:app": "bun run --cwd=apps/mobile build",
+    "build:app": "pnpm run --filter=@trippy/mobile build",
     "db:generate": "pnpm run --filter=@trippy/api db:generate",
     "db:push": "pnpm run --filter=@trippy/api db:push",
     "dev": "turbo run dev",
     "sso": "aws sso login --sso-session=lukger"
   },
-  "workspaces": {
-    "packages": [
-      "packages/*",
-      "apps/*"
-    ]
-  },
   "devDependencies": {
-    "@types/aws-lambda": "8.10.145",
     "prettier": "^3.3.3",
     "turbo": "^2.0.14"
   },
-  "packageManager": "bun@1.1.26",
+  "packageManager": "pnpm@9.8.0",
   "dependencies": {
     "sst": "3.0.81"
   }

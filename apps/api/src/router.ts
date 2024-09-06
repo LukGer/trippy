@@ -30,6 +30,14 @@ export const appRouter = router({
         })
       )
       .mutation(async (opts) => {
+        const existing = await db.query.users.findFirst({
+          where: eq(users.clerkId, opts.input.clerkId),
+        });
+
+        if (existing) {
+          return;
+        }
+
         await db.insert(users).values({
           email: opts.input.email,
           name: opts.input.name,
