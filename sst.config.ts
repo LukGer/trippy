@@ -15,10 +15,10 @@ export default $config({
     };
   },
   async run() {
-    const { domain, zone } = await import("./packages/infra/dns");
-    const { api } = await import("./packages/infra/api");
-    const { router } = await import("./packages/infra/router");
-    const { secret } = await import("./packages/infra/secret");
+    const { domain, zone } = await import("./infra/dns");
+    const { api } = await import("./infra/api");
+    const { router } = await import("./infra/router");
+    const { secret } = await import("./infra/secret");
 
     return {
       api: api.url,

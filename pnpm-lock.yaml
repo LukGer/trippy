@@ -10,7 +10,7 @@ importers:
     dependencies:
       sst:
         specifier: 3.0.81
-        version: 3.0.81(hono@4.5.11)
+        version: 3.0.81(hono@4.5.11)(valibot@0.30.0)
     devDependencies:
       prettier:
         specifier: ^3.3.3
@@ -19,11 +19,8 @@ importers:
         specifier: ^2.1.1
         version: 2.1.1
 
-  apps/api:
+  packages/api:
     dependencies:
-      '@clerk/backend':
-        specifier: ^1.9.2
-        version: 1.9.2(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       '@hono/clerk-auth':
         specifier: ^2.0.0
         version: 2.0.0(@clerk/backend@1.9.2(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(hono@4.5.11)
@@ -33,6 +30,9 @@ importers:
       '@neondatabase/serverless':
         specifier: ^0.9.4
         version: 0.9.4
+      '@trippy/core':
+        specifier: workspace:*
+        version: link:../core
       '@trpc/server':
         specifier: next
         version: 11.0.0-rc.502
@@ -51,7 +51,10 @@ importers:
     devDependencies:
       '@trippy/tsconfig':
         specifier: workspace:*
-        version: link:../../packages/tsconfig
+        version: link:../tsconfig
+      '@tsconfig/node20':
+        specifier: ^20.1.4
+        version: 20.1.4
       drizzle-kit:
         specifier: ^0.24.0
         version: 0.24.1
@@ -68,7 +71,32 @@ importers:
         specifier: ^3.74.0
         version: 3.75.0
 
-  apps/mobile:
+  packages/core:
+    dependencies:
+      '@neondatabase/serverless':
+        specifier: ^0.9.4
+        version: 0.9.4
+      drizzle-orm:
+        specifier: ^0.33.0
+        version: 0.33.0(@neondatabase/serverless@0.9.4)(@types/pg@8.11.6)(@types/react@18.2.79)(bun-types@1.1.26)(react@18.2.0)
+      ulid:
+        specifier: 2.3.0
+        version: 2.3.0
+      valibot:
+        specifier: 0.30.0
+        version: 0.30.0
+      zod:
+        specifier: 3.23.8
+        version: 3.23.8
+    devDependencies:
+      '@tsconfig/node20':
+        specifier: ^20.1.4
+        version: 20.1.4
+      drizzle-kit:
+        specifier: ^0.24.0
+        version: 0.24.1
+
+  packages/mobile:
     dependencies:
       '@clerk/clerk-expo':
         specifier: ^2.1.1
@@ -230,18 +258,6 @@ importers:
       typescript:
         specifier: ~5.3.3
         version: 5.3.3
-
-  apps/my-app:
-    dependencies:
-      hono:
-        specifier: ^4.5.11
-        version: 4.5.11
-    devDependencies:
-      '@types/bun':
-        specifier: latest
-        version: 1.1.8
-
-  packages/infra: {}
 
   packages/tsconfig: {}
 
@@ -2878,6 +2894,9 @@ packages:
   '@tsconfig/node16@1.0.4':
     resolution: {integrity: sha512-vxhUy4J8lyeyinH7Azl1pdd43GJhZH/tP2weN8TntQblOY+A0XbT8DJk1/oCPuOOyg/Ja757rG0CgHcWC8OfMA==}
 
+  '@tsconfig/node20@20.1.4':
+    resolution: {integrity: sha512-sqgsT69YFeLWf5NtJ4Xq/xAF8p4ZQHlmGW74Nu2tD4+g5fAsposc4ZfaaPixVu4y01BEiDCWLRDCvDM5JOsRxg==}
+
   '@types/babel__core@7.20.5':
     resolution: {integrity: sha512-qoQprZvz5wQFJwMDqeseRXWv3rqMvhgpbXFfVyWhbx9X47POIA6i/+dXefEmZKoAgOaTdaIgNSMqMIU61yRyzA==}
 
@@ -2889,9 +2908,6 @@ packages:
 
   '@types/babel__traverse@7.20.6':
     resolution: {integrity: sha512-r1bzfrm0tomOI8g1SzvCaQHo6Lcv6zu0EA+W2kHrt8dyrHQxGzBBL4kdkzIS+jBMV+EYcMAEAqXqYaLJq5rOZg==}
-
-  '@types/bun@1.1.8':
-    resolution: {integrity: sha512-PIwVFQKPviksiibobyvcWtMvMFMTj91T8dQEh9l1P3Ypr3ZuVn9w7HSr+5mTNrPqD1xpdDLEErzZPU8gqHBu6g==}
 
   '@types/cookie@0.6.0':
     resolution: {integrity: sha512-4Kh9a6B2bQciAhf7FSuMRRkUWecJgJu9nPnx3yzpsfXX/c50REIqpHY4C82bXP90qrLtXtkDxTZosYO3UpOwlA==}
@@ -6937,6 +6953,10 @@ packages:
   ufo@1.5.4:
     resolution: {integrity: sha512-UsUk3byDzKd04EyoZ7U4DOlxQaD14JUKQl6/P7wiX4FNvUfm3XL246n9W5AmqwW5RSFJ27NAuM0iLscAOYUiGQ==}
 
+  ulid@2.3.0:
+    resolution: {integrity: sha512-keqHubrlpvT6G2wH0OEfSW4mquYRcbe/J8NMmveoQOjUqmo+hXtO+ORCpWhdbZ7k72UtY61BL7haGxW6enBnjw==}
+    hasBin: true
+
   unbox-primitive@1.0.2:
     resolution: {integrity: sha512-61pPlCD9h51VoreyJ0BReideM3MDKMKnh6+V9L08331ipq6Q8OFXZYiqP6n/tbHx4s5I9uRhcye6BrbkizkBDw==}
 
@@ -7082,6 +7102,9 @@ packages:
   v8-to-istanbul@9.3.0:
     resolution: {integrity: sha512-kiGUalWN+rgBJ/1OHZsBtU4rXZOfj/7rKQxULKlIzwzQSvMJUUNgPwJEEh7gU6xEVxC0ahoOBvN2YI8GH6FNgA==}
     engines: {node: '>=10.12.0'}
+
+  valibot@0.30.0:
+    resolution: {integrity: sha512-5POBdbSkM+3nvJ6ZlyQHsggisfRtyT4tVTo1EIIShs6qCdXJnyWU5TJ68vr8iTg5zpOLjXLRiBqNx+9zwZz/rA==}
 
   valid-url@1.0.9:
     resolution: {integrity: sha512-QQDsV8OnSf5Uc30CKSwG9lnhMPe6exHtTXLRYX8uMwKENy640pU+2BgBL0LRbDh/eYRahNCS7aewCx0wf3NYVA==}
@@ -10842,6 +10865,8 @@ snapshots:
   '@tsconfig/node16@1.0.4':
     optional: true
 
+  '@tsconfig/node20@20.1.4': {}
+
   '@types/babel__core@7.20.5':
     dependencies:
       '@babel/parser': 7.25.4
@@ -10862,10 +10887,6 @@ snapshots:
   '@types/babel__traverse@7.20.6':
     dependencies:
       '@babel/types': 7.25.4
-
-  '@types/bun@1.1.8':
-    dependencies:
-      bun-types: 1.1.26
 
   '@types/cookie@0.6.0': {}
 
@@ -10909,6 +10930,7 @@ snapshots:
   '@types/node@20.12.14':
     dependencies:
       undici-types: 5.26.5
+    optional: true
 
   '@types/node@22.5.0':
     dependencies:
@@ -10940,6 +10962,7 @@ snapshots:
   '@types/ws@8.5.12':
     dependencies:
       '@types/node': 22.5.0
+    optional: true
 
   '@types/yargs-parser@21.0.3': {}
 
@@ -11353,6 +11376,7 @@ snapshots:
     dependencies:
       '@types/node': 20.12.14
       '@types/ws': 8.5.12
+    optional: true
 
   bytes@3.0.0: {}
 
@@ -14984,7 +15008,7 @@ snapshots:
   sst-linux-x86@3.0.81:
     optional: true
 
-  sst@3.0.81(hono@4.5.11):
+  sst@3.0.81(hono@4.5.11)(valibot@0.30.0):
     dependencies:
       '@aws-sdk/client-lambda': 3.478.0
       aws4fetch: 1.0.20
@@ -14997,6 +15021,7 @@ snapshots:
       sst-linux-arm64: 3.0.81
       sst-linux-x64: 3.0.81
       sst-linux-x86: 3.0.81
+      valibot: 0.30.0
     transitivePeerDependencies:
       - aws-crt
 
@@ -15442,6 +15467,8 @@ snapshots:
 
   ufo@1.5.4: {}
 
+  ulid@2.3.0: {}
+
   unbox-primitive@1.0.2:
     dependencies:
       call-bind: 1.0.7
@@ -15569,6 +15596,8 @@ snapshots:
       '@jridgewell/trace-mapping': 0.3.25
       '@types/istanbul-lib-coverage': 2.0.6
       convert-source-map: 2.0.0
+
+  valibot@0.30.0: {}
 
   valid-url@1.0.9: {}
 
