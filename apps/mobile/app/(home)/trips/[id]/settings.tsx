@@ -5,11 +5,13 @@ import {
   fromDateId,
   toDateId,
 } from "@marceloterreiro/flash-calendar";
+import { useQueryClient } from "@tanstack/react-query";
 import { DbUser } from "@trippy/api";
 import { RouterOutputs } from "@trippy/api/src/router";
+import { getQueryKey } from "@trpc/react-query";
 import dayjs from "dayjs";
 import { Image } from "expo-image";
-import { Stack, useLocalSearchParams } from "expo-router";
+import { router, Stack, useLocalSearchParams } from "expo-router";
 import { SymbolView } from "expo-symbols";
 import { useState } from "react";
 import {
@@ -34,9 +36,22 @@ export default function TripSettingsPage() {
   const params = useLocalSearchParams<{ id: string }>();
   const tripId = params.id;
 
+  const queryClient = useQueryClient();
+
   const { data, isLoading } = trpc.trips.getById.useQuery(tripId);
 
-  const updateTrip = trpc.trips.update.useMutation();
+  const updateTrip = trpc.trips.update.useMutation({
+    onError: (error) => {
+      console.error(error);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: getQueryKey(trpc.trips.getById, tripId, "query"),
+      });
+
+      router.back();
+    },
+  });
 
   const [imageUrl, setImageUrl] = useState(data?.trip?.imageUrl ?? "");
   const [name, setName] = useState(data?.trip?.name);
@@ -59,7 +74,7 @@ export default function TripSettingsPage() {
           title: "Settings",
           headerTintColor: "black",
           headerBackTitle: "Back",
-          headerLeft: () => (
+          headerRight: () => (
             <TouchableOpacity
               onPress={() => {
                 updateTrip.mutate({
@@ -90,6 +105,7 @@ export default function TripSettingsPage() {
                 style={{ flex: 1, textAlign: "right" }}
                 value={name ?? ""}
                 onChangeText={setName}
+                blurOnSubmit
               />
             </View>
             <View style={styles.seperator} />
@@ -261,6 +277,11 @@ function MembersInput({
     );
   });
 
+  const { isLoading, data } = trpc.user.getBySearchString.useQuery({
+    searchString: search,
+    excludedIds: toEdit.map((u) => u.id),
+  });
+
   return (
     <>
       <Modal
@@ -361,6 +382,21 @@ function MembersInput({
           >
             Add members
           </Text>
+
+          {isLoading ? (
+            <ActivityIndicator />
+          ) : (
+            data?.users.map((user) => (
+              <UserListItem
+                key={user.id}
+                user={user}
+                mode="add"
+                action={() => {
+                  setToEdit((prev) => [...prev, user]);
+                }}
+              />
+            ))
+          )}
         </View>
       </Modal>
       <TouchableOpacity style={styles.item} onPress={() => setIsOpen(true)}>

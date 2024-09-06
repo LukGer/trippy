@@ -1,13 +1,15 @@
 import { SPRING } from "@/utils/constants";
 import { trpc } from "@/utils/trpc";
+import { DbTrip } from "@trippy/api";
+import dayjs from "dayjs";
 import { Link, Stack, useLocalSearchParams } from "expo-router";
 import { SymbolView } from "expo-symbols";
 import { useRef, useState } from "react";
 import {
-  ActivityIndicator,
   Pressable,
   ScrollView,
   StatusBar,
+  StyleSheet,
   Text,
   TouchableOpacity,
   useWindowDimensions,
@@ -23,7 +25,7 @@ export default function TripDetailPage() {
   const params = useLocalSearchParams<{ id: string }>();
   const tripId = params.id;
 
-  const { isLoading, data } = trpc.trips.getById.useQuery(tripId);
+  const { data } = trpc.trips.getById.useQuery(tripId);
 
   const [selectedTab, setSelectedTab] = useState(0);
 
@@ -45,6 +47,10 @@ export default function TripDetailPage() {
       content: <Text>Documents</Text>,
     },
   ];
+
+  if (!data?.trip) {
+    return null;
+  }
 
   return (
     <>
@@ -85,15 +91,10 @@ export default function TripDetailPage() {
         contentInsetAdjustmentBehavior="automatic"
         contentContainerStyle={{
           backgroundColor: "#FFF",
-          gap: 20,
           flex: 1,
         }}
       >
-        {isLoading && (
-          <View className="w-full h-full items-center justify-center">
-            <ActivityIndicator size="large" />
-          </View>
-        )}
+        <TripRange trip={data.trip} />
         <TabButtons tabs={tabs} setSelectedTab={setSelectedTab} />
         <View
           style={{
@@ -105,6 +106,23 @@ export default function TripDetailPage() {
         </View>
       </ScrollView>
     </>
+  );
+}
+
+function TripRange({ trip }: { trip: DbTrip }) {
+  return (
+    <View
+      className="flex flex-row gap-2"
+      style={{ paddingHorizontal: 18, paddingVertical: 8 }}
+    >
+      <Text style={styles.smallText}>
+        {dayjs(trip.startDate).format("DD.MM.YYYY")}
+      </Text>
+      <Text style={styles.smallText}>-</Text>
+      <Text style={styles.smallText}>
+        {dayjs(trip.endDate).format("DD.MM.YYYY")}
+      </Text>
+    </View>
   );
 }
 
@@ -199,3 +217,10 @@ function TabButtons({
     </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  smallText: {
+    fontSize: 14,
+    fontWeight: "bold",
+  },
+});

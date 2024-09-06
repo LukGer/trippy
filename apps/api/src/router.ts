@@ -1,5 +1,5 @@
 import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
-import { eq } from "drizzle-orm";
+import { and, eq, like, notInArray, or } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "./db";
 import { trips, tripsToUsers, users } from "./db/schema";
@@ -18,6 +18,28 @@ export const appRouter = router({
           user: await db.query.users.findFirst({
             where: eq(users.clerkId, opts.input.clerkId),
           }),
+        };
+      }),
+    getBySearchString: procedure
+      .input(
+        z.object({
+          searchString: z.string(),
+          excludedIds: z.array(z.string()),
+        })
+      )
+      .query(async (opts) => {
+        const found = await db.query.users.findMany({
+          where: and(
+            or(
+              like(users.name, `%${opts.input.searchString}%`),
+              like(users.email, `%${opts.input.searchString}%`)
+            ),
+            notInArray(users.id, opts.input.excludedIds)
+          ),
+        });
+
+        return {
+          users: found,
         };
       }),
     addUser: procedure
@@ -58,27 +80,25 @@ export const appRouter = router({
         })
       )
       .mutation(async (opts) => {
-        await db.transaction(async (tx) => {
-          const trip = await tx
-            .insert(trips)
-            .values({
-              name: opts.input.name,
-              imageUrl: opts.input.imageUrl,
-              startDate: opts.input.startDate,
-              endDate: opts.input.endDate,
-            })
-            .returning()
-            .execute();
+        const trip = await db
+          .insert(trips)
+          .values({
+            name: opts.input.name,
+            imageUrl: opts.input.imageUrl,
+            startDate: opts.input.startDate,
+            endDate: opts.input.endDate,
+          })
+          .returning()
+          .execute();
 
-          opts.input.memberIds.forEach((memberId) => {
-            tx.insert(tripsToUsers)
-              .values({
-                tripId: trip[0].id,
-                userId: memberId,
-              })
-              .onConflictDoNothing()
-              .execute();
-          });
+        opts.input.memberIds.forEach((memberId) => {
+          db.insert(tripsToUsers)
+            .values({
+              tripId: trip[0].id,
+              userId: memberId,
+            })
+            .onConflictDoNothing()
+            .execute();
         });
       }),
     update: procedure
@@ -93,32 +113,30 @@ export const appRouter = router({
         })
       )
       .mutation(async (opts) => {
-        await db.transaction(async (tx) => {
-          await tx
-            .update(trips)
-            .set({
-              name: opts.input.name,
-              imageUrl: opts.input.imageUrl,
-              startDate: opts.input.startDate,
-              endDate: opts.input.endDate,
+        await db
+          .update(trips)
+          .set({
+            name: opts.input.name,
+            imageUrl: opts.input.imageUrl,
+            startDate: opts.input.startDate,
+            endDate: opts.input.endDate,
+          })
+          .where(eq(trips.id, opts.input.id))
+          .execute();
+
+        await db
+          .delete(tripsToUsers)
+          .where(eq(tripsToUsers.tripId, opts.input.id))
+          .execute();
+
+        opts.input.memberIds.forEach((memberId) => {
+          db.insert(tripsToUsers)
+            .values({
+              tripId: opts.input.id,
+              userId: memberId,
             })
-            .where(eq(trips.id, opts.input.id))
+            .onConflictDoNothing()
             .execute();
-
-          await tx
-            .delete(tripsToUsers)
-            .where(eq(tripsToUsers.tripId, opts.input.id))
-            .execute();
-
-          opts.input.memberIds.forEach((memberId) => {
-            tx.insert(tripsToUsers)
-              .values({
-                tripId: opts.input.id,
-                userId: memberId,
-              })
-              .onConflictDoNothing()
-              .execute();
-          });
         });
       }),
     getById: procedure.input(z.string()).query(async (opts) => {

@@ -13,6 +13,7 @@ import { ReactElement, useContext } from "react";
 import {
   ActivityIndicator,
   Alert,
+  RefreshControl,
   ScrollView,
   StatusBar,
   Text,
@@ -26,7 +27,7 @@ type Trips = RouterOutputs["trips"]["getTripsByUserId"]["trips"];
 export default function HomePage() {
   const user = useContext(UserContext);
 
-  const { isLoading, data } = trpc.trips.getTripsByUserId.useQuery({
+  const { isLoading, data, refetch } = trpc.trips.getTripsByUserId.useQuery({
     userId: user.id,
   });
 
@@ -69,6 +70,9 @@ export default function HomePage() {
           paddingTop: 20,
           gap: 20,
         }}
+        refreshControl={
+          <RefreshControl refreshing={isLoading} onRefresh={() => refetch()} />
+        }
       >
         {isLoading && (
           <View className="w-full h-full items-center justify-center">

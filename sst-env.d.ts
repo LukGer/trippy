@@ -15,6 +15,15 @@ declare module "sst" {
       "type": "sst.sst.Secret"
       "value": string
     }
+    "router": {
+      "type": "sst.aws.Router"
+      "url": string
+    }
+    "trpc": {
+      "name": string
+      "type": "sst.aws.Function"
+      "url": string
+    }
   }
 }
 export {}

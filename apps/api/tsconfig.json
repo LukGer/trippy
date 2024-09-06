@@ -8,6 +8,6 @@
       "@/*": ["src/*"]
     }
   },
-  "include": ["src/*", "sst-env.d.ts"],
+  "include": ["src/*", "*.ts", "sst-env.d.ts"],
   "exclude": ["node_modules", "dist"]
 }

@@ -25,7 +25,11 @@ export default function HomeLayout() {
   }
 
   if (!data?.user) {
-    return <Redirect href="/login" />;
+    return (
+      <View style={{ flex: 1 }}>
+        <Text>No user found</Text>
+      </View>
+    );
   }
 
   if (isError) {
