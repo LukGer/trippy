@@ -1,22 +1,35 @@
-// Learn more https://docs.expo.io/guides/customizing-metro
 const { getDefaultConfig } = require("expo/metro-config");
 const { withNativeWind } = require("nativewind/metro");
 const path = require("path");
 
-// Find the workspace root, this can be replaced with `find-yarn-workspace-root`
-const workspaceRoot = path.resolve(__dirname, "../..");
 const projectRoot = __dirname;
+const monorepoRoot = path.resolve(projectRoot, "../..");
 
 const config = getDefaultConfig(projectRoot);
 
-// 1. Watch all files within the monorepo
-config.watchFolders = [workspaceRoot];
-// 2. Let Metro know where to resolve packages, and in what order
+// Only list the packages within your monorepo that your app uses. No need to add anything else.
+// If your monorepo tooling can give you the list of monorepo workspaces linked
+// in your app workspace, you can automate this list instead of hardcoding them.
+const monorepoPackages = {
+  "@trippy/core": path.resolve(monorepoRoot, "packages/core"),
+  "@trippy/api": path.resolve(monorepoRoot, "packages/api"),
+};
+
+// 1. Watch the local app directory, and only the shared packages (limiting the scope and speeding it up)
+// Note how we change this from `monorepoRoot` to `projectRoot`. This is part of the optimization!
+config.watchFolders = [projectRoot, ...Object.values(monorepoPackages)];
+
+// Add the monorepo workspaces as `extraNodeModules` to Metro.
+// If your monorepo tooling creates workspace symlinks in the `node_modules` directory,
+// you can either add symlink support to Metro or set the `extraNodeModules` to avoid the symlinks.
+// See: https://metrobundler.dev/docs/configuration/#extranodemodules
+config.resolver.extraNodeModules = monorepoPackages;
+config.resolver.unstable_enableSymlinks = true;
+
+// 2. Let Metro know where to resolve packages and in what order
 config.resolver.nodeModulesPaths = [
   path.resolve(projectRoot, "node_modules"),
-  path.resolve(workspaceRoot, "node_modules"),
+  path.resolve(monorepoRoot, "node_modules"),
 ];
-// 3. Force Metro to resolve (sub)dependencies only from the `nodeModulesPaths`
-config.resolver.disableHierarchicalLookup = true;
 
 module.exports = withNativeWind(config, { input: "./global.css" });

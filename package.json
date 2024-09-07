@@ -2,10 +2,10 @@
   "name": "trippy-root",
   "private": true,
   "scripts": {
-    "build:api": "pnpm run --filter=@trippy/api build",
-    "build:app": "pnpm run --filter=@trippy/mobile build",
-    "db:generate": "pnpm run --filter=@trippy/api db:generate",
-    "db:push": "pnpm run --filter=@trippy/api db:push",
+    "build:api": "bun run --cwd packages/api build",
+    "build:app": "bun run --cwd packages/mobile build",
+    "db:generate": "bun run --cwd packages/api db:generate",
+    "db:push": "bun run --cwd packages/api db:push",
     "dev": "turbo run dev",
     "sso": "aws sso login --sso-session=lukger"
   },
@@ -13,8 +13,16 @@
     "prettier": "^3.3.3",
     "turbo": "^2.1.1"
   },
-  "packageManager": "pnpm@9.8.0",
+  "packageManager": "bun@1.1.26",
   "dependencies": {
     "sst": "3.0.81"
-  }
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "trustedDependencies": [
+    "@clerk/shared",
+    "browser-tabs-lock",
+    "core-js"
+  ]
 }

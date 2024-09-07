@@ -8,5 +8,5 @@
     }
   },
   "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"],
-  "references": [{ "path": "../api" }]
+  "references": [{ "path": "../api" }, { "path": "../core" }]
 }

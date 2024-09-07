@@ -3,14 +3,14 @@ import { ExpoConfig } from "@expo/config-types";
 const variant = process.env.APP_VARIANT ?? "dev";
 
 export default (): ExpoConfig => ({
-  name: `trippy-${variant}`,
+  name: variant === "prd" ? "Trippy" : `Trippy (${variant})`,
   slug: "trippy",
   version: "1.0.0",
   platforms: ["ios"],
   orientation: "portrait",
   icon: `./assets/images/icon_${variant}.png`,
-  scheme: "trippy-app",
-  userInterfaceStyle: "automatic",
+  scheme: `trippy-${variant}`,
+  userInterfaceStyle: "light",
   splash: {
     image: "./assets/images/splash.png",
     resizeMode: "contain",
