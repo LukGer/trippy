@@ -1,5 +1,6 @@
 import { SPRING } from "@/src/utils/constants";
 import { trpc } from "@/src/utils/trpc";
+import { RouterOutputs } from "@trippy/api";
 import dayjs from "dayjs";
 import { Link, Stack, useLocalSearchParams } from "expo-router";
 import { SymbolView } from "expo-symbols";
@@ -19,11 +20,18 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
-import { DbTrip } from "../../../../../../packages/api";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+type Trip = RouterOutputs["trips"]["getById"];
 
 export default function TripDetailPage() {
+  const { height: windowHeight } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+
   const params = useLocalSearchParams<{ id: string }>();
   const tripId = params.id;
+
+  const contentHeight = windowHeight - 48 - insets.top - insets.bottom - 24;
 
   const { data } = trpc.trips.getById.useQuery(tripId);
 
@@ -48,7 +56,7 @@ export default function TripDetailPage() {
     },
   ];
 
-  if (!data?.trip) {
+  if (!data) {
     return null;
   }
 
@@ -57,7 +65,7 @@ export default function TripDetailPage() {
       <StatusBar barStyle="dark-content" />
       <Stack.Screen
         options={{
-          title: data?.trip?.name ?? "",
+          title: data?.name ?? "",
           headerLargeTitle: true,
           headerTransparent: true,
           headerTintColor: "black",
@@ -91,15 +99,14 @@ export default function TripDetailPage() {
         contentInsetAdjustmentBehavior="automatic"
         contentContainerStyle={{
           backgroundColor: "#FFF",
-          flex: 1,
         }}
       >
-        <TripRange trip={data.trip} />
+        <TripRange trip={data} />
         <TabButtons tabs={tabs} setSelectedTab={setSelectedTab} />
         <View
           style={{
             paddingHorizontal: 18,
-            flex: 1,
+            height: contentHeight,
           }}
         >
           {tabs[selectedTab].content}
@@ -109,11 +116,11 @@ export default function TripDetailPage() {
   );
 }
 
-function TripRange({ trip }: { trip: DbTrip }) {
+function TripRange({ trip }: { trip: Trip }) {
   return (
     <View
-      className="flex flex-row gap-2"
-      style={{ paddingHorizontal: 18, paddingVertical: 8 }}
+      className="flex flex-row gap-2 h-6"
+      style={{ paddingHorizontal: 18, alignItems: "center" }}
     >
       <Text style={styles.smallText}>
         {dayjs(trip.startDate).format("DD.MM.YYYY")}
@@ -176,6 +183,8 @@ function TabButtons({
       showsHorizontalScrollIndicator={false}
       contentContainerStyle={{
         paddingHorizontal: 18,
+        height: 48,
+        alignItems: "center",
       }}
       style={{
         flexGrow: 0,
@@ -191,7 +200,7 @@ function TabButtons({
           }}
           key={tab.title + index}
           style={{
-            padding: 20,
+            paddingHorizontal: 20,
           }}
           onPress={(e) => {
             e.currentTarget.measure(measure);

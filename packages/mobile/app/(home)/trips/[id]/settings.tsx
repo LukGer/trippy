@@ -1,3 +1,4 @@
+import { UserContext } from "@/src/context/UserContext";
 import { SPRING } from "@/src/utils/constants";
 import { trpc } from "@/src/utils/trpc";
 import {
@@ -6,15 +7,18 @@ import {
   toDateId,
 } from "@marceloterreiro/flash-calendar";
 import { useQueryClient } from "@tanstack/react-query";
+import { RouterOutputs } from "@trippy/api";
 import { getQueryKey } from "@trpc/react-query";
 import dayjs from "dayjs";
 import { Image } from "expo-image";
 import { router, Stack, useLocalSearchParams } from "expo-router";
 import { SymbolView } from "expo-symbols";
-import { useState } from "react";
+import { Fragment, useContext, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Modal,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -22,21 +26,22 @@ import {
   View,
 } from "react-native";
 import Animated, {
-  FadeInUp,
-  FadeOutUp,
+  FadeOut,
+  LinearTransition,
   useAnimatedStyle,
   withSpring,
 } from "react-native-reanimated";
-import { DbUser } from "../../../../../../packages/api";
-import { RouterOutputs } from "../../../../../../packages/api/src/router";
+import { useDebounce } from "use-debounce";
 
-type Trip = RouterOutputs["trips"]["getById"]["trip"];
+type Trip = RouterOutputs["trips"]["getById"];
+type Member = Trip["members"][number];
 
 export default function TripSettingsPage() {
   const params = useLocalSearchParams<{ id: string }>();
   const tripId = params.id;
 
   const queryClient = useQueryClient();
+  const user = useContext(UserContext);
 
   const { data, isLoading } = trpc.trips.getById.useQuery(tripId);
 
@@ -53,17 +58,20 @@ export default function TripSettingsPage() {
     },
   });
 
-  const [imageUrl, setImageUrl] = useState(data?.trip?.imageUrl ?? "");
-  const [name, setName] = useState(data?.trip?.name);
+  const removeMemberMutation = trpc.trips.removeMember.useMutation({
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: getQueryKey(trpc.trips.getById, tripId, "query"),
+      });
+    },
+  });
+
+  const [imageUrl, setImageUrl] = useState(data?.imageUrl ?? "");
+  const [name, setName] = useState(data?.name);
   const [startDate, setStartDate] = useState(
-    toDateId(data?.trip?.startDate ?? new Date())
+    toDateId(data?.startDate ?? new Date())
   );
-  const [endDate, setEndDate] = useState(
-    toDateId(data?.trip?.endDate ?? new Date())
-  );
-  const [members, setMembers] = useState(
-    data?.trip.tripsToUsers.map((t) => t.user) ?? []
-  );
+  const [endDate, setEndDate] = useState(toDateId(data?.endDate ?? new Date()));
 
   if (isLoading) return null;
 
@@ -82,7 +90,6 @@ export default function TripSettingsPage() {
                   name: name!,
                   startDate: fromDateId(startDate),
                   endDate: fromDateId(endDate),
-                  memberIds: members.map((m) => m.id),
                 });
               }}
             >
@@ -91,10 +98,19 @@ export default function TripSettingsPage() {
           ),
         }}
       />
-      {!data?.trip ? (
+      {!data ? (
         <ActivityIndicator />
       ) : (
-        <View className="flex flex-col px-4 pt-4 gap-6 items-center">
+        <ScrollView
+          style={{
+            paddingHorizontal: 16,
+            paddingTop: 16,
+          }}
+          contentContainerStyle={{
+            gap: 24,
+            alignItems: "center",
+          }}
+        >
           <TripImage imageUrl={imageUrl} setImageUrl={setImageUrl} />
 
           <View style={styles.container}>
@@ -116,10 +132,74 @@ export default function TripSettingsPage() {
             />
             <View style={styles.seperator} />
             <DateInput label="End date" date={endDate} setDate={setEndDate} />
-            <View style={styles.seperator} />
-            <MembersInput members={members} setMembers={setMembers} />
           </View>
-        </View>
+
+          <Text className="self-start font-bold text-gray-500">Members</Text>
+
+          <View style={styles.container}>
+            <AddMemberButton tripId={tripId} />
+
+            <View style={styles.seperator} />
+
+            {data.members.map((member, i) => (
+              <Fragment key={member.id}>
+                <UserListItem
+                  user={member}
+                  mode={member.id === user.id ? "leave" : "remove"}
+                  action={
+                    member.id === user.id
+                      ? () => {
+                          Alert.alert(
+                            "Leave trip",
+                            "Are you sure you want to leave?",
+                            [
+                              {
+                                text: "Cancel",
+                                style: "cancel",
+                              },
+                              {
+                                text: "Leave",
+                                style: "destructive",
+                                onPress: () => {
+                                  // TODO: add leave mutation
+
+                                  router.replace("/(home)/");
+                                },
+                              },
+                            ]
+                          );
+                        }
+                      : () => {
+                          Alert.alert(
+                            "Remove member",
+                            `Remove ${member.name}?`,
+                            [
+                              {
+                                text: "Cancel",
+                                style: "cancel",
+                              },
+                              {
+                                text: "Remove",
+                                style: "destructive",
+                                onPress: () => {
+                                  removeMemberMutation.mutate({
+                                    tripId,
+                                    userId: member.id,
+                                  });
+                                },
+                              },
+                            ]
+                          );
+                        }
+                  }
+                />
+                {i !== data.members.length - 1 && (
+                  <View style={styles.seperator} />
+                )}
+              </Fragment>
+            ))}
+          </View>
+        </ScrollView>
       )}
     </>
   );
@@ -258,28 +338,25 @@ function DateInput({
   );
 }
 
-function MembersInput({
-  members,
-  setMembers,
-}: {
-  members: DbUser[];
-  setMembers: (members: DbUser[]) => void;
-}) {
-  const [toEdit, setToEdit] = useState(members);
+function AddMemberButton({ tripId }: { tripId: string }) {
+  const queryClient = useQueryClient();
+
+  const addMemberMutation = trpc.trips.addMember.useMutation({
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: getQueryKey(trpc.trips.getById, tripId, "query"),
+      });
+    },
+  });
 
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
 
-  const filtered = toEdit.filter((user) => {
-    return (
-      user.name.toLowerCase().includes(search.toLowerCase()) ||
-      user.email?.toLowerCase().includes(search.toLowerCase())
-    );
-  });
+  const [debouncedSearch] = useDebounce(search, 300);
 
-  const { isLoading, data } = trpc.user.getBySearchString.useQuery({
-    searchString: search,
-    excludedIds: toEdit.map((u) => u.id),
+  const { isLoading, data } = trpc.users.getBySearchString.useQuery({
+    search: debouncedSearch,
+    tripId,
   });
 
   return (
@@ -325,15 +402,6 @@ function MembersInput({
             <Text style={{ fontWeight: "bold" }}>Members</Text>
 
             <View className="flex-1"></View>
-
-            <TouchableOpacity
-              onPress={() => {
-                setMembers(toEdit);
-                setIsOpen(false);
-              }}
-            >
-              <Text style={{ color: "#007AFF", fontWeight: "bold" }}>Save</Text>
-            </TouchableOpacity>
           </View>
 
           <View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -361,38 +429,22 @@ function MembersInput({
               color: "rgba(60, 60, 67, 0.6)",
             }}
           >
-            Current members
-          </Text>
-          {filtered.map((user) => (
-            <UserListItem
-              key={user.id}
-              user={user}
-              mode="remove"
-              action={() => {
-                setToEdit((prev) => prev.filter((u) => u.id !== user.id));
-              }}
-            />
-          ))}
-
-          <Text
-            style={{
-              fontWeight: "bold",
-              color: "rgba(60, 60, 67, 0.6)",
-            }}
-          >
             Add members
           </Text>
 
           {isLoading ? (
             <ActivityIndicator />
           ) : (
-            data?.users.map((user) => (
+            data?.map((user) => (
               <UserListItem
                 key={user.id}
                 user={user}
                 mode="add"
                 action={() => {
-                  setToEdit((prev) => [...prev, user]);
+                  addMemberMutation.mutate({
+                    tripId,
+                    userId: user.id,
+                  });
                 }}
               />
             ))
@@ -400,17 +452,24 @@ function MembersInput({
         </View>
       </Modal>
       <TouchableOpacity style={styles.item} onPress={() => setIsOpen(true)}>
-        <Text style={styles.itemTitle}>Members</Text>
+        <View
+          style={[
+            styles.userImg,
+            {
+              justifyContent: "center",
+              alignItems: "center",
+            },
+          ]}
+        >
+          <SymbolView
+            name="person.badge.plus"
+            size={24}
+            tintColor="#6b7280"
+            resizeMode="scaleAspectFit"
+          />
+        </View>
 
-        <View className="flex-1"></View>
-
-        <Text>{members.length}</Text>
-
-        <SymbolView
-          name="chevron.right"
-          size={16}
-          resizeMode="scaleAspectFit"
-        />
+        <Text className="font-bold text-gray-500">Add new member</Text>
       </TouchableOpacity>
     </>
   );
@@ -421,14 +480,14 @@ function UserListItem({
   mode,
   action,
 }: {
-  user: DbUser;
-  mode: "add" | "remove";
+  user: Member;
+  mode: "add" | "remove" | "leave";
   action: () => void;
 }) {
   return (
     <Animated.View
-      exiting={FadeOutUp}
-      entering={FadeInUp}
+      layout={LinearTransition.duration(300)}
+      exiting={FadeOut.duration(300)}
       style={styles.userItem}
     >
       <Image source={{ uri: user.pictureUrl ?? "" }} style={styles.userImg} />
@@ -438,7 +497,13 @@ function UserListItem({
 
       <TouchableOpacity onPress={() => action()}>
         <SymbolView
-          name={mode === "add" ? "plus.circle.fill" : "x.circle.fill"}
+          name={
+            mode === "add"
+              ? "plus.circle.fill"
+              : mode === "remove"
+                ? "xmark.circle.fill"
+                : "door.right.hand.open"
+          }
           resizeMode="scaleAspectFit"
           size={20}
         />
@@ -471,10 +536,11 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   userItem: {
+    width: "100%",
     backgroundColor: "white",
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 12,
+    paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 10,
     borderCurve: "continuous",

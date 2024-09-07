@@ -21,7 +21,7 @@ app.use(
   trpcServer({
     router: appRouter,
     onError: (opts) => {
-      console.error("TRPC ERROR", opts.ctx.userId);
+      console.error("TRPC ERROR", opts.error.message);
     },
     createContext: (opts, c) => {
       const auth = getAuth(c);

@@ -24,12 +24,8 @@ export default function HomeLayout() {
     return <ActivityIndicator />;
   }
 
-  if (!data?.user) {
-    return (
-      <View style={{ flex: 1 }}>
-        <Text>No user found</Text>
-      </View>
-    );
+  if (!data) {
+    return <Redirect href="/login" />;
   }
 
   if (isError) {
@@ -42,7 +38,7 @@ export default function HomeLayout() {
   }
 
   return (
-    <UserContext.Provider value={data.user}>
+    <UserContext.Provider value={data}>
       <Stack />
     </UserContext.Provider>
   );

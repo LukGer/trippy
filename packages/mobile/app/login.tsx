@@ -26,7 +26,7 @@ export default function LoginPage() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const { isLoaded, isSignedIn, user } = useUser();
   const google = useOAuth({ strategy: "oauth_google" });
-  const addUserMutation = trpc.users.addUser.useMutation();
+  const createUserMutation = trpc.users.create.useMutation();
 
   const onGooglePressed = useCallback(async () => {
     setGoogleLoading(true);
@@ -51,7 +51,7 @@ export default function LoginPage() {
     if (!isLoaded) return;
 
     if (isSignedIn) {
-      addUserMutation.mutate({
+      createUserMutation.mutate({
         email: user.emailAddresses[0].emailAddress,
         name: user.fullName ?? user.username ?? "",
         clerkId: user.id,

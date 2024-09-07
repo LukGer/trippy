@@ -13,12 +13,11 @@ export const usersRouter = router({
   getBySearchString: procedure
     .input(
       z.object({
-        searchString: z.string(),
+        search: z.string(),
+        tripId: z.string(),
       })
     )
-    .query(
-      async (opts) => await User.fromSearchString(opts.input.searchString)
-    ),
+    .query(async (opts) => await User.fromSearchString(opts.input)),
   create: procedure
     .input(
       z.object({

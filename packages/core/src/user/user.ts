@@ -1,9 +1,9 @@
-import { eq, like, or } from "drizzle-orm";
+import { and, eq, like, notExists, or } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "../drizzle";
 import { fn } from "../util/fn";
 import { createID } from "../util/id";
-import { userTable } from "./user.sql";
+import { usersToTripsTable, userTable } from "./user.sql";
 
 export module User {
   export const Info = z.object({
@@ -13,6 +13,8 @@ export module User {
     clerkId: z.string(),
     pictureUrl: z.string().nullable(),
   });
+
+  export type Info = z.infer<typeof Info>;
 
   export const create = fn(
     z.object({
@@ -62,17 +64,35 @@ export module User {
       .then((rows) => rows.map(serialize).at(0))
   );
 
-  export const fromSearchString = fn(z.string(), async (search) =>
-    db
-      .select()
-      .from(userTable)
-      .where(
-        or(
-          like(userTable.name, `%${search}%`),
-          like(userTable.email, `%${search}%`)
+  export const fromSearchString = fn(
+    z.object({
+      search: z.string(),
+      tripId: z.string(),
+    }),
+    async (input) =>
+      db
+        .select()
+        .from(userTable)
+        .where(
+          and(
+            or(
+              like(userTable.name, `%${input.search}%`),
+              like(userTable.email, `%${input.search}%`)
+            ),
+            notExists(
+              db
+                .select()
+                .from(usersToTripsTable)
+                .where(
+                  and(
+                    eq(usersToTripsTable.userId, userTable.id),
+                    eq(usersToTripsTable.tripId, input.tripId)
+                  )
+                )
+            )
+          )
         )
-      )
-      .then((rows) => rows.map(serialize))
+        .then((rows) => rows.map(serialize))
   );
 
   function serialize(

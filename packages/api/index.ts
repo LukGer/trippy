@@ -1,2 +1,1 @@
-export * from "./src/db/schema";
-export { AppRouter } from "./src/router";
+export type { AppRouter, RouterInputs, RouterOutputs } from "./src/router";

@@ -1,22 +1,31 @@
 CREATE TABLE IF NOT EXISTS "messages" (
-	"id" uuid PRIMARY KEY NOT NULL,
-	"trip_id" uuid,
-	"user_id" uuid,
-	"type" integer,
+	"id" char(30) PRIMARY KEY NOT NULL,
+	"trip_id" char(30) NOT NULL,
+	"user_id" char(30) NOT NULL,
 	"content" text,
 	"created_at" timestamp
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "trip_to_user" (
-	"trip_id" uuid,
-	"user_id" uuid,
-	"is_admin" boolean
+CREATE TABLE IF NOT EXISTS "trips" (
+	"id" char(30) PRIMARY KEY NOT NULL,
+	"name" text NOT NULL,
+	"image_url" text,
+	"start_date" timestamp NOT NULL,
+	"end_date" timestamp NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "trips" (
-	"id" uuid PRIMARY KEY NOT NULL,
-	"name" text,
-	"image_url" text
+CREATE TABLE IF NOT EXISTS "users" (
+	"id" char(30) PRIMARY KEY NOT NULL,
+	"email" text NOT NULL,
+	"name" text NOT NULL,
+	"clerk_id" text NOT NULL,
+	"picture_url" text
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "trip_to_user" (
+	"trip_id" char(30) NOT NULL,
+	"user_id" char(30) NOT NULL,
+	"is_admin" boolean
 );
 --> statement-breakpoint
 DO $$ BEGIN

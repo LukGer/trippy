@@ -2,6 +2,7 @@ import { UserContext } from "@/src/context/UserContext";
 import { trpc } from "@/src/utils/trpc";
 import { Canvas, LinearGradient, Rect } from "@shopify/react-native-skia";
 import { useQueryClient } from "@tanstack/react-query";
+import { RouterOutputs } from "@trippy/api";
 import { getQueryKey } from "@trpc/react-query";
 import dayjs from "dayjs";
 import { Image } from "expo-image";
@@ -19,17 +20,15 @@ import {
   View,
 } from "react-native";
 import * as Menu from "zeego/context-menu";
-import { DbUser } from "../../../../packages/api";
-import { RouterOutputs } from "../../../../packages/api/src/router";
 
-type Trips = RouterOutputs["trips"]["getTripsByUserId"]["trips"];
+type Trips = RouterOutputs["trips"]["getTripsByUserId"];
 
 export default function HomePage() {
   const user = useContext(UserContext);
 
-  const { isLoading, data, refetch } = trpc.trips.getTripsByUserId.useQuery({
-    userId: user.id,
-  });
+  const { isLoading, data, refetch } = trpc.trips.getTripsByUserId.useQuery(
+    user.id
+  );
 
   return (
     <>
@@ -80,7 +79,7 @@ export default function HomePage() {
           </View>
         )}
 
-        {data && <TripList trips={data.trips} />}
+        {data && <TripList trips={data} />}
       </ScrollView>
     </>
   );
@@ -156,8 +155,6 @@ const URGENCY_THRESHOLD = 7;
 
 function TripCard({ trip }: { trip: Trips[number] }) {
   const queryClient = useQueryClient();
-
-  const members = trip.tripsToUsers.map((tripToUser) => tripToUser.user);
 
   const isUrgent =
     dayjs(trip.startDate).diff(dayjs(), "days") < URGENCY_THRESHOLD;
@@ -237,7 +234,7 @@ function TripCard({ trip }: { trip: Trips[number] }) {
 
             <View className="flex-1"></View>
 
-            <MembersList members={members} />
+            <MembersList members={trip.members} />
           </View>
         </View>
       </TouchableOpacity>
@@ -247,7 +244,7 @@ function TripCard({ trip }: { trip: Trips[number] }) {
 
 const MAX_CIRCLES = 3;
 
-function MembersList({ members }: { members: DbUser[] }) {
+function MembersList({ members }: { members: Trips[number]["members"] }) {
   const visibleMembers = members.slice(0, MAX_CIRCLES);
 
   const remainingMembers = members.length - MAX_CIRCLES;

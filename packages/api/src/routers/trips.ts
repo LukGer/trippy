@@ -23,7 +23,6 @@ export const tripsRouter = router({
         imageUrl: z.optional(z.string()),
         startDate: z.date(),
         endDate: z.date(),
-        memberIds: z.array(z.string()),
       })
     )
     .mutation(async (opts) => await Trip.update(opts.input)),
@@ -34,11 +33,27 @@ export const tripsRouter = router({
       throw new TRPCError({ code: "NOT_FOUND", message: "Trip not found" });
     }
 
-    return {
-      trip,
-    };
+    return trip;
   }),
   getTripsByUserId: procedure
     .input(z.string())
     .query(async (opts) => await Trip.fromMemberId(opts.input)),
+
+  addMember: procedure
+    .input(
+      z.object({
+        tripId: z.string(),
+        userId: z.string(),
+      })
+    )
+    .mutation(async (opts) => await Trip.addMember(opts.input)),
+
+  removeMember: procedure
+    .input(
+      z.object({
+        tripId: z.string(),
+        userId: z.string(),
+      })
+    )
+    .mutation(async (opts) => await Trip.removeMember(opts.input)),
 });
