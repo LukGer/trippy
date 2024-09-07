@@ -19,7 +19,7 @@ export default (): ExpoConfig => ({
   ios: {
     bundleIdentifier: `dev.lukger.trippy.${variant}`,
   },
-  plugins: ["expo-router"],
+  plugins: ["expo-router", "expo-font"],
   experiments: {
     typedRoutes: true,
   },
