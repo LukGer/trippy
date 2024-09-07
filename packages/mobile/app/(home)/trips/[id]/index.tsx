@@ -31,7 +31,7 @@ export default function TripDetailPage() {
   const params = useLocalSearchParams<{ id: string }>();
   const tripId = params.id;
 
-  const contentHeight = windowHeight - 48 - insets.top - insets.bottom - 24;
+  const contentHeight = windowHeight - 48 - insets.top - insets.bottom - 40;
 
   const { data } = trpc.trips.getById.useQuery(tripId);
 
@@ -68,12 +68,10 @@ export default function TripDetailPage() {
           title: data?.name ?? "",
           headerLargeTitle: true,
           headerTransparent: true,
-          headerTintColor: "black",
+          headerTintColor: "#000",
           headerBlurEffect: "systemUltraThinMaterial",
           headerBackTitle: "Home",
-          headerStyle: {
-            backgroundColor: "#FFF",
-          },
+          headerLargeTitleShadowVisible: false,
 
           headerRight: () => (
             <Link

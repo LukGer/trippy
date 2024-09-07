@@ -12,10 +12,10 @@ export const userTable = pgTable("users", {
 
 export const usersToTripsTable = pgTable("trip_to_user", {
   tripId: ulid("trip_id")
-    .references(() => tripTable.id)
+    .references(() => tripTable.id, { onDelete: "cascade" })
     .notNull(),
   userId: ulid("user_id")
-    .references(() => userTable.id)
+    .references(() => userTable.id, { onDelete: "cascade" })
     .notNull(),
   isAdmin: boolean("is_admin"),
 });

@@ -51,18 +51,26 @@ export default function TripSettingsPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: getQueryKey(trpc.trips.getById, tripId, "query"),
+        queryKey: getQueryKey(trpc.trips),
       });
-
-      router.back();
     },
   });
 
   const removeMemberMutation = trpc.trips.removeMember.useMutation({
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: getQueryKey(trpc.trips.getById, tripId, "query"),
+        queryKey: getQueryKey(trpc.trips),
       });
+    },
+  });
+
+  const leaveTripMutation = trpc.trips.leaveTrip.useMutation({
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: getQueryKey(trpc.trips),
+      });
+
+      router.replace("/(home)/");
     },
   });
 
@@ -87,7 +95,7 @@ export default function TripSettingsPage() {
               onPress={() => {
                 updateTrip.mutate({
                   id: tripId,
-                  name: name!,
+                  name: name ?? "",
                   startDate: fromDateId(startDate),
                   endDate: fromDateId(endDate),
                 });
@@ -161,9 +169,10 @@ export default function TripSettingsPage() {
                                 text: "Leave",
                                 style: "destructive",
                                 onPress: () => {
-                                  // TODO: add leave mutation
-
-                                  router.replace("/(home)/");
+                                  leaveTripMutation.mutate({
+                                    tripId,
+                                    userId: user.id,
+                                  });
                                 },
                               },
                             ]

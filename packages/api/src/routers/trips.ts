@@ -25,7 +25,9 @@ export const tripsRouter = router({
         endDate: z.date(),
       })
     )
-    .mutation(async (opts) => await Trip.update(opts.input)),
+    .mutation(
+      async (opts) => await Trip.update({ ...opts.input, members: [] })
+    ),
   getById: procedure.input(z.string()).query(async (opts) => {
     const trip = await Trip.fromId(opts.input);
 
@@ -56,4 +58,13 @@ export const tripsRouter = router({
       })
     )
     .mutation(async (opts) => await Trip.removeMember(opts.input)),
+
+  leaveTrip: procedure
+    .input(
+      z.object({
+        tripId: z.string(),
+        userId: z.string(),
+      })
+    )
+    .mutation(async (opts) => await Trip.leaveTrip(opts.input)),
 });

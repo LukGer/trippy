@@ -177,4 +177,61 @@ export namespace Trip {
         .execute();
     }
   );
+
+  export const leaveTrip = fn(
+    z.object({ tripId: z.string(), userId: z.string() }),
+    async (input) => {
+      const tripMembers = await db
+        .select()
+        .from(usersToTripsTable)
+        .where(eq(usersToTripsTable.tripId, input.tripId));
+
+      const leavingUser = tripMembers.find(
+        (member) => member.userId === input.userId
+      );
+
+      if (!leavingUser) {
+        throw new Error("User is not a member of this trip");
+      }
+
+      if (leavingUser.isAdmin) {
+        // If the user is an admin, find another member to be the admin
+        const newAdmin = tripMembers.find(
+          (member) => member.userId !== input.userId
+        );
+
+        if (!newAdmin) {
+          // If there are no other members, delete the trip
+          await db
+            .delete(tripTable)
+            .where(eq(tripTable.id, input.tripId))
+            .execute();
+
+          return;
+        }
+
+        // Update the new admin
+        await db
+          .update(usersToTripsTable)
+          .set({ isAdmin: true })
+          .where(
+            and(
+              eq(usersToTripsTable.tripId, input.tripId),
+              eq(usersToTripsTable.userId, newAdmin.userId)
+            )
+          );
+      }
+
+      // Remove the user from the trip
+      await db
+        .delete(usersToTripsTable)
+        .where(
+          and(
+            eq(usersToTripsTable.tripId, input.tripId),
+            eq(usersToTripsTable.userId, input.userId)
+          )
+        )
+        .execute();
+    }
+  );
 }

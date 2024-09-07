@@ -40,9 +40,6 @@ export default function HomePage() {
           headerBlurEffect: "systemUltraThinMaterial",
           headerTransparent: true,
           headerTintColor: "black",
-          headerStyle: {
-            backgroundColor: "#FFF",
-          },
           contentStyle: {
             backgroundColor: "#FFF",
           },
