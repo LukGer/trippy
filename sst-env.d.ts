@@ -15,6 +15,10 @@ declare module "sst" {
       "type": "sst.sst.Secret"
       "value": string
     }
+    "TrippyBucket": {
+      "name": string
+      "type": "sst.aws.Bucket"
+    }
     "router": {
       "type": "sst.aws.Router"
       "url": string

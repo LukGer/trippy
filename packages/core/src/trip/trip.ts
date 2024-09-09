@@ -1,4 +1,7 @@
+import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { and, eq, inArray } from "drizzle-orm";
+import sharp from "sharp";
+import { Resource } from "sst";
 import { z } from "zod";
 import { db } from "../drizzle";
 import { User } from "../user/user";
@@ -92,6 +95,7 @@ export namespace Trip {
           name: row.users.name,
           email: row.users.email,
           pictureUrl: row.users.pictureUrl,
+          isAdmin: row.trip_to_user?.isAdmin ?? false,
         })),
       }))
   );
@@ -231,6 +235,51 @@ export namespace Trip {
             eq(usersToTripsTable.userId, input.userId)
           )
         )
+        .execute();
+    }
+  );
+
+  export const uploadImage = fn(
+    z.object({
+      tripId: z.string(),
+      imageData: z.string(),
+      mimeType: z.string(),
+      extension: z.string(),
+    }),
+    async (input) => {
+      const id = createID("image");
+      const key = `image/${id}.${input.extension}`;
+
+      const base64Image = input.imageData.replace(
+        /^data:image\/\w+;base64,/,
+        ""
+      );
+
+      const buffer = Buffer.from(base64Image, "base64");
+
+      const resizedBuffer = await sharp(buffer).resize(600, 300).toBuffer();
+
+      const command = new PutObjectCommand({
+        Key: key,
+        Body: resizedBuffer,
+        ContentType: input.mimeType,
+        Bucket: Resource.TrippyBucket.name,
+      });
+
+      const client = new S3Client({ region: "eu-central-1" });
+
+      const response = await client.send(command);
+
+      if (response.$metadata.httpStatusCode !== 200) {
+        throw new Error("Failed to upload image");
+      }
+
+      const imageUrl = `https://${Resource.TrippyBucket.name}.s3.eu-central-1.amazonaws.com/${key}`;
+
+      await db
+        .update(tripTable)
+        .set({ imageUrl })
+        .where(eq(tripTable.id, input.tripId))
         .execute();
     }
   );

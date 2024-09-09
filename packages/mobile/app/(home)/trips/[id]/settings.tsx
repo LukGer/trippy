@@ -1,3 +1,4 @@
+import { TripImageSelector } from "@/src/components/TripImageSelector";
 import { UserContext } from "@/src/context/UserContext";
 import { SPRING } from "@/src/utils/constants";
 import { trpc } from "@/src/utils/trpc";
@@ -74,7 +75,6 @@ export default function TripSettingsPage() {
     },
   });
 
-  const [imageUrl, setImageUrl] = useState(data?.imageUrl ?? "");
   const [name, setName] = useState(data?.name);
   const [startDate, setStartDate] = useState(
     toDateId(data?.startDate ?? new Date())
@@ -82,6 +82,12 @@ export default function TripSettingsPage() {
   const [endDate, setEndDate] = useState(toDateId(data?.endDate ?? new Date()));
 
   if (isLoading) return null;
+
+  const sortedMembers = data!.members.sort((a, b) => {
+    if (a.id === user.id) return -1;
+    if (b.id === user.id) return 1;
+    return a.name.localeCompare(b.name);
+  });
 
   return (
     <>
@@ -119,7 +125,7 @@ export default function TripSettingsPage() {
             alignItems: "center",
           }}
         >
-          <TripImage imageUrl={imageUrl} setImageUrl={setImageUrl} />
+          <TripImageSelector trip={data} />
 
           <View style={styles.container}>
             <View style={styles.item}>
@@ -149,7 +155,7 @@ export default function TripSettingsPage() {
 
             <View style={styles.seperator} />
 
-            {data.members.map((member, i) => (
+            {sortedMembers.map((member, i) => (
               <Fragment key={member.id}>
                 <UserListItem
                   user={member}
@@ -211,64 +217,6 @@ export default function TripSettingsPage() {
         </ScrollView>
       )}
     </>
-  );
-}
-
-function TripImage({
-  imageUrl,
-  setImageUrl,
-}: {
-  imageUrl: string;
-  setImageUrl: (url: string) => void;
-}) {
-  return (
-    <View
-      style={{
-        width: 275,
-        aspectRatio: 2,
-        borderRadius: 16,
-        borderCurve: "continuous",
-        overflow: "hidden",
-      }}
-    >
-      <Image
-        source={{ uri: imageUrl }}
-        style={{
-          width: "100%",
-          height: "100%",
-        }}
-      />
-
-      <View
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: "rgba(0, 0, 0, 0.4)",
-        }}
-      />
-
-      <View
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <SymbolView
-          name="camera"
-          size={24}
-          tintColor="white"
-          resizeMode="scaleAspectFill"
-        />
-      </View>
-    </View>
   );
 }
 
@@ -447,7 +395,7 @@ function AddMemberButton({ tripId }: { tripId: string }) {
             data?.map((user) => (
               <UserListItem
                 key={user.id}
-                user={user}
+                user={{ ...user, isAdmin: false }}
                 mode="add"
                 action={() => {
                   addMemberMutation.mutate({
@@ -500,8 +448,19 @@ function UserListItem({
       style={styles.userItem}
     >
       <Image source={{ uri: user.pictureUrl ?? "" }} style={styles.userImg} />
-      <Text>{user.name}</Text>
 
+      <View className="flex flex-row items-center">
+        {user.isAdmin && (
+          <SymbolView
+            name="shield.lefthalf.fill"
+            resizeMode="scaleAspectFit"
+            size={20}
+            tintColor="#007AFF"
+          />
+        )}
+
+        <Text>{user.name}</Text>
+      </View>
       <View className="flex-1"></View>
 
       <TouchableOpacity onPress={() => action()}>

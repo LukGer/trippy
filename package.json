@@ -23,6 +23,9 @@
   "trustedDependencies": [
     "@clerk/shared",
     "browser-tabs-lock",
-    "core-js"
+    "core-js",
+    "esbuild",
+    "sharp",
+    "workerd"
   ]
 }

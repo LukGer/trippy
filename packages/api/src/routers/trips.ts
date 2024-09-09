@@ -67,4 +67,15 @@ export const tripsRouter = router({
       })
     )
     .mutation(async (opts) => await Trip.leaveTrip(opts.input)),
+
+  uploadImage: procedure
+    .input(
+      z.object({
+        tripId: z.string(),
+        imageData: z.string(),
+        mimeType: z.string(),
+        extension: z.string(),
+      })
+    )
+    .mutation(async (opts) => await Trip.uploadImage(opts.input)),
 });

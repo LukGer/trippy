@@ -19,6 +19,7 @@ export default $config({
     const { api } = await import("./infra/api");
     const { router } = await import("./infra/router");
     const { secret } = await import("./infra/secret");
+    const { bucket } = await import("./infra/storage");
 
     return {
       api: api.url,
@@ -26,6 +27,7 @@ export default $config({
       domain,
       zone,
       secret,
+      bucket,
     };
   },
 });

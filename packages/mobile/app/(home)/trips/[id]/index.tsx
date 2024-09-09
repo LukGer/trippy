@@ -1,7 +1,8 @@
+import { ExpensesPage } from "@/src/components/ExpensesPage";
+import { MessagesPage } from "@/src/components/MessagesPage";
 import { SPRING } from "@/src/utils/constants";
 import { trpc } from "@/src/utils/trpc";
-import { RouterOutputs } from "@trippy/api";
-import dayjs from "dayjs";
+import { Image } from "expo-image";
 import { Link, Stack, useLocalSearchParams } from "expo-router";
 import { SymbolView } from "expo-symbols";
 import { useRef, useState } from "react";
@@ -22,8 +23,6 @@ import Animated, {
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-type Trip = RouterOutputs["trips"]["getById"];
-
 export default function TripDetailPage() {
   const { height: windowHeight } = useWindowDimensions();
   const insets = useSafeAreaInsets();
@@ -31,20 +30,22 @@ export default function TripDetailPage() {
   const params = useLocalSearchParams<{ id: string }>();
   const tripId = params.id;
 
-  const contentHeight = windowHeight - 48 - insets.top - insets.bottom - 40;
-
-  const { data } = trpc.trips.getById.useQuery(tripId);
+  const { data, isLoading } = trpc.trips.getById.useQuery(tripId);
 
   const [selectedTab, setSelectedTab] = useState(0);
+
+  if (isLoading || !data) {
+    return null;
+  }
 
   const tabs = [
     {
       title: "Chat",
-      content: <Text>Chat</Text>,
+      content: <MessagesPage />,
     },
     {
       title: "Expenses",
-      content: <Text>Expenses</Text>,
+      content: <ExpensesPage trip={data} />,
     },
     {
       title: "Travel",
@@ -56,22 +57,36 @@ export default function TripDetailPage() {
     },
   ];
 
-  if (!data) {
-    return null;
-  }
-
   return (
     <>
-      <StatusBar barStyle="dark-content" />
+      <StatusBar barStyle="light-content" />
       <Stack.Screen
         options={{
           title: data?.name ?? "",
-          headerLargeTitle: true,
-          headerTransparent: true,
-          headerTintColor: "#000",
-          headerBlurEffect: "systemUltraThinMaterial",
+          headerTintColor: "#FFF",
           headerBackTitle: "Home",
           headerLargeTitleShadowVisible: false,
+          headerBackground: () => (
+            <View style={{ width: "100%", height: "100%" }}>
+              <View
+                style={{
+                  backgroundColor: "#000",
+                  opacity: 0.4,
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  zIndex: 1,
+                }}
+              />
+
+              <Image
+                source={{ uri: data?.imageUrl ?? "" }}
+                style={StyleSheet.absoluteFill}
+              />
+            </View>
+          ),
 
           headerRight: () => (
             <Link
@@ -83,9 +98,9 @@ export default function TripDetailPage() {
             >
               <TouchableOpacity>
                 <SymbolView
-                  name="ellipsis"
+                  name="gear"
                   size={24}
-                  tintColor="black"
+                  tintColor="white"
                   resizeMode="scaleAspectFit"
                 />
               </TouchableOpacity>
@@ -97,37 +112,21 @@ export default function TripDetailPage() {
         contentInsetAdjustmentBehavior="automatic"
         contentContainerStyle={{
           backgroundColor: "#FFF",
+          height: windowHeight - insets.top - 2 * insets.bottom,
         }}
       >
-        <TripRange trip={data} />
         <TabButtons tabs={tabs} setSelectedTab={setSelectedTab} />
         <View
+          key={selectedTab}
           style={{
             paddingHorizontal: 18,
-            height: contentHeight,
+            flex: 1,
           }}
         >
           {tabs[selectedTab].content}
         </View>
       </ScrollView>
     </>
-  );
-}
-
-function TripRange({ trip }: { trip: Trip }) {
-  return (
-    <View
-      className="flex flex-row gap-2 h-6"
-      style={{ paddingHorizontal: 18, alignItems: "center" }}
-    >
-      <Text style={styles.smallText}>
-        {dayjs(trip.startDate).format("DD.MM.YYYY")}
-      </Text>
-      <Text style={styles.smallText}>-</Text>
-      <Text style={styles.smallText}>
-        {dayjs(trip.endDate).format("DD.MM.YYYY")}
-      </Text>
-    </View>
   );
 }
 
@@ -224,10 +223,3 @@ function TabButtons({
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  smallText: {
-    fontSize: 14,
-    fontWeight: "bold",
-  },
-});

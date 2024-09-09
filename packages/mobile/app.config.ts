@@ -19,7 +19,17 @@ export default (): ExpoConfig => ({
   ios: {
     bundleIdentifier: `dev.lukger.trippy.${variant}`,
   },
-  plugins: ["expo-router", "expo-font"],
+  plugins: [
+    "expo-router",
+    "expo-font",
+    [
+      "expo-image-picker",
+      {
+        photosPermission:
+          "The app accesses your photos to let you customize a trips image.",
+      },
+    ],
+  ],
   experiments: {
     typedRoutes: true,
   },
