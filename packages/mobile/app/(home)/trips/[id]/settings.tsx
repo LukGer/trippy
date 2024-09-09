@@ -1,16 +1,11 @@
+import { DateInput } from "@/src/components/DateInput";
 import { TripImageSelector } from "@/src/components/TripImageSelector";
 import { UserContext } from "@/src/context/UserContext";
-import { SPRING } from "@/src/utils/constants";
 import { trpc } from "@/src/utils/trpc";
-import {
-  Calendar,
-  fromDateId,
-  toDateId,
-} from "@marceloterreiro/flash-calendar";
+import { fromDateId, toDateId } from "@marceloterreiro/flash-calendar";
 import { useQueryClient } from "@tanstack/react-query";
 import { RouterOutputs } from "@trippy/api";
 import { getQueryKey } from "@trpc/react-query";
-import dayjs from "dayjs";
 import { Image } from "expo-image";
 import { router, Stack, useLocalSearchParams } from "expo-router";
 import { SymbolView } from "expo-symbols";
@@ -26,12 +21,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import Animated, {
-  FadeOut,
-  LinearTransition,
-  useAnimatedStyle,
-  withSpring,
-} from "react-native-reanimated";
+import Animated, { FadeOut, LinearTransition } from "react-native-reanimated";
 import { useDebounce } from "use-debounce";
 
 type Trip = RouterOutputs["trips"]["getById"];
@@ -217,81 +207,6 @@ export default function TripSettingsPage() {
         </ScrollView>
       )}
     </>
-  );
-}
-
-function DateInput({
-  label,
-  date,
-  setDate,
-}: {
-  label: string;
-  date: string;
-  setDate: (date: string) => void;
-}) {
-  const [isOpen, setIsOpen] = useState(false);
-
-  const itemStyle = useAnimatedStyle(() => ({
-    height: withSpring(isOpen ? 340 : 44, SPRING.smooth),
-  }));
-
-  const iconStyle = useAnimatedStyle(() => ({
-    transform: [
-      {
-        rotate: withSpring(isOpen ? "-180deg" : "0deg", SPRING.smooth),
-      },
-    ],
-  }));
-
-  return (
-    <Animated.View
-      style={[{ flexDirection: "column", overflow: "hidden" }, itemStyle]}
-    >
-      <TouchableOpacity
-        activeOpacity={0.5}
-        style={styles.item}
-        onPress={() => setIsOpen(!isOpen)}
-      >
-        <Text style={styles.itemTitle}>{label}</Text>
-
-        <View className="flex-1"></View>
-
-        <View
-          style={{
-            paddingHorizontal: 10,
-            paddingVertical: 6,
-            backgroundColor: "rgba(120, 120, 128, 0.12)",
-            borderRadius: 6,
-          }}
-        >
-          <Text
-            style={{
-              color: "#007AFF",
-              fontWeight: "semibold",
-            }}
-          >
-            {dayjs(date).format("MMM D, YYYY")}
-          </Text>
-        </View>
-
-        <Animated.View style={iconStyle}>
-          <SymbolView name="chevron.up" size={16} resizeMode="scaleAspectFit" />
-        </Animated.View>
-      </TouchableOpacity>
-      <View className="px-4">
-        <Calendar
-          key={label}
-          calendarActiveDateRanges={[
-            {
-              startId: date,
-              endId: date,
-            },
-          ]}
-          calendarMonthId={date}
-          onCalendarDayPress={setDate}
-        />
-      </View>
-    </Animated.View>
   );
 }
 

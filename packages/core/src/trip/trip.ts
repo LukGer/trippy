@@ -247,17 +247,13 @@ export namespace Trip {
       extension: z.string(),
     }),
     async (input) => {
-      const id = createID("image");
-      const key = `image/${id}.${input.extension}`;
+      const key = `images/trip/${input.tripId}`;
 
-      const base64Image = input.imageData.replace(
-        /^data:image\/\w+;base64,/,
-        ""
-      );
-
-      const buffer = Buffer.from(base64Image, "base64");
+      const buffer = Buffer.from(input.imageData, "base64");
 
       const resizedBuffer = await sharp(buffer).resize(600, 300).toBuffer();
+
+      const client = new S3Client({ region: "eu-central-1" });
 
       const command = new PutObjectCommand({
         Key: key,
@@ -265,8 +261,6 @@ export namespace Trip {
         ContentType: input.mimeType,
         Bucket: Resource.TrippyBucket.name,
       });
-
-      const client = new S3Client({ region: "eu-central-1" });
 
       const response = await client.send(command);
 

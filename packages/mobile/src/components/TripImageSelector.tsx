@@ -46,8 +46,8 @@ export function TripImageSelector({ trip }: { trip: Trip }) {
       setImageUrl(asset.uri);
 
       const imageData = await convertToBase64(asset);
-      const extension = asset.uri.split(".").pop() ?? "jpeg";
       const mimeType = asset.mimeType ?? "image/jpeg";
+      const extension = asset.uri.split(".").pop() ?? "jpeg";
 
       await uploadImage.mutateAsync({
         tripId: trip.id,
@@ -80,6 +80,7 @@ export function TripImageSelector({ trip }: { trip: Trip }) {
           width: "100%",
           height: "100%",
         }}
+        cachePolicy="none"
       />
 
       <View

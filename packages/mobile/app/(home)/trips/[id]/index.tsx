@@ -84,6 +84,7 @@ export default function TripDetailPage() {
               <Image
                 source={{ uri: data?.imageUrl ?? "" }}
                 style={StyleSheet.absoluteFill}
+                cachePolicy="none"
               />
             </View>
           ),

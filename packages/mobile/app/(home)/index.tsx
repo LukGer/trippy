@@ -83,10 +83,15 @@ export default function HomePage() {
 }
 
 function TripList({ trips }: { trips: Trips }) {
-  const upcomingTrips = trips.filter((trip) =>
+  const sorted = trips.sort((a, b) =>
+    dayjs(b.startDate).isBefore(dayjs(a.startDate)) ? 1 : -1
+  );
+
+  const upcomingTrips = sorted.filter((trip) =>
     dayjs(trip.startDate).isAfter(dayjs())
   );
-  const pastTrips = trips.filter((trip) =>
+
+  const pastTrips = sorted.filter((trip) =>
     dayjs(trip.startDate).isBefore(dayjs())
   );
 
@@ -97,7 +102,7 @@ function TripList({ trips }: { trips: Trips }) {
 
         <View className="flex-1"></View>
 
-        <Link href="/(home)/" asChild>
+        <Link href="/(home)/trips/new" asChild>
           <TouchableOpacity>
             <SymbolView
               name="plus.circle.fill"
@@ -176,6 +181,7 @@ function TripCard({ trip }: { trip: Trips[number] }) {
             borderCurve: "continuous",
             height: 200,
             overflow: "hidden",
+            minWidth: 350,
           }}
         >
           <Image
@@ -186,6 +192,7 @@ function TripCard({ trip }: { trip: Trips[number] }) {
               height: "100%",
               zIndex: 0,
             }}
+            cachePolicy="none"
           />
 
           <Canvas

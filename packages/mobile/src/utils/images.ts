@@ -15,5 +15,7 @@ export const convertToBase64 = async (
     reader.readAsDataURL(blob);
   });
 
-  return imageData;
+  const base64 = imageData.replace(/^data:image\/\w+;base64,/, "");
+
+  return base64;
 };
