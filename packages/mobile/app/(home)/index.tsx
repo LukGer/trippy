@@ -1,9 +1,7 @@
 import { UserContext } from "@/src/context/UserContext";
 import { trpc } from "@/src/utils/trpc";
 import { Canvas, LinearGradient, Rect } from "@shopify/react-native-skia";
-import { useQueryClient } from "@tanstack/react-query";
 import { RouterOutputs } from "@trippy/api";
-import { getQueryKey } from "@trpc/react-query";
 import dayjs from "dayjs";
 import { Image } from "expo-image";
 import { Link, Stack } from "expo-router";
@@ -13,12 +11,12 @@ import {
   ActivityIndicator,
   Alert,
   RefreshControl,
-  ScrollView,
   StatusBar,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import Animated, { FadeOut, LinearTransition } from "react-native-reanimated";
 import * as Menu from "zeego/context-menu";
 
 type Trips = RouterOutputs["trips"]["getTripsByUserId"];
@@ -59,7 +57,8 @@ export default function HomePage() {
           ),
         }}
       />
-      <ScrollView
+      <Animated.ScrollView
+        layout={LinearTransition.duration(300)}
         contentInsetAdjustmentBehavior="automatic"
         contentContainerStyle={{
           paddingHorizontal: 20,
@@ -77,7 +76,7 @@ export default function HomePage() {
         )}
 
         {data && <TripList trips={data} />}
-      </ScrollView>
+      </Animated.ScrollView>
     </>
   );
 }
@@ -114,9 +113,11 @@ function TripList({ trips }: { trips: Trips }) {
         </Link>
       </View>
       {upcomingTrips.map((trip) => (
-        <TripCardMenu key={trip.id}>
-          <TripCard trip={trip} />
-        </TripCardMenu>
+        <Animated.View exiting={FadeOut.duration(300)} key={trip.id}>
+          <TripCardMenu>
+            <TripCard trip={trip} />
+          </TripCardMenu>
+        </Animated.View>
       ))}
 
       {pastTrips.length > 0 && (
@@ -156,7 +157,7 @@ function TripCardMenu({ children }: { children: ReactElement }) {
 const URGENCY_THRESHOLD = 7;
 
 function TripCard({ trip }: { trip: Trips[number] }) {
-  const queryClient = useQueryClient();
+  const utils = trpc.useUtils();
 
   const isUrgent =
     dayjs(trip.startDate).diff(dayjs(), "days") < URGENCY_THRESHOLD;
@@ -169,10 +170,7 @@ function TripCard({ trip }: { trip: Trips[number] }) {
       <TouchableOpacity
         activeOpacity={0.8}
         onPress={() => {
-          queryClient.setQueryData(
-            getQueryKey(trpc.trips.getById, trip.id, "any"),
-            trip
-          );
+          utils.trips.getById.setData(trip.id, trip);
         }}
       >
         <View

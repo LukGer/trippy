@@ -1,5 +1,7 @@
 import "react-native-get-random-values";
+import "../global.css";
 
+import { useTRPCClient } from "@/src/hooks/useTrpcClient";
 import { tokenCache } from "@/src/utils/auth";
 import { trpc } from "@/src/utils/trpc";
 import { ClerkLoaded, ClerkProvider } from "@clerk/clerk-expo";
@@ -7,9 +9,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { Stack } from "expo-router";
-
-import { useTRPCClient } from "@/src/hooks/useTrpcClient";
-import "../global.css";
 
 dayjs.extend(relativeTime);
 

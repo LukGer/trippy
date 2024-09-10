@@ -10,17 +10,28 @@ import Animated, {
 import { SPRING } from "../utils/constants";
 import { TrippyCalendar } from "./TrippyCalendar";
 
-export function DateInput({
-  label,
-  date,
-  setDate,
-}: {
+interface DateInputProps {
   label: string;
   date: string;
+  minDate?: string;
   setDate: (date: string) => void;
-}) {
+}
+
+export function DateInput(props: DateInputProps) {
+  const { date, minDate } = props;
+
+  const validDate = minDate
+    ? fromDateId(minDate) >= fromDateId(date)
+      ? minDate
+      : date
+    : date;
+
+  if (fromDateId(validDate) == fromDateId(date)) {
+    props.setDate(validDate);
+  }
+
   const [isOpen, setIsOpen] = useState(false);
-  const [currentMonth, setCurrentMonth] = useState(date);
+  const [currentMonth, setCurrentMonth] = useState(validDate);
 
   const itemStyle = useAnimatedStyle(() => ({
     height: withSpring(isOpen ? 340 : 44, SPRING.smooth),
@@ -43,7 +54,7 @@ export function DateInput({
         style={styles.item}
         onPress={() => setIsOpen(!isOpen)}
       >
-        <Text style={styles.itemTitle}>{label}</Text>
+        <Text style={styles.itemTitle}>{props.label}</Text>
 
         <View className="flex-1"></View>
 
@@ -61,7 +72,7 @@ export function DateInput({
               fontWeight: "semibold",
             }}
           >
-            {dayjs(date).format("MMM D, YYYY")}
+            {dayjs(validDate).format("MMM D, YYYY")}
           </Text>
         </View>
 
@@ -85,15 +96,16 @@ export function DateInput({
           }}
           onResetMonthPress={() => setCurrentMonth(toDateId(new Date()))}
           calendarFirstDayOfWeek="monday"
-          key={label}
+          key={props.label}
           calendarActiveDateRanges={[
             {
-              startId: date,
-              endId: date,
+              startId: validDate,
+              endId: validDate,
             },
           ]}
           calendarMonthId={currentMonth}
-          onCalendarDayPress={setDate}
+          onCalendarDayPress={props.setDate}
+          calendarMinDateId={props.minDate}
         />
       </View>
     </Animated.View>

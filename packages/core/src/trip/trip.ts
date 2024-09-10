@@ -17,7 +17,11 @@ export namespace Trip {
     imageUrl: z.string().nullable(),
     startDate: z.date(),
     endDate: z.date(),
-    members: z.array(User.Info.partial({ clerkId: true })),
+    members: z.array(
+      User.Info.partial({ clerkId: true }).merge(
+        z.object({ isAdmin: z.boolean().nullable() })
+      )
+    ),
   });
   export type Info = z.infer<typeof Info>;
 
@@ -95,7 +99,7 @@ export namespace Trip {
           name: row.users.name,
           email: row.users.email,
           pictureUrl: row.users.pictureUrl,
-          isAdmin: row.trip_to_user?.isAdmin ?? false,
+          isAdmin: row.trip_to_user?.isAdmin ?? null,
         })),
       }))
   );
@@ -137,6 +141,7 @@ export namespace Trip {
               name: row.users.name,
               email: row.users.email,
               pictureUrl: row.users.pictureUrl,
+              isAdmin: row.trip_to_user?.isAdmin ?? null,
             });
           }
         });

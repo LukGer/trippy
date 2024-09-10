@@ -31,7 +31,8 @@ export default function TripSettingsPage() {
   const params = useLocalSearchParams<{ id: string }>();
   const tripId = params.id;
 
-  const queryClient = useQueryClient();
+  const utils = trpc.useUtils();
+
   const user = useContext(UserContext);
 
   const { data, isLoading } = trpc.trips.getById.useQuery(tripId);
@@ -41,27 +42,27 @@ export default function TripSettingsPage() {
       console.error(error);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: getQueryKey(trpc.trips),
-      });
+      utils.trips.invalidate();
     },
   });
 
   const removeMemberMutation = trpc.trips.removeMember.useMutation({
+    onMutate: (variables) => {
+      utils.trips.getById.setData(variables.tripId, (oldData) => ({
+        ...oldData!,
+        members: oldData!.members.filter((m) => m.id !== variables.userId),
+      }));
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: getQueryKey(trpc.trips),
-      });
+      utils.trips.invalidate();
     },
   });
 
   const leaveTripMutation = trpc.trips.leaveTrip.useMutation({
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: getQueryKey(trpc.trips),
-      });
+      utils.trips.invalidate();
 
-      router.replace("/(home)/");
+      router.navigate("/(home)");
     },
   });
 
@@ -73,11 +74,12 @@ export default function TripSettingsPage() {
 
   if (isLoading) return null;
 
-  const sortedMembers = data!.members.sort((a, b) => {
-    if (a.id === user.id) return -1;
-    if (b.id === user.id) return 1;
-    return a.name.localeCompare(b.name);
-  });
+  const sortedMembers =
+    data?.members.sort((a, b) => {
+      if (a.id === user.id) return -1;
+      if (b.id === user.id) return 1;
+      return a.name.localeCompare(b.name);
+    }) ?? [];
 
   return (
     <>
@@ -135,74 +137,84 @@ export default function TripSettingsPage() {
               setDate={setStartDate}
             />
             <View style={styles.seperator} />
-            <DateInput label="End date" date={endDate} setDate={setEndDate} />
+            <DateInput
+              label="End date"
+              date={endDate}
+              setDate={setEndDate}
+              minDate={startDate}
+            />
           </View>
 
           <Text className="self-start font-bold text-gray-500">Members</Text>
 
-          <View style={styles.container}>
-            <AddMemberButton tripId={tripId} />
+          <View style={{ width: "100%" }}>
+            <Animated.View
+              layout={LinearTransition.duration(300)}
+              style={styles.container}
+            >
+              <AddMemberButton tripId={tripId} />
 
-            <View style={styles.seperator} />
+              <View style={styles.seperator} />
 
-            {sortedMembers.map((member, i) => (
-              <Fragment key={member.id}>
-                <UserListItem
-                  user={member}
-                  mode={member.id === user.id ? "leave" : "remove"}
-                  action={
-                    member.id === user.id
-                      ? () => {
-                          Alert.alert(
-                            "Leave trip",
-                            "Are you sure you want to leave?",
-                            [
-                              {
-                                text: "Cancel",
-                                style: "cancel",
-                              },
-                              {
-                                text: "Leave",
-                                style: "destructive",
-                                onPress: () => {
-                                  leaveTripMutation.mutate({
-                                    tripId,
-                                    userId: user.id,
-                                  });
+              {sortedMembers.map((member, i) => (
+                <Fragment key={member.id}>
+                  <UserListItem
+                    user={member}
+                    mode={member.id === user.id ? "leave" : "remove"}
+                    action={
+                      member.id === user.id
+                        ? () => {
+                            Alert.alert(
+                              "Leave trip",
+                              "Are you sure you want to leave?",
+                              [
+                                {
+                                  text: "Cancel",
+                                  style: "cancel",
                                 },
-                              },
-                            ]
-                          );
-                        }
-                      : () => {
-                          Alert.alert(
-                            "Remove member",
-                            `Remove ${member.name}?`,
-                            [
-                              {
-                                text: "Cancel",
-                                style: "cancel",
-                              },
-                              {
-                                text: "Remove",
-                                style: "destructive",
-                                onPress: () => {
-                                  removeMemberMutation.mutate({
-                                    tripId,
-                                    userId: member.id,
-                                  });
+                                {
+                                  text: "Leave",
+                                  style: "destructive",
+                                  onPress: () => {
+                                    leaveTripMutation.mutate({
+                                      tripId,
+                                      userId: user.id,
+                                    });
+                                  },
                                 },
-                              },
-                            ]
-                          );
-                        }
-                  }
-                />
-                {i !== data.members.length - 1 && (
-                  <View style={styles.seperator} />
-                )}
-              </Fragment>
-            ))}
+                              ]
+                            );
+                          }
+                        : () => {
+                            Alert.alert(
+                              "Remove member",
+                              `Remove ${member.name}?`,
+                              [
+                                {
+                                  text: "Cancel",
+                                  style: "cancel",
+                                },
+                                {
+                                  text: "Remove",
+                                  style: "destructive",
+                                  onPress: () => {
+                                    removeMemberMutation.mutate({
+                                      tripId,
+                                      userId: member.id,
+                                    });
+                                  },
+                                },
+                              ]
+                            );
+                          }
+                    }
+                  />
+                  {i !== data.members.length - 1 && (
+                    <View style={styles.seperator} />
+                  )}
+                </Fragment>
+              ))}
+            </Animated.View>
           </View>
         </ScrollView>
       )}
