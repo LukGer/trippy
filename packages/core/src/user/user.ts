@@ -5,7 +5,7 @@ import { fn } from "../util/fn";
 import { createID } from "../util/id";
 import { usersToTripsTable, userTable } from "./user.sql";
 
-export module User {
+export namespace User {
   export const Info = z.object({
     id: z.string(),
     name: z.string(),
@@ -24,6 +24,21 @@ export module User {
       pictureUrl: z.string().nullable(),
     }),
     async (input) => {
+      const existingUser = await db
+        .select()
+        .from(userTable)
+        .where(
+          or(
+            eq(userTable.email, input.email),
+            eq(userTable.clerkId, input.clerkId)
+          )
+        )
+        .then((rows) => rows.map(serialize).at(0));
+
+      if (existingUser) {
+        return existingUser.id;
+      }
+
       const id = createID("user");
 
       await db.insert(userTable).values({

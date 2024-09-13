@@ -1,4 +1,5 @@
-import { UserContext } from "@/src/context/UserContext";
+import { GlobeIcon } from "@/src/components/GlobeIcon";
+import { useTrippyUser } from "@/src/hooks/useTrippyUser";
 import { trpc } from "@/src/utils/trpc";
 import { Canvas, LinearGradient, Rect } from "@shopify/react-native-skia";
 import { RouterOutputs } from "@trippy/api";
@@ -6,7 +7,7 @@ import dayjs from "dayjs";
 import { Image } from "expo-image";
 import { Link, Stack } from "expo-router";
 import { SymbolView } from "expo-symbols";
-import { ReactElement, useContext } from "react";
+import { ReactElement } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -22,7 +23,7 @@ import * as Menu from "zeego/context-menu";
 type Trips = RouterOutputs["trips"]["getTripsByUserId"];
 
 export default function HomePage() {
-  const user = useContext(UserContext);
+  const user = useTrippyUser();
 
   const { isLoading, data, refetch } = trpc.trips.getTripsByUserId.useQuery(
     user.id
@@ -41,6 +42,15 @@ export default function HomePage() {
           contentStyle: {
             backgroundColor: "#FFF",
           },
+          headerLeft: () => (
+            <GlobeIcon
+              style={{
+                width: 24,
+                height: 24,
+                transform: [{ scale: 1.25 }],
+              }}
+            />
+          ),
           headerRight: () => (
             <Link href="/(home)/settings" asChild>
               <TouchableOpacity>
@@ -160,6 +170,7 @@ function TripCard({ trip }: { trip: Trips[number] }) {
   const utils = trpc.useUtils();
 
   const isUrgent =
+    !dayjs(trip.endDate).isBefore(dayjs()) &&
     dayjs(trip.startDate).diff(dayjs(), "days") < URGENCY_THRESHOLD;
 
   return (
@@ -183,7 +194,7 @@ function TripCard({ trip }: { trip: Trips[number] }) {
           }}
         >
           <Image
-            source={{ uri: trip.imageUrl! }}
+            source={{ uri: trip.imageUrl }}
             style={{
               position: "absolute",
               width: "100%",

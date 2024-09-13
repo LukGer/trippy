@@ -8,7 +8,6 @@ export const tripsRouter = router({
     .input(
       z.object({
         name: z.string(),
-        imageUrl: z.string().nullable(),
         startDate: z.date(),
         endDate: z.date(),
         memberIds: z.array(z.string()),

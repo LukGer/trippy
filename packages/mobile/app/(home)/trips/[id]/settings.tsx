@@ -1,6 +1,6 @@
 import { DateInput } from "@/src/components/DateInput";
 import { TripImageSelector } from "@/src/components/TripImageSelector";
-import { UserContext } from "@/src/context/UserContext";
+import { useTrippyUser } from "@/src/hooks/useTrippyUser";
 import { trpc } from "@/src/utils/trpc";
 import { fromDateId, toDateId } from "@marceloterreiro/flash-calendar";
 import { useQueryClient } from "@tanstack/react-query";
@@ -9,7 +9,7 @@ import { getQueryKey } from "@trpc/react-query";
 import { Image } from "expo-image";
 import { router, Stack, useLocalSearchParams } from "expo-router";
 import { SymbolView } from "expo-symbols";
-import { Fragment, useContext, useState } from "react";
+import { Fragment, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -33,7 +33,7 @@ export default function TripSettingsPage() {
 
   const utils = trpc.useUtils();
 
-  const user = useContext(UserContext);
+  const user = useTrippyUser();
 
   const { data, isLoading } = trpc.trips.getById.useQuery(tripId);
 

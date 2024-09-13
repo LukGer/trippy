@@ -14,7 +14,7 @@ export namespace Trip {
   export const Info = z.object({
     id: z.string(),
     name: z.string(),
-    imageUrl: z.string().nullable(),
+    imageUrl: z.string(),
     startDate: z.date(),
     endDate: z.date(),
     members: z.array(
@@ -28,7 +28,6 @@ export namespace Trip {
   export const create = fn(
     z.object({
       name: z.string(),
-      imageUrl: z.string().nullable(),
       startDate: z.date(),
       endDate: z.date(),
       memberIds: z.array(z.string()),
@@ -36,12 +35,16 @@ export namespace Trip {
     async (input) => {
       const id = createID("trip");
 
+      const bucketName = Resource.TrippyBucket.name;
+
+      const imageUrl = `https://${bucketName}.s3.eu-central-1.amazonaws.com/images/trip/new.avif`;
+
       await db
         .insert(tripTable)
         .values({
           id,
           name: input.name,
-          imageUrl: input.imageUrl,
+          imageUrl,
           startDate: input.startDate,
           endDate: input.endDate,
         })

@@ -1,23 +1,22 @@
 import { DateInput } from "@/src/components/DateInput";
-import { UserContext } from "@/src/context/UserContext";
+import { useTrippyUser } from "@/src/hooks/useTrippyUser";
 import { trpc } from "@/src/utils/trpc";
 import { fromDateId, toDateId } from "@marceloterreiro/flash-calendar";
 import { useQueryClient } from "@tanstack/react-query";
 import { getQueryKey } from "@trpc/react-query";
 import { router, Stack } from "expo-router";
-import { useContext, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import {
-  KeyboardAvoidingView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   View,
 } from "react-native";
+import Animated, { FadeInDown, FadeOutDown } from "react-native-reanimated";
 
 export default function NewTripPage() {
-  const user = useContext(UserContext);
+  const user = useTrippyUser();
 
   const queryClient = useQueryClient();
 
@@ -33,40 +32,54 @@ export default function NewTripPage() {
     },
   });
 
-  const [name, setName] = useState<string | null>(null);
+  const [locationSearchShowing, setLocationSearchShowing] = useState(false);
+
+  const [location, setLocation] = useState<string>("");
   const [startDate, setStartDate] = useState<string>(toDateId(new Date()));
   const [endDate, setEndDate] = useState<string>(toDateId(new Date()));
-
-  const dismissInput = () => {
-    input.current?.blur();
-  };
 
   return (
     <>
       <Stack.Screen options={{ title: "Create new group trip" }} />
-      <TouchableWithoutFeedback onPress={dismissInput}>
-        <View
-          style={{
-            paddingHorizontal: 16,
-            paddingTop: 16,
-            flex: 1,
-            gap: 24,
-            alignItems: "center",
-          }}
-        >
-          <View style={styles.container}>
-            <View style={styles.item}>
-              <Text style={styles.itemTitle}>Name</Text>
+      <View
+        style={{
+          paddingHorizontal: 16,
+          paddingTop: 16,
+          flex: 1,
+          gap: 24,
+          alignItems: "center",
+        }}
+      >
+        <View style={styles.container}>
+          <View style={styles.item}>
+            <Text style={styles.itemTitle}>Location</Text>
 
-              <TextInput
-                ref={input}
-                style={{ flex: 1, textAlign: "right" }}
-                value={name ?? ""}
-                onChangeText={setName}
-                blurOnSubmit
-                placeholder="Name"
-              />
-            </View>
+            <TextInput
+              ref={input}
+              style={{ flex: 1, textAlign: "right" }}
+              value={location ?? ""}
+              onChangeText={setLocation}
+              onFocus={() => setLocationSearchShowing(true)}
+              onBlur={() => setLocationSearchShowing(false)}
+              placeholder="Search for a location"
+            />
+          </View>
+        </View>
+
+        {locationSearchShowing ? (
+          <Animated.View
+            entering={FadeInDown}
+            exiting={FadeOutDown}
+            style={styles.container}
+          >
+            <Text>Seas</Text>
+          </Animated.View>
+        ) : (
+          <Animated.View
+            entering={FadeInDown}
+            exiting={FadeOutDown}
+            style={styles.container}
+          >
             <View style={styles.seperator} />
             <DateInput
               label="Start date"
@@ -75,34 +88,31 @@ export default function NewTripPage() {
             />
             <View style={styles.seperator} />
             <DateInput label="End date" date={endDate} setDate={setEndDate} />
-          </View>
+          </Animated.View>
+        )}
 
-          <KeyboardAvoidingView behavior="padding">
-            <TouchableOpacity
-              onPress={() => {
-                addTripMutation.mutate({
-                  name: name ?? "",
-                  startDate: fromDateId(startDate),
-                  endDate: fromDateId(endDate),
-                  imageUrl: "",
-                  memberIds: [user.id],
-                });
-              }}
-              style={{
-                backgroundColor: "#007AFF",
-                paddingVertical: 12,
-                paddingHorizontal: 24,
-                borderRadius: 999,
-                alignItems: "center",
-              }}
-            >
-              <Text style={{ color: "white", fontWeight: "bold" }}>
-                Create group trip
-              </Text>
-            </TouchableOpacity>
-          </KeyboardAvoidingView>
-        </View>
-      </TouchableWithoutFeedback>
+        <TouchableOpacity
+          onPress={() => {
+            addTripMutation.mutate({
+              name: location,
+              startDate: fromDateId(startDate),
+              endDate: fromDateId(endDate),
+              memberIds: [user.id],
+            });
+          }}
+          style={{
+            backgroundColor: "#007AFF",
+            paddingVertical: 12,
+            paddingHorizontal: 24,
+            borderRadius: 999,
+            alignItems: "center",
+          }}
+        >
+          <Text style={{ color: "white", fontWeight: "bold" }}>
+            Create group trip
+          </Text>
+        </TouchableOpacity>
+      </View>
     </>
   );
 }

@@ -17,6 +17,8 @@ import {
   View,
 } from "react-native";
 import Animated, {
+  FadeIn,
+  FadeOut,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
@@ -32,7 +34,7 @@ export default function TripDetailPage() {
 
   const { data, isLoading } = trpc.trips.getById.useQuery(tripId);
 
-  const [selectedTab, setSelectedTab] = useState(0);
+  const [currentTab, setCurrentTab] = useState(0);
 
   if (isLoading || !data) {
     return null;
@@ -109,24 +111,24 @@ export default function TripDetailPage() {
           ),
         }}
       />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        contentContainerStyle={{
-          backgroundColor: "#FFF",
+      <View
+        style={{
           height: windowHeight - insets.top - 2 * insets.bottom,
         }}
       >
-        <TabButtons tabs={tabs} setSelectedTab={setSelectedTab} />
-        <View
-          key={selectedTab}
+        <TabButtons tabs={tabs} setSelectedTab={setCurrentTab} />
+        <Animated.View
+          key={currentTab}
+          entering={FadeIn}
+          exiting={FadeOut}
           style={{
             paddingHorizontal: 18,
             flex: 1,
           }}
         >
-          {tabs[selectedTab].content}
-        </View>
-      </ScrollView>
+          {tabs[currentTab].content}
+        </Animated.View>
+      </View>
     </>
   );
 }
