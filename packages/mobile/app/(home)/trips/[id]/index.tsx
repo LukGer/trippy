@@ -2,10 +2,11 @@ import { ExpensesPage } from "@/src/components/ExpensesPage";
 import { MessagesPage } from "@/src/components/MessagesPage";
 import { SPRING } from "@/src/utils/constants";
 import { trpc } from "@/src/utils/trpc";
+import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { Image } from "expo-image";
 import { Link, Stack, useLocalSearchParams } from "expo-router";
 import { SymbolView } from "expo-symbols";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import {
   Pressable,
   ScrollView,
@@ -17,47 +18,22 @@ import {
   View,
 } from "react-native";
 import Animated, {
-  FadeIn,
-  FadeOut,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+const TopTab = createMaterialTopTabNavigator();
 
 export default function TripDetailPage() {
-  const { height: windowHeight } = useWindowDimensions();
-  const insets = useSafeAreaInsets();
-
   const params = useLocalSearchParams<{ id: string }>();
   const tripId = params.id;
 
   const { data, isLoading } = trpc.trips.getById.useQuery(tripId);
 
-  const [currentTab, setCurrentTab] = useState(0);
-
   if (isLoading || !data) {
     return null;
   }
-
-  const tabs = [
-    {
-      title: "Chat",
-      content: <MessagesPage />,
-    },
-    {
-      title: "Expenses",
-      content: <ExpensesPage trip={data} />,
-    },
-    {
-      title: "Travel",
-      content: <Text>Travel</Text>,
-    },
-    {
-      title: "Documents",
-      content: <Text>Documents</Text>,
-    },
-  ];
 
   return (
     <>
@@ -111,24 +87,16 @@ export default function TripDetailPage() {
           ),
         }}
       />
-      <View
-        style={{
-          height: windowHeight - insets.top - 2 * insets.bottom,
-        }}
-      >
-        <TabButtons tabs={tabs} setSelectedTab={setCurrentTab} />
-        <Animated.View
-          key={currentTab}
-          entering={FadeIn}
-          exiting={FadeOut}
-          style={{
-            paddingHorizontal: 18,
-            flex: 1,
-          }}
-        >
-          {tabs[currentTab].content}
-        </Animated.View>
-      </View>
+
+      <TopTab.Navigator>
+        <TopTab.Screen name="Chat" component={MessagesPage} />
+        <TopTab.Screen
+          name="Expenses"
+          component={() => <ExpensesPage trip={data} />}
+        />
+        <TopTab.Screen name="Travel" component={Text} />
+        <TopTab.Screen name="Documents" component={Text} />
+      </TopTab.Navigator>
     </>
   );
 }
