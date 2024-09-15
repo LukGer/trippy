@@ -116,7 +116,12 @@ export namespace Expense {
           }
 
           if (result.recipient && result.recipientUser) {
-            const expense = map.get(result.expense.id)!;
+            const expense = map.get(result.expense.id);
+
+            if (!expense) {
+              continue;
+            }
+
             expense.recipients.push({
               userId: result.recipient.userId,
               amount: result.recipient.amount,

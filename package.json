@@ -10,7 +10,7 @@
     "sso": "aws sso login --sso-session=lukger"
   },
   "devDependencies": {
-    "prettier": "^3.3.3",
+    "@biomejs/biome": "1.9.0",
     "turbo": "^2.1.2"
   },
   "packageManager": "bun@1.1.26",
@@ -21,6 +21,7 @@
     "packages/*"
   ],
   "trustedDependencies": [
+    "@biomejs/biome",
     "@clerk/shared",
     "browser-tabs-lock",
     "core-js",

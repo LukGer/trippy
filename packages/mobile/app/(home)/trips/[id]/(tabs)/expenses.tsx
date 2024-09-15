@@ -1,8 +1,8 @@
-import { Transfer, useSmartTransfers } from "@/src/hooks/useSmartDebts";
+import { type Transfer, useSmartTransfers } from "@/src/hooks/useSmartDebts";
 import { useTrip } from "@/src/hooks/useTrip";
 import { useTrippyUser } from "@/src/hooks/useTrippyUser";
 import { trpc } from "@/src/utils/trpc";
-import { Expense } from "@trippy/core/src/expense/expense";
+import type { Expense } from "@trippy/core/src/expense/expense";
 import { Image } from "expo-image";
 import { SymbolView } from "expo-symbols";
 import { Fragment } from "react";

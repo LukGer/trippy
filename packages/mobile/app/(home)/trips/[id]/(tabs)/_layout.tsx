@@ -2,10 +2,10 @@ import { TabBar } from "@/src/components/TabBar";
 import { useTrip } from "@/src/hooks/useTrip";
 import {
   createMaterialTopTabNavigator,
-  MaterialTopTabNavigationEventMap,
-  MaterialTopTabNavigationOptions,
+  type MaterialTopTabNavigationEventMap,
+  type MaterialTopTabNavigationOptions,
 } from "@react-navigation/material-top-tabs";
-import { ParamListBase, TabNavigationState } from "@react-navigation/native";
+import type { ParamListBase, TabNavigationState } from "@react-navigation/native";
 import { Image } from "expo-image";
 import { Link, Stack, withLayoutContext } from "expo-router";
 import { SymbolView } from "expo-symbols";
@@ -13,8 +13,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  useWindowDimensions,
-  View,
+  View
 } from "react-native";
 
 const { Navigator } = createMaterialTopTabNavigator();
@@ -28,8 +27,6 @@ export const TrippyTopTabs = withLayoutContext<
 
 export default function TripTabsLayout() {
   const trip = useTrip();
-
-  const { width } = useWindowDimensions();
 
   return (
     <>

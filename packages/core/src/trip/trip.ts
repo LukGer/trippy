@@ -124,7 +124,7 @@ export namespace Trip {
       .then((rows) => {
         const trips = new Map<string, Info>();
 
-        rows.forEach((row) => {
+        for (const row of rows) {
           const tripId = row.trips.id;
           if (!trips.has(tripId)) {
             trips.set(tripId, {
@@ -137,7 +137,12 @@ export namespace Trip {
             });
           }
 
-          const trip = trips.get(tripId)!;
+          const trip = trips.get(tripId);
+
+          if (!trip) {
+            continue;
+          }
+
           if (row.users.id) {
             trip.members.push({
               id: row.users.id,
@@ -147,7 +152,7 @@ export namespace Trip {
               isAdmin: row.trip_to_user?.isAdmin ?? null,
             });
           }
-        });
+        }
 
         return Array.from(trips.values());
       });

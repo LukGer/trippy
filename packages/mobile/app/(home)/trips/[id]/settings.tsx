@@ -4,7 +4,7 @@ import { useTrippyUser } from "@/src/hooks/useTrippyUser";
 import { trpc } from "@/src/utils/trpc";
 import { fromDateId, toDateId } from "@marceloterreiro/flash-calendar";
 import { useQueryClient } from "@tanstack/react-query";
-import { RouterOutputs } from "@trippy/api";
+import type { RouterOutputs } from "@trippy/api";
 import { getQueryKey } from "@trpc/react-query";
 import { Image } from "expo-image";
 import { router, Stack, useLocalSearchParams } from "expo-router";
@@ -281,11 +281,11 @@ function AddMemberButton({ tripId }: { tripId: string }) {
               />
             </TouchableOpacity>
 
-            <View className="flex-1"></View>
+            <View className="flex-1" />
 
             <Text style={{ fontWeight: "bold" }}>Members</Text>
 
-            <View className="flex-1"></View>
+            <View className="flex-1" />
           </View>
 
           <View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -388,7 +388,8 @@ function UserListItem({
 
         <Text>{user.name}</Text>
       </View>
-      <View className="flex-1"></View>
+
+      <View className="flex-1" />
 
       <TouchableOpacity onPress={() => action()}>
         <SymbolView

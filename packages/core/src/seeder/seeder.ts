@@ -1,7 +1,7 @@
 import { Trip } from "../trip/trip";
 import { User } from "../user/user";
 
-export module Seeder {
+export namespace Seeder {
   export const seedUsers = async () => {
     await User.create({
       name: "Yusuf Dikeç",
