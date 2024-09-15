@@ -20,7 +20,7 @@ export function TabBar({
 	navigation,
 	position,
 }: MaterialTopTabBarProps) {
-	const [widths, setWidths] = useState<(number | undefined)[]>([]);
+	const [widths, setWidths] = useState<number[]>([]);
 	const scrollRef = useRef<ScrollView>(null);
 	const transform = [];
 	const inputRange = state.routes.map((_, i) => i);
@@ -54,11 +54,7 @@ export function TabBar({
 	};
 
 	// compute translateX and scaleX because we cannot animate width directly
-	if (
-		state.routes.length > 1 &&
-		widths.length === state.routes.length &&
-		!widths.includes(undefined)
-	) {
+	if (state.routes.length > 1 && widths.length === state.routes.length) {
 		const translateX = getTranslateX(
 			position,
 			state.routes as never[],
@@ -67,7 +63,7 @@ export function TabBar({
 		transform.push({
 			translateX,
 		});
-		const outputRange = inputRange.map((_, i) => widths[i]) as number[];
+		const outputRange = inputRange.map((_, i) => widths[i]);
 		transform.push({
 			scaleX:
 				state.routes.length > 1
@@ -81,11 +77,7 @@ export function TabBar({
 	}
 
 	useEffect(() => {
-		if (
-			state.routes.length > 1 &&
-			widths.length === state.routes.length &&
-			!widths.includes(undefined)
-		) {
+		if (state.routes.length > 1 && widths.length === state.routes.length) {
 			if (state.index === 0) {
 				scrollRef.current?.scrollTo({
 					x: 0,
@@ -93,7 +85,7 @@ export function TabBar({
 			} else {
 				// keep the focused label at the center of the screen
 				scrollRef.current?.scrollTo({
-					x: (outputRangeRef.current[state.index] as number) - screenWidth / 2,
+					x: outputRangeRef.current[state.index] - screenWidth / 2,
 				});
 			}
 		}

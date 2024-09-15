@@ -10,7 +10,10 @@ export const tripsRouter = router({
         name: z.string(),
         startDate: z.date(),
         endDate: z.date(),
-        memberIds: z.array(z.string()),
+        members: z.array(z.object({
+          userId: z.string(),
+          isAdmin: z.boolean(),
+        })),
       })
     )
     .mutation(async (opts) => await Trip.create(opts.input)),

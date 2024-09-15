@@ -41,11 +41,11 @@ export namespace Seeder {
       name: "Istanbul",
       startDate: new Date("2024-10-01"),
       endDate: new Date("2024-10-05"),
-      memberIds: [
-        "usr_01J75RS6Y5XFZ0RXWTRMWX18D7",
-        "usr_01J75RS7K6KZ1CJ0G1ZWE6AWBJ",
-        "usr_01J75RS7MDJV4MWRHE2J9TE4ZM",
-        "usr_01J75RS7NGRXV554Y2X12RFDPG",
+      members: [
+        { userId: "usr_01J75RS6Y5XFZ0RXWTRMWX18D7", isAdmin: true },
+        { userId: "usr_01J75RS7K6KZ1CJ0G1ZWE6AWBJ", isAdmin: false },
+        { userId: "usr_01J75RS7MDJV4MWRHE2J9TE4ZM", isAdmin: false },
+        { userId: "usr_01J75RS7NGRXV554Y2X12RFDPG", isAdmin: false },
       ],
       imageUrl:
         "https://media-cdn.tripadvisor.com/media/photo-m/1280/2c/e0/c7/e6/caption.jpg",

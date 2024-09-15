@@ -30,7 +30,10 @@ export namespace Trip {
       name: z.string(),
       startDate: z.date(),
       endDate: z.date(),
-      memberIds: z.array(z.string()),
+      members: z.array(z.object({
+        userId: z.string(),
+        isAdmin: z.boolean(),
+      })),
     }),
     async (input) => {
       const id = createID("trip");
@@ -50,11 +53,12 @@ export namespace Trip {
         })
         .execute();
 
-      input.memberIds.forEach((userId) => {
+      input.members.forEach(({userId, isAdmin}) => {
         db.insert(usersToTripsTable)
           .values({
             tripId: id,
             userId,
+            isAdmin
           })
           .execute();
       });

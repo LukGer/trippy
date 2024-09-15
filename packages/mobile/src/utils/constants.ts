@@ -1,4 +1,4 @@
-import { WithSpringConfig } from "react-native-reanimated";
+import type { WithSpringConfig } from "react-native-reanimated";
 
 type SpringConfigs = {
   [key: string]: WithSpringConfig;
