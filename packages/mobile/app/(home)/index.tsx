@@ -11,6 +11,7 @@ import { ReactElement } from "react";
 import {
   ActivityIndicator,
   Alert,
+  PlatformColor,
   RefreshControl,
   StatusBar,
   Text,
@@ -35,13 +36,19 @@ export default function HomePage() {
       <Stack.Screen
         options={{
           title: "Trippy",
-          headerLargeTitle: true,
-          headerBlurEffect: "systemUltraThinMaterial",
           headerTransparent: true,
-          headerTintColor: "black",
-          contentStyle: {
-            backgroundColor: "#FFF",
+          headerLargeTitle: true,
+          headerBlurEffect: "prominent",
+          headerShadowVisible: true,
+          headerLargeTitleShadowVisible: false,
+          headerStyle: {
+            backgroundColor: "rgba(255,255,255,0.01)",
           },
+          headerLargeStyle: {
+            backgroundColor: PlatformColor("systemGroupedBackgroundColor"),
+          },
+
+          headerTintColor: "black",
           headerLeft: () => (
             <GlobeIcon
               style={{

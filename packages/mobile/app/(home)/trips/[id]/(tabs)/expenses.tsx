@@ -1,4 +1,7 @@
-import { RouterOutputs } from "@trippy/api";
+import { Transfer, useSmartTransfers } from "@/src/hooks/useSmartDebts";
+import { useTrip } from "@/src/hooks/useTrip";
+import { useTrippyUser } from "@/src/hooks/useTrippyUser";
+import { trpc } from "@/src/utils/trpc";
 import { Expense } from "@trippy/core/src/expense/expense";
 import { Image } from "expo-image";
 import { SymbolView } from "expo-symbols";
@@ -10,13 +13,11 @@ import {
   Text,
   View,
 } from "react-native";
-import { Transfer, useSmartTransfers } from "../hooks/useSmartDebts";
-import { useTrippyUser } from "../hooks/useTrippyUser";
-import { trpc } from "../utils/trpc";
+import { TrippyTopTabs } from "./_layout";
 
-type Trip = RouterOutputs["trips"]["getById"];
+export default function ExpensesPage() {
+  const trip = useTrip();
 
-export function ExpensesPage({ trip }: { trip: Trip }) {
   const { isLoading, data, refetch } = trpc.expenses.getByTripId.useQuery(
     trip.id
   );
@@ -26,28 +27,36 @@ export function ExpensesPage({ trip }: { trip: Trip }) {
   }
 
   return (
-    <ScrollView
-      refreshControl={
-        <RefreshControl refreshing={isLoading} onRefresh={refetch} />
-      }
-      style={{
-        paddingTop: 16,
-      }}
-      contentContainerStyle={{
-        gap: 24,
-        alignItems: "center",
-      }}
-    >
-      {!data || data.length === 0 ? (
-        <EmptyState />
-      ) : (
-        <>
-          <DebtsList expenses={data} />
+    <>
+      <TrippyTopTabs.Screen
+        options={{
+          title: "Expenses",
+        }}
+      />
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={isLoading} onRefresh={refetch} />
+        }
+        style={{
+          paddingTop: 16,
+          paddingHorizontal: 16,
+        }}
+        contentContainerStyle={{
+          gap: 24,
+          alignItems: "center",
+        }}
+      >
+        {!data || data.length === 0 ? (
+          <EmptyState />
+        ) : (
+          <>
+            <DebtsList expenses={data} />
 
-          <ExpensesList expenses={data} />
-        </>
-      )}
-    </ScrollView>
+            <ExpensesList expenses={data} />
+          </>
+        )}
+      </ScrollView>
+    </>
   );
 }
 
@@ -167,7 +176,6 @@ function TransferItem({ transfer }: { transfer: Transfer }) {
 }
 
 function getShortName(name: string) {
-  // if name has first and last name, return first name and last initial
   const nameParts = name.split(" ");
   if (nameParts.length === 2) {
     return `${nameParts[0]} ${nameParts[1][0]}.`;
