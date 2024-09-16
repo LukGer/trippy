@@ -1,139 +1,366 @@
-import { useWarmUpBrowser } from "@/src/hooks/useWarmupBrowser";
-import { trpc } from "@/src/utils/trpc";
-import { useOAuth, useUser } from "@clerk/clerk-expo";
-import { Ionicons } from "@expo/vector-icons";
-import { router, Stack } from "expo-router";
-import * as WebBrowser from "expo-web-browser";
-import { useCallback, useEffect, useState } from "react";
+import { usePathProgress } from "@/src/hooks/usePathProgress";
 import {
-	ActivityIndicator,
-	Pressable,
-	SafeAreaView,
+	Canvas,
+	LinearGradient,
+	Rect,
+	Skia,
+	Image as SkiaImage,
+	useImage,
+} from "@shopify/react-native-skia";
+import { Stack } from "expo-router";
+import { useEffect, useState } from "react";
+import {
+	Image,
+	StatusBar,
+	StyleSheet,
 	Text,
+	TouchableOpacity,
 	View,
+	useWindowDimensions,
 } from "react-native";
 import Animated, {
+	Easing,
+	interpolate,
 	useAnimatedStyle,
+	useDerivedValue,
 	useSharedValue,
-	withSpring,
+	withTiming,
+	type SharedValue,
 } from "react-native-reanimated";
 
-WebBrowser.maybeCompleteAuthSession();
+const AppIconImg = require("../assets/images/icon_prd.png");
+const Memoji01 = require("../assets/images/memoji_01.png");
+const Memoji02 = require("../assets/images/memoji_02.png");
+const Memoji03 = require("../assets/images/memoji_03.png");
+const Memoji04 = require("../assets/images/memoji_04.png");
+const Europe = require("../assets/images/europe.png");
 
-export default function LoginPage() {
-	useWarmUpBrowser();
+export default function OnboardingPage() {
+	const [run, setRun] = useState(false);
 
-	const [googleLoading, setGoogleLoading] = useState(false);
-	const { isLoaded, isSignedIn, user } = useUser();
-	const google = useOAuth({ strategy: "oauth_google" });
-	const createUserMutation = trpc.users.create.useMutation();
+	const { width: windowWidth, height: windowHeight } = useWindowDimensions();
 
-	const onGooglePressed = useCallback(async () => {
-		setGoogleLoading(true);
-
-		try {
-			const { createdSessionId, signIn, setActive } =
-				await google.startOAuthFlow();
-
-			if (createdSessionId) {
-				setActive?.({ session: createdSessionId });
-			} else {
-				await signIn?.create({});
-			}
-		} catch (err) {
-			console.error("OAuth error", err);
-		} finally {
-			setGoogleLoading(false);
-		}
-	}, [google]);
+	const progress = useSharedValue(0);
 
 	useEffect(() => {
-		if (!isLoaded) return;
-
-		if (isSignedIn) {
-			createUserMutation.mutate({
-				email: user.emailAddresses[0].emailAddress,
-				name: user.fullName ?? user.username ?? "",
-				clerkId: user.id,
-				pictureUrl: user.imageUrl,
-			});
-
-			router.replace("/(home)/");
-		}
-	}, [isLoaded, isSignedIn]);
+		progress.value = withTiming(run ? 1 : 0, {
+			duration: 500,
+			easing: Easing.out(Easing.quad),
+		});
+	}, [run]);
 
 	return (
 		<>
+			<StatusBar barStyle="dark-content" />
 			<Stack.Screen options={{ headerShown: false }} />
-			<SafeAreaView style={{ flex: 1 }}>
-				<View className="relative flex flex-1 flex-col items-center p-12">
-					<View className="flex-1" />
-
-					<View className="flex w-full flex-col gap-6">
-						<LoginButton
-							text="Login with Google"
-							icon={<Ionicons name="logo-google" size={16} color="#000" />}
-							loading={googleLoading}
-							onPress={onGooglePressed}
+			<View style={{ flex: 1, alignItems: "center" }}>
+				<Image source={Europe} style={styles.backgroundImage} />
+				<Canvas style={styles.backgroundImage}>
+					<Rect x={0} y={0} width={windowWidth} height={windowHeight}>
+						<LinearGradient
+							start={Skia.Point(0, 0)}
+							end={Skia.Point(0, windowHeight)}
+							colors={["#00000000", "#000000"]}
 						/>
-					</View>
-				</View>
-			</SafeAreaView>
+					</Rect>
+
+					<FirstMemoji
+						progress={progress}
+						windowWidth={windowWidth}
+						windowHeight={windowHeight}
+					/>
+					<SecondMemoji
+						progress={progress}
+						windowWidth={windowWidth}
+						windowHeight={windowHeight}
+					/>
+					<ThirdMemoji
+						progress={progress}
+						windowWidth={windowWidth}
+						windowHeight={windowHeight}
+					/>
+					<FourthMemoji
+						progress={progress}
+						windowWidth={windowWidth}
+						windowHeight={windowHeight}
+					/>
+				</Canvas>
+
+				<AppIcon progress={progress} />
+
+				<Title progress={progress} />
+
+				<SubTitle progress={progress} />
+
+				<TouchableOpacity style={styles.button} onPress={() => setRun(!run)}>
+					<Text>Lets go</Text>
+				</TouchableOpacity>
+			</View>
 		</>
 	);
 }
 
-function LoginButton({
-	icon,
-	text,
-	loading,
-	onPress,
+const FirstMemoji = ({
+	progress,
+	windowWidth,
+	windowHeight,
 }: {
-	icon: React.ReactNode;
-	text: string;
-	loading: boolean;
-	onPress: () => void;
-}) {
-	const isLoading = useSharedValue(true);
+	progress: SharedValue<number>;
+	windowWidth: number;
+	windowHeight: number;
+}) => {
+	const center = Skia.Point(100, 320);
 
-	const loadingStyle = useAnimatedStyle(() => ({
-		transform: [
-			{
-				translateY: withSpring(isLoading.value ? 42 : 0, {
-					mass: 1,
-					damping: 15,
-					stiffness: 200,
-				}),
-			},
-		],
-	}));
+	const path = Skia.Path.Make();
+	path.moveTo(center.x, center.y);
+	path.lineTo(windowWidth / 2, windowHeight / 2);
 
-	useEffect(() => {
-		isLoading.value = loading;
-	}, [loading, isLoading]);
+	const pathProgress = usePathProgress(path, progress);
+
+	const img = useImage(Memoji01);
+
+	const transform = useDerivedValue(() => {
+		const point = pathProgress.value;
+
+		return [
+			{ translateX: point.x },
+			{ translateY: point.y },
+			{ scale: interpolate(progress.value, [0, 1], [1, 0.5]) },
+			{ rotate: (-15 * Math.PI) / 180 },
+		];
+	});
 
 	return (
-		<Pressable
-			className="relative flex h-12 flex-row items-center justify-center gap-2 overflow-hidden rounded-lg bg-white transition-colors active:bg-purple-100"
-			onPress={onPress}
-		>
-			<Animated.View
-				style={[
-					loadingStyle,
-					{
-						bottom: 0,
-						position: "absolute",
-						display: "flex",
-						flexDirection: "column",
-					},
-				]}
-			>
-				<ActivityIndicator className="h-12" size="small" animating />
-				<View className="flex h-12 flex-row items-center gap-2">
-					{icon}
-					<Text style={{ fontWeight: "bold" }}>{text}</Text>
-				</View>
-			</Animated.View>
-		</Pressable>
+		<SkiaImage
+			transform={transform}
+			rect={{
+				x: 0,
+				y: 0,
+				width: 100,
+				height: 100,
+			}}
+			image={img}
+		/>
 	);
-}
+};
+
+const SecondMemoji = ({
+	progress,
+	windowWidth,
+	windowHeight,
+}: {
+	progress: SharedValue<number>;
+	windowWidth: number;
+	windowHeight: number;
+}) => {
+	const img = useImage(Memoji02);
+	const center = Skia.Point(60, 440);
+
+	const path = Skia.Path.Make();
+	path.moveTo(center.x, center.y);
+	path.lineTo(windowWidth / 2, windowHeight / 2);
+
+	const pathProgress = usePathProgress(path, progress);
+
+	const transform = useDerivedValue(() => {
+		const point = pathProgress.value;
+
+		return [
+			{ translateX: point.x },
+			{ translateY: point.y },
+			{ scale: interpolate(progress.value, [0, 1], [1, 0.5]) },
+			{ rotate: (-20 * Math.PI) / 180 },
+		];
+	});
+
+	return (
+		<SkiaImage
+			transform={transform}
+			rect={{
+				x: 0,
+				y: 0,
+				width: 120,
+				height: 120,
+			}}
+			image={img}
+		/>
+	);
+};
+
+const ThirdMemoji = ({
+	progress,
+	windowWidth,
+	windowHeight,
+}: {
+	progress: SharedValue<number>;
+	windowWidth: number;
+	windowHeight: number;
+}) => {
+	const img = useImage(Memoji03);
+	const center = Skia.Point(230, 360);
+
+	const path = Skia.Path.Make();
+	path.moveTo(center.x, center.y);
+	path.lineTo(windowWidth / 2, windowHeight / 2);
+
+	const pathProgress = usePathProgress(path, progress);
+
+	const transform = useDerivedValue(() => {
+		const point = pathProgress.value;
+
+		return [
+			{ translateX: point.x },
+			{ translateY: point.y },
+			{ scale: interpolate(progress.value, [0, 1], [1, 0.5]) },
+			{ rotate: (15 * Math.PI) / 180 },
+		];
+	});
+
+	return (
+		<SkiaImage
+			transform={transform}
+			rect={{
+				x: 0,
+				y: 0,
+				width: 130,
+				height: 130,
+			}}
+			image={img}
+		/>
+	);
+};
+
+const FourthMemoji = ({
+	progress,
+	windowWidth,
+	windowHeight,
+}: {
+	progress: SharedValue<number>;
+	windowWidth: number;
+	windowHeight: number;
+}) => {
+	const img = useImage(Memoji04);
+	const center = Skia.Point(220, 250);
+
+	const path = Skia.Path.Make();
+	path.moveTo(center.x, center.y);
+	path.lineTo(windowWidth / 2, windowHeight / 2);
+
+	const pathProgress = usePathProgress(path, progress);
+
+	const transform = useDerivedValue(() => {
+		const point = pathProgress.value;
+
+		return [
+			{ translateX: point.x },
+			{ translateY: point.y },
+			{ scale: interpolate(progress.value, [0, 1], [1, 0.5]) },
+			{ rotate: (5 * Math.PI) / 180 },
+		];
+	});
+
+	return (
+		<SkiaImage
+			transform={transform}
+			rect={{
+				x: 0,
+				y: 0,
+				width: 100,
+				height: 100,
+			}}
+			image={img}
+		/>
+	);
+};
+
+const AppIcon = ({ progress }: { progress: SharedValue<number> }) => {
+	const animatedStyle = useAnimatedStyle(() => {
+		return {
+			opacity: interpolate(progress.value, [0, 1], [0, 1]),
+			transform: [{ scale: interpolate(progress.value, [0, 1], [1.2, 1]) }],
+		};
+	});
+
+	return (
+		<Animated.View style={[styles.appIconContainer, animatedStyle]}>
+			<Image source={AppIconImg} style={styles.appIcon} />
+		</Animated.View>
+	);
+};
+
+const Title = ({ progress }: { progress: SharedValue<number> }) => {
+	const animatedStyle = useAnimatedStyle(() => {
+		return {
+			transform: [
+				{ translateY: interpolate(progress.value, [0, 1], [0, -50]) },
+			],
+		};
+	});
+
+	return (
+		<Animated.Text style={[styles.title, animatedStyle]}>Trippy</Animated.Text>
+	);
+};
+
+const SubTitle = ({ progress }: { progress: SharedValue<number> }) => {
+	const animatedStyle = useAnimatedStyle(() => {
+		return {
+			opacity: interpolate(progress.value, [0, 1], [0, 1]),
+			transform: [
+				{ translateY: interpolate(progress.value, [0, 1], [0, -50]) },
+			],
+		};
+	});
+
+	return (
+		<Animated.View style={[styles.subtitles, animatedStyle]}>
+			<Text style={styles.subtitle}>Your new travel buddy</Text>
+			<Text style={styles.subtitle}>Everything in one place</Text>
+		</Animated.View>
+	);
+};
+
+const styles = StyleSheet.create({
+	backgroundImage: {
+		...StyleSheet.absoluteFillObject,
+		zIndex: -10,
+	},
+	button: {
+		width: 150,
+		backgroundColor: "white",
+		padding: 10,
+		borderRadius: 10,
+		position: "absolute",
+		bottom: 50,
+		alignItems: "center",
+		justifyContent: "center",
+	},
+	title: {
+		fontSize: 56,
+		fontWeight: "bold",
+		color: "white",
+		position: "absolute",
+		bottom: 200,
+	},
+
+	subtitles: {
+		flexDirection: "column",
+		gap: 8,
+		position: "absolute",
+		bottom: 120,
+	},
+	subtitle: {
+		fontSize: 24,
+		color: "white",
+	},
+	appIconContainer: {
+		position: "absolute",
+		bottom: 340,
+	},
+	appIcon: {
+		width: 150,
+		height: 150,
+		borderRadius: 24,
+		borderCurve: "continuous",
+	},
+});

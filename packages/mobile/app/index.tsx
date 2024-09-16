@@ -9,7 +9,7 @@ export default function IndexPage() {
 				Login
 			</Link>
 
-			<Link href="/test">Test</Link>
+			<Link href="/onboarding">Onboarding</Link>
 		</SafeAreaView>
 	);
 }

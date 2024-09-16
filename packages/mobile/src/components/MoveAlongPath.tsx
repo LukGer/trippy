@@ -1,9 +1,8 @@
-import type { SkPath } from "@shopify/react-native-skia";
+import { Skia, type SkPath } from "@shopify/react-native-skia";
 import Animated, {
 	type SharedValue,
 	useAnimatedStyle,
 } from "react-native-reanimated";
-import { PathGeometry } from "../utils/PathGeometry";
 
 export const MoveAlongPath = ({
 	path,
@@ -14,14 +13,14 @@ export const MoveAlongPath = ({
 	progress: SharedValue<number>;
 	children: React.ReactNode;
 }) => {
-	const points = new PathGeometry(path).getPoints(0.1);
+	const contourMeasureIter = Skia.ContourMeasureIter(path, false, 1);
+	const contour = contourMeasureIter.next();
+
+	const totalLength = contour?.length() ?? 0;
 
 	const parentViewStyle = useAnimatedStyle(() => {
-		const index = Math.min(
-			Math.floor(progress.value * points.length),
-			points.length - 1,
-		);
-		const point = points[index];
+		const length = totalLength * progress.value;
+		const [point] = contour?.getPosTan(length) ?? [Skia.Point(0, 0)];
 
 		return {
 			transform: [
