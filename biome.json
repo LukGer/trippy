@@ -7,7 +7,7 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "ignore": [],
+    "ignore": ["**/.expo/**", "**/.turbo/**"],
     "include": ["packages/**/*.ts", "packages/**/*.tsx"]
   },
   "formatter": {
@@ -21,8 +21,20 @@
     "enabled": true,
     "rules": {
       "recommended": true,
+      "suspicious": {
+        "noArrayIndexKey": "warn"
+      },
+      "correctness": {
+        "useExhaustiveDependencies": "warn"
+      },
       "nursery": {
-        "useSortedClasses": "info"
+        "useSortedClasses": {
+          "options": {
+            "attributes": ["className", "class"]
+          },
+          "fix": "safe",
+          "level": "info"
+        }
       },
       "style": {
         "noNonNullAssertion": "off"

@@ -15,37 +15,37 @@ dayjs.extend(relativeTime);
 const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!;
 
 if (!publishableKey) {
-  throw new Error(
-    "Missing Publishable Key. Please set EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY in your .env"
-  );
+	throw new Error(
+		"Missing Publishable Key. Please set EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY in your .env",
+	);
 }
 
 const QUERY_CLIENT = new QueryClient();
 
 export default function RootLayout() {
-  return (
-    <ClerkProvider tokenCache={tokenCache} publishableKey={publishableKey}>
-      <ClerkLoaded>
-        <QueryClientProvider client={QUERY_CLIENT}>
-          <TrpcProvider>
-            <Stack
-              screenOptions={{
-                headerShown: false,
-              }}
-            />
-          </TrpcProvider>
-        </QueryClientProvider>
-      </ClerkLoaded>
-    </ClerkProvider>
-  );
+	return (
+		<ClerkProvider tokenCache={tokenCache} publishableKey={publishableKey}>
+			<ClerkLoaded>
+				<QueryClientProvider client={QUERY_CLIENT}>
+					<TrpcProvider>
+						<Stack
+							screenOptions={{
+								headerShown: false,
+							}}
+						/>
+					</TrpcProvider>
+				</QueryClientProvider>
+			</ClerkLoaded>
+		</ClerkProvider>
+	);
 }
 
 function TrpcProvider({ children }: { children: React.ReactNode }) {
-  const trpcClient = useTRPCClient();
+	const trpcClient = useTRPCClient();
 
-  return (
-    <trpc.Provider client={trpcClient} queryClient={QUERY_CLIENT}>
-      {children}
-    </trpc.Provider>
-  );
+	return (
+		<trpc.Provider client={trpcClient} queryClient={QUERY_CLIENT}>
+			{children}
+		</trpc.Provider>
+	);
 }

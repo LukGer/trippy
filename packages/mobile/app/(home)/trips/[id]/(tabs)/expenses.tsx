@@ -143,7 +143,7 @@ function TransferItem({ transfer }: { transfer: Transfer }) {
 
 			<View style={{ flex: 1 }} />
 
-			<Text className="text-xl font-bold">
+			<Text className="font-bold text-xl">
 				{Intl.NumberFormat("en-US", {
 					style: "currency",
 					currency: "USD",

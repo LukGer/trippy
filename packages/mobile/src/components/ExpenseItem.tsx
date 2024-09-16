@@ -44,7 +44,7 @@ export function ExpenseItem({ expense }: { expense: Expense.Info }) {
 
 				<View style={{ flex: 1 }} />
 
-				<Text className="text-xl font-bold">
+				<Text className="font-bold text-xl">
 					{Intl.NumberFormat("en-US", {
 						style: "currency",
 						currency: "USD",
