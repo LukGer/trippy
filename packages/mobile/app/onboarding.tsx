@@ -6,6 +6,8 @@ import {
 	Skia,
 	Image as SkiaImage,
 	useImage,
+	type DataSourceParam,
+	type SkPoint,
 } from "@shopify/react-native-skia";
 import { Stack } from "expo-router";
 import { useEffect, useState } from "react";
@@ -64,22 +66,38 @@ export default function OnboardingPage() {
 						/>
 					</Rect>
 
-					<FirstMemoji
+					<Memoji
+						src={Memoji01}
+						start={Skia.Point(40, 180)}
+						d={100}
+						deg={-10}
 						progress={progress}
 						windowWidth={windowWidth}
 						windowHeight={windowHeight}
 					/>
-					<SecondMemoji
+					<Memoji
+						src={Memoji02}
+						start={Skia.Point(0, 290)}
+						d={120}
+						deg={-20}
 						progress={progress}
 						windowWidth={windowWidth}
 						windowHeight={windowHeight}
 					/>
-					<ThirdMemoji
+					<Memoji
+						src={Memoji03}
+						start={Skia.Point(140, 220)}
+						d={130}
+						deg={10}
 						progress={progress}
 						windowWidth={windowWidth}
 						windowHeight={windowHeight}
 					/>
-					<FourthMemoji
+					<Memoji
+						src={Memoji04}
+						start={Skia.Point(150, 90)}
+						d={100}
+						deg={5}
 						progress={progress}
 						windowWidth={windowWidth}
 						windowHeight={windowHeight}
@@ -100,67 +118,35 @@ export default function OnboardingPage() {
 	);
 }
 
-const FirstMemoji = ({
+const Memoji = ({
+	src,
 	progress,
 	windowWidth,
 	windowHeight,
+	start,
+	d,
+	deg,
 }: {
+	src: DataSourceParam;
 	progress: SharedValue<number>;
 	windowWidth: number;
 	windowHeight: number;
+	start: SkPoint;
+	d: number;
+	deg: number;
 }) => {
-	const center = Skia.Point(100, 320);
-
 	const path = Skia.Path.Make();
-	path.moveTo(center.x, center.y);
-	path.lineTo(windowWidth / 2, windowHeight / 2);
-
-	const pathProgress = usePathProgress(path, progress);
-
-	const img = useImage(Memoji01);
-
-	const transform = useDerivedValue(() => {
-		const point = pathProgress.value;
-
-		return [
-			{ translateX: point.x },
-			{ translateY: point.y },
-			{ scale: interpolate(progress.value, [0, 1], [1, 0.5]) },
-			{ rotate: (-15 * Math.PI) / 180 },
-		];
-	});
-
-	return (
-		<SkiaImage
-			transform={transform}
-			rect={{
-				x: 0,
-				y: 0,
-				width: 100,
-				height: 100,
-			}}
-			image={img}
-		/>
+	path.moveTo(start.x + d / 2, start.y + d / 2);
+	path.quadTo(
+		windowWidth / 2 - d / 2,
+		start.y + d / 2,
+		windowWidth / 2 - d / 2,
+		windowHeight / 2 - d / 2,
 	);
-};
-
-const SecondMemoji = ({
-	progress,
-	windowWidth,
-	windowHeight,
-}: {
-	progress: SharedValue<number>;
-	windowWidth: number;
-	windowHeight: number;
-}) => {
-	const img = useImage(Memoji02);
-	const center = Skia.Point(60, 440);
-
-	const path = Skia.Path.Make();
-	path.moveTo(center.x, center.y);
-	path.lineTo(windowWidth / 2, windowHeight / 2);
 
 	const pathProgress = usePathProgress(path, progress);
+
+	const img = useImage(src);
 
 	const transform = useDerivedValue(() => {
 		const point = pathProgress.value;
@@ -169,104 +155,19 @@ const SecondMemoji = ({
 			{ translateX: point.x },
 			{ translateY: point.y },
 			{ scale: interpolate(progress.value, [0, 1], [1, 0.5]) },
-			{ rotate: (-20 * Math.PI) / 180 },
+			{ rotate: (deg * Math.PI) / 180 },
 		];
 	});
 
 	return (
 		<SkiaImage
+			origin={Skia.Point(d / 2, d / 2)}
 			transform={transform}
 			rect={{
 				x: 0,
 				y: 0,
-				width: 120,
-				height: 120,
-			}}
-			image={img}
-		/>
-	);
-};
-
-const ThirdMemoji = ({
-	progress,
-	windowWidth,
-	windowHeight,
-}: {
-	progress: SharedValue<number>;
-	windowWidth: number;
-	windowHeight: number;
-}) => {
-	const img = useImage(Memoji03);
-	const center = Skia.Point(230, 360);
-
-	const path = Skia.Path.Make();
-	path.moveTo(center.x, center.y);
-	path.lineTo(windowWidth / 2, windowHeight / 2);
-
-	const pathProgress = usePathProgress(path, progress);
-
-	const transform = useDerivedValue(() => {
-		const point = pathProgress.value;
-
-		return [
-			{ translateX: point.x },
-			{ translateY: point.y },
-			{ scale: interpolate(progress.value, [0, 1], [1, 0.5]) },
-			{ rotate: (15 * Math.PI) / 180 },
-		];
-	});
-
-	return (
-		<SkiaImage
-			transform={transform}
-			rect={{
-				x: 0,
-				y: 0,
-				width: 130,
-				height: 130,
-			}}
-			image={img}
-		/>
-	);
-};
-
-const FourthMemoji = ({
-	progress,
-	windowWidth,
-	windowHeight,
-}: {
-	progress: SharedValue<number>;
-	windowWidth: number;
-	windowHeight: number;
-}) => {
-	const img = useImage(Memoji04);
-	const center = Skia.Point(220, 250);
-
-	const path = Skia.Path.Make();
-	path.moveTo(center.x, center.y);
-	path.lineTo(windowWidth / 2, windowHeight / 2);
-
-	const pathProgress = usePathProgress(path, progress);
-
-	const transform = useDerivedValue(() => {
-		const point = pathProgress.value;
-
-		return [
-			{ translateX: point.x },
-			{ translateY: point.y },
-			{ scale: interpolate(progress.value, [0, 1], [1, 0.5]) },
-			{ rotate: (5 * Math.PI) / 180 },
-		];
-	});
-
-	return (
-		<SkiaImage
-			transform={transform}
-			rect={{
-				x: 0,
-				y: 0,
-				width: 100,
-				height: 100,
+				width: d,
+				height: d,
 			}}
 			image={img}
 		/>
@@ -277,7 +178,9 @@ const AppIcon = ({ progress }: { progress: SharedValue<number> }) => {
 	const animatedStyle = useAnimatedStyle(() => {
 		return {
 			opacity: interpolate(progress.value, [0, 1], [0, 1]),
-			transform: [{ scale: interpolate(progress.value, [0, 1], [1.2, 1]) }],
+			transform: [
+				{ translateY: interpolate(progress.value, [0, 1], [200, 0]) },
+			],
 		};
 	});
 
@@ -336,7 +239,8 @@ const styles = StyleSheet.create({
 		justifyContent: "center",
 	},
 	title: {
-		fontSize: 56,
+		fontFamily: "Quiny",
+		fontSize: 72,
 		fontWeight: "bold",
 		color: "white",
 		position: "absolute",

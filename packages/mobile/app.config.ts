@@ -21,7 +21,12 @@ export default (): ExpoConfig => ({
 	},
 	plugins: [
 		"expo-router",
-		"expo-font",
+		[
+			"expo-font",
+			{
+				fonts: ["./assets/fonts/quiny.ttf"],
+			},
+		],
 		[
 			"expo-image-picker",
 			{
