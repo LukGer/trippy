@@ -18,6 +18,7 @@ export default (): ExpoConfig => ({
 	},
 	ios: {
 		bundleIdentifier: `dev.lukger.trippy.${variant}`,
+		usesAppleSignIn: true,
 	},
 	plugins: [
 		"expo-router",

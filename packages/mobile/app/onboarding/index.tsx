@@ -9,14 +9,13 @@ import {
 	type DataSourceParam,
 	type SkPoint,
 } from "@shopify/react-native-skia";
-import { Stack } from "expo-router";
-import { useEffect, useState } from "react";
+import * as AppleAuthentication from "expo-apple-authentication";
+import { useEffect } from "react";
 import {
 	Image,
 	StatusBar,
 	StyleSheet,
 	Text,
-	TouchableOpacity,
 	View,
 	useWindowDimensions,
 } from "react-native";
@@ -26,35 +25,36 @@ import Animated, {
 	useAnimatedStyle,
 	useDerivedValue,
 	useSharedValue,
+	withDelay,
 	withTiming,
 	type SharedValue,
 } from "react-native-reanimated";
 
-const AppIconImg = require("../assets/images/icon_prd.png");
-const Memoji01 = require("../assets/images/memoji_01.png");
-const Memoji02 = require("../assets/images/memoji_02.png");
-const Memoji03 = require("../assets/images/memoji_03.png");
-const Memoji04 = require("../assets/images/memoji_04.png");
-const Europe = require("../assets/images/europe.png");
+const AppIconImg = require("../../assets/images/icon_prd.png");
+const Memoji01 = require("../../assets/images/memoji_01.png");
+const Memoji02 = require("../../assets/images/memoji_02.png");
+const Memoji03 = require("../../assets/images/memoji_03.png");
+const Memoji04 = require("../../assets/images/memoji_04.png");
+const Europe = require("../../assets/images/europe.png");
 
 export default function OnboardingPage() {
-	const [run, setRun] = useState(false);
-
 	const { width: windowWidth, height: windowHeight } = useWindowDimensions();
 
 	const progress = useSharedValue(0);
 
 	useEffect(() => {
-		progress.value = withTiming(run ? 1 : 0, {
-			duration: 500,
-			easing: Easing.out(Easing.quad),
-		});
-	}, [run]);
+		progress.value = withDelay(
+			1000,
+			withTiming(1, {
+				duration: 500,
+				easing: Easing.out(Easing.quad),
+			}),
+		);
+	}, []);
 
 	return (
 		<>
 			<StatusBar barStyle="dark-content" />
-			<Stack.Screen options={{ headerShown: false }} />
 			<View style={{ flex: 1, alignItems: "center" }}>
 				<Image source={Europe} style={styles.backgroundImage} />
 				<Canvas style={styles.backgroundImage}>
@@ -110,9 +110,7 @@ export default function OnboardingPage() {
 
 				<SubTitle progress={progress} />
 
-				<TouchableOpacity style={styles.button} onPress={() => setRun(!run)}>
-					<Text>Lets go</Text>
-				</TouchableOpacity>
+				<SocialButtons progress={progress} />
 			</View>
 		</>
 	);
@@ -223,6 +221,47 @@ const SubTitle = ({ progress }: { progress: SharedValue<number> }) => {
 	);
 };
 
+const SocialButtons = ({ progress }: { progress: SharedValue<number> }) => {
+	const animatedStyle = useAnimatedStyle(() => {
+		return {
+			opacity: interpolate(progress.value, [0, 1], [0, 1]),
+			transform: [
+				{ translateY: interpolate(progress.value, [0, 1], [0, -50]) },
+			],
+		};
+	});
+
+	return (
+		<Animated.View style={[styles.socialButtons, animatedStyle]}>
+			<AppleAuthentication.AppleAuthenticationButton
+				buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+				buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+				cornerRadius={5}
+				style={styles.button}
+				onPress={async () => {
+					try {
+						const credential = await AppleAuthentication.signInAsync({
+							requestedScopes: [
+								AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+								AppleAuthentication.AppleAuthenticationScope.EMAIL,
+							],
+						});
+						// signed in
+					} catch (e: unknown) {
+						console.error("Error during Apple authentication:", e);
+					}
+				}}
+			/>
+		</Animated.View>
+	);
+};
+
+function getUsername(
+	credential: AppleAuthentication.AppleAuthenticationCredential,
+): string {
+	return `${credential.fullName?.givenName} ${credential.fullName?.middleName} ${credential.fullName?.familyName}`.trim();
+}
+
 const styles = StyleSheet.create({
 	backgroundImage: {
 		...StyleSheet.absoluteFillObject,
@@ -266,5 +305,11 @@ const styles = StyleSheet.create({
 		height: 150,
 		borderRadius: 24,
 		borderCurve: "continuous",
+	},
+	socialButtons: {
+		position: "absolute",
+		bottom: 100,
+		flexDirection: "column",
+		gap: 8,
 	},
 });

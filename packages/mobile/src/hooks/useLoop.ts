@@ -1,16 +1,21 @@
 import { useEffect } from "react";
-import { Easing, useSharedValue, withRepeat, withTiming } from "react-native-reanimated";
+import {
+  Easing,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+} from "react-native-reanimated";
 
-export const useLoop = (duration: number) => {
-    const progress = useSharedValue(0);
+export const useLoop = (duration: number, reverse = false) => {
+  const progress = useSharedValue(0);
 
-    useEffect(() => {
-        progress.value = withRepeat(
-            withTiming(1, { duration: duration / 2, easing: Easing.linear }),
-            -1, // Infinite repetitions
-            true // Reverse the animation
-        );
-    }, [progress, duration]);
+  useEffect(() => {
+    progress.value = withRepeat(
+      withTiming(1, { duration: duration / 2, easing: Easing.linear }),
+      -1, // Infinite repetitions
+      reverse
+    );
+  }, [progress, duration, reverse]);
 
-    return progress;
-}
+  return progress;
+};

@@ -9,6 +9,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { Stack } from "expo-router";
+import { Toaster } from "sonner-native";
 
 dayjs.extend(relativeTime);
 
@@ -33,6 +34,7 @@ export default function RootLayout() {
 								headerShown: false,
 							}}
 						/>
+						<Toaster position="bottom-center" />
 					</TrpcProvider>
 				</QueryClientProvider>
 			</ClerkLoaded>
