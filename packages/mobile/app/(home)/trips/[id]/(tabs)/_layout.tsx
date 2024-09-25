@@ -1,27 +1,10 @@
-import { TabBar } from "@/src/components/TabBar";
 import { useTrip } from "@/src/hooks/useTrip";
-import {
-	createMaterialTopTabNavigator,
-	type MaterialTopTabNavigationEventMap,
-	type MaterialTopTabNavigationOptions,
-} from "@react-navigation/material-top-tabs";
-import type {
-	ParamListBase,
-	TabNavigationState,
-} from "@react-navigation/native";
+import { TrippyTabBar } from "@/src/navigation/TrippyTabBar";
+import { TrippyTabs } from "@/src/navigation/TrippyTabs";
 import { Image } from "expo-image";
-import { Link, Stack, withLayoutContext } from "expo-router";
+import { Link, Stack } from "expo-router";
 import { SymbolView } from "expo-symbols";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-
-const { Navigator } = createMaterialTopTabNavigator();
-
-export const TrippyTopTabs = withLayoutContext<
-	MaterialTopTabNavigationOptions,
-	typeof Navigator,
-	TabNavigationState<ParamListBase>,
-	MaterialTopTabNavigationEventMap
->(Navigator);
 
 export default function TripTabsLayout() {
 	const trip = useTrip();
@@ -34,6 +17,10 @@ export default function TripTabsLayout() {
 					headerTintColor: "#FFF",
 					headerBackTitle: "Home",
 					headerShadowVisible: true,
+					headerTitleStyle: {
+						fontSize: 18,
+						fontWeight: "bold",
+					},
 					headerBackground: () => (
 						<View style={{ width: "100%", height: "100%" }}>
 							<View
@@ -76,31 +63,13 @@ export default function TripTabsLayout() {
 							</TouchableOpacity>
 						</Link>
 					),
-					headerRight: () => (
-						<Link
-							href={{
-								pathname: "/(home)/trips/[id]/settings",
-								params: { id: trip.id },
-							}}
-							asChild
-						>
-							<TouchableOpacity>
-								<SymbolView
-									name="gear"
-									size={24}
-									tintColor="white"
-									resizeMode="scaleAspectFit"
-								/>
-							</TouchableOpacity>
-						</Link>
-					),
 				}}
 			/>
-			<TrippyTopTabs tabBar={TabBar}>
-				<TrippyTopTabs.Screen name="index" />
-				<TrippyTopTabs.Screen name="expenses" />
-				<TrippyTopTabs.Screen name="documents" />
-			</TrippyTopTabs>
+			<TrippyTabs tabBar={TrippyTabBar}>
+				<TrippyTabs.Screen name="index" />
+				<TrippyTabs.Screen name="expenses" />
+				<TrippyTabs.Screen name="documents" />
+			</TrippyTabs>
 		</>
 	);
 }

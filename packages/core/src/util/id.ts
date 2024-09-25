@@ -5,6 +5,7 @@ const prefixes = {
   trip: "trp",
   image: "img",
   expense: "exp",
+  message: "msg",
 } as const;
 
 export function createID(prefix: keyof typeof prefixes): string {

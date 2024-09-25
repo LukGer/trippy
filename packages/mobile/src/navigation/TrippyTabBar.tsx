@@ -1,4 +1,3 @@
-import type { MaterialTopTabBarProps } from "@react-navigation/material-top-tabs";
 import { useEffect, useRef, useState } from "react";
 import {
 	type LayoutChangeEvent,
@@ -10,16 +9,17 @@ import {
 	useWindowDimensions,
 	View,
 } from "react-native";
+import type { TrippyTabBarProps } from "./TrippyTabs";
 
-const screenWidth = useWindowDimensions().width;
 const DISTANCE_BETWEEN_TABS = 16;
 
-export function TabBar({
+export function TrippyTabBar({
 	state,
 	descriptors,
 	navigation,
 	position,
-}: MaterialTopTabBarProps) {
+}: TrippyTabBarProps) {
+	const { width: screenWidth } = useWindowDimensions();
 	const [widths, setWidths] = useState<number[]>([]);
 	const scrollRef = useRef<ScrollView>(null);
 	const transform = [];
@@ -89,7 +89,7 @@ export function TabBar({
 				});
 			}
 		}
-	}, [state.index, state.routes.length, widths]);
+	}, [state.index, state.routes.length, widths, screenWidth]);
 
 	const onLayout = (event: LayoutChangeEvent, index: number) => {
 		const { width } = event.nativeEvent.layout;
@@ -100,6 +100,7 @@ export function TabBar({
 
 	const labels = state.routes.map((route, index) => {
 		const { options } = descriptors[route.key];
+
 		const isFocused = state.index === index;
 
 		const onPress = () => {
@@ -129,7 +130,12 @@ export function TabBar({
 				}}
 				onPress={onPress}
 			>
-				<Text className="font-bold text-xl">{options.title}</Text>
+				<Text
+					className="font-bold text-xl"
+					style={{ color: options.isProFeature ? "purple" : "black" }}
+				>
+					{options.title}
+				</Text>
 			</Pressable>
 		);
 	});

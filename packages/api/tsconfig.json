@@ -6,6 +6,7 @@
     "moduleResolution": "bundler",
     "noUncheckedIndexedAccess": true,
     "declaration": true,
-    "composite": true
+    "composite": true,
+    "strict": true
   }
 }

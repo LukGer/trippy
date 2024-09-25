@@ -2,6 +2,7 @@ import { DateInput } from "@/src/components/DateInput";
 import { TripImageSelector } from "@/src/components/TripImageSelector";
 import { useTrip } from "@/src/hooks/useTrip";
 import { useTrippyUser } from "@/src/hooks/useTrippyUser";
+import { TrippyTabs } from "@/src/navigation/TrippyTabs";
 import { trpc } from "@/src/utils/trpc";
 import { toDateId } from "@marceloterreiro/flash-calendar";
 import { useQueryClient } from "@tanstack/react-query";
@@ -24,7 +25,6 @@ import {
 } from "react-native";
 import Animated, { FadeOut, LinearTransition } from "react-native-reanimated";
 import { useDebounce } from "use-debounce";
-import { TrippyTopTabs } from "./_layout";
 
 type Trip = RouterOutputs["trips"]["getById"];
 type Member = Trip["members"][number];
@@ -78,7 +78,7 @@ export default function TripSettingsPage() {
 
 	return (
 		<>
-			<TrippyTopTabs.Screen
+			<TrippyTabs.Screen
 				options={{
 					title: "Settings",
 				}}

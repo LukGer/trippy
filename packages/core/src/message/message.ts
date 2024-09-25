@@ -1,0 +1,95 @@
+import { eq } from "drizzle-orm";
+import { z } from "zod";
+import { db } from "../drizzle";
+import { userTable } from "../user/user.sql";
+import { fn } from "../util/fn";
+import { createID } from "../util/id";
+import { messageTable } from "./message.sql";
+
+export namespace Message {
+  const User = z.object({
+    id: z.string(),
+    name: z.string(),
+  });
+
+  export const Info = z.object({
+    id: z.string(),
+    tripId: z.string(),
+    userId: z.string(),
+    content: z.string().nullable(),
+    createdAt: z.date(),
+    user: User,
+  });
+
+  export type Info = z.infer<typeof Info>;
+
+  export const fromTripId = fn(z.string(), async (tripId) => {
+    return db
+      .select()
+      .from(messageTable)
+      .innerJoin(userTable, eq(messageTable.userId, userTable.id))
+      .where(eq(messageTable.tripId, tripId))
+      .orderBy(messageTable.createdAt)
+      .then((results) => {
+        const map = new Map<string, Message.Info>();
+
+        for (const result of results) {
+          if (!map.has(result.messages.id) && result.users) {
+            map.set(result.messages.id, {
+              id: result.messages.id,
+              tripId: result.messages.tripId,
+              userId: result.messages.userId,
+              content: result.messages.content,
+              createdAt: result.messages.createdAt,
+              user: {
+                id: result.users.id,
+                name: result.users.name,
+              },
+            });
+          }
+        }
+
+        return Array.from(map.values());
+      });
+  });
+
+  export const create = fn(
+    z.object({
+      tripId: z.string(),
+      userId: z.string(),
+      content: z.string().nullable(),
+    }),
+    async ({ tripId, userId, content }) => {
+      const id = createID("message");
+
+      await db.insert(messageTable).values({
+        id,
+        tripId,
+        userId,
+        content,
+        createdAt: new Date(),
+      });
+    }
+  );
+
+  export const deleteById = fn(
+    z.object({
+      userId: z.string(),
+      messageId: z.string(),
+    }),
+    async ({ userId, messageId }) => {
+      const message = (
+        await db
+          .select()
+          .from(messageTable)
+          .where(eq(messageTable.id, messageId))
+      ).at(0);
+
+      if (!message || message.userId !== userId) {
+        throw new Error("Unauthorized");
+      }
+
+      await db.delete(messageTable).where(eq(messageTable.id, messageId));
+    }
+  );
+}

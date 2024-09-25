@@ -1,18 +1,25 @@
 import { useTrip } from "@/src/hooks/useTrip";
+import { TrippyTabs } from "@/src/navigation/TrippyTabs";
+import { trpc } from "@/src/utils/trpc";
 import { Text } from "react-native";
-import { TrippyTopTabs } from "./_layout";
 
 export default function TripMessagesPage() {
-  const trip = useTrip();
+	const trip = useTrip();
 
-  return (
-    <>
-      <TrippyTopTabs.Screen
-        options={{
-          title: "Chat",
-        }}
-      />
-      <Text>{trip.name}</Text>
-    </>
-  );
+	const { data, isLoading } = trpc.messages.getByTripId.useQuery(trip.id);
+
+	return (
+		<>
+			<TrippyTabs.Screen
+				options={{
+					title: "Chat",
+				}}
+			/>
+			{isLoading ? (
+				<Text>Loading...</Text>
+			) : (
+				<Text>{data?.length ?? 0} messages</Text>
+			)}
+		</>
+	);
 }

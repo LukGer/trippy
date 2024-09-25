@@ -12,5 +12,6 @@ export const messageTable = pgTable("messages", {
     .references(() => userTable.id)
     .notNull(),
   content: text("content"),
-  createdAt: timestamp("created_at"),
+  deeplink: text("deeplink"),
+  createdAt: timestamp("created_at").notNull(),
 });
