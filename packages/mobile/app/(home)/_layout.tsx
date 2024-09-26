@@ -1,4 +1,4 @@
-import { UserContext } from "@/src/context/UserContext";
+import { UserContext } from "@/src/context/user-context";
 import { trpc } from "@/src/utils/trpc";
 import { useAuth } from "@clerk/clerk-expo";
 import { skipToken } from "@tanstack/react-query";
@@ -21,7 +21,11 @@ export default function HomeLayout() {
 	}
 
 	if (isLoading) {
-		return <ActivityIndicator />;
+		return (
+			<View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+				<ActivityIndicator />
+			</View>
+		);
 	}
 
 	if (!data) {

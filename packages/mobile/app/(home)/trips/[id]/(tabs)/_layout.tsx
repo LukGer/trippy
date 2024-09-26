@@ -1,6 +1,6 @@
 import { useTrip } from "@/src/hooks/useTrip";
-import { TrippyTabBar } from "@/src/navigation/TrippyTabBar";
-import { TrippyTabs } from "@/src/navigation/TrippyTabs";
+import { TrippyTabBar } from "@/src/navigation/trippy-tab-bar";
+import { TrippyTabs } from "@/src/navigation/trippy-tabs";
 import { Image } from "expo-image";
 import { Link, Stack } from "expo-router";
 import { SymbolView } from "expo-symbols";

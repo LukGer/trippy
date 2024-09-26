@@ -1,4 +1,4 @@
-import { TrippyTabs } from "@/src/navigation/TrippyTabs";
+import { TrippyTabs } from "@/src/navigation/trippy-tabs";
 import { Text } from "react-native";
 
 export default function TripDocumentsScreen() {

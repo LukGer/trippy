@@ -1,4 +1,4 @@
-import { DateInput } from "@/src/components/DateInput";
+import { DateInput } from "@/src/components/date-input";
 import { useTrippyUser } from "@/src/hooks/useTrippyUser";
 import { trpc } from "@/src/utils/trpc";
 import { fromDateId, toDateId } from "@marceloterreiro/flash-calendar";

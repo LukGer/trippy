@@ -1,8 +1,11 @@
-import { ExpenseItem } from "@/src/components/ExpenseItem";
-import { type Transfer, useSmartTransfers } from "@/src/hooks/useSmartDebts";
+import { ExpenseItem } from "@/src/components/expense-item";
+import {
+	type Transfer,
+	useSmartTransfers,
+} from "@/src/hooks/useSmartTransfers";
 import { useTrip } from "@/src/hooks/useTrip";
 import { useTrippyUser } from "@/src/hooks/useTrippyUser";
-import { TrippyTabs } from "@/src/navigation/TrippyTabs";
+import { TrippyTabs } from "@/src/navigation/trippy-tabs";
 import { trpc } from "@/src/utils/trpc";
 import type { Expense } from "@trippy/core/src/expense/expense";
 import { SymbolView } from "expo-symbols";
@@ -32,7 +35,6 @@ export default function ExpensesPage() {
 			<TrippyTabs.Screen
 				options={{
 					title: "Expenses",
-					isProFeature: true,
 				}}
 			/>
 			<ScrollView

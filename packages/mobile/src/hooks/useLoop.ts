@@ -12,7 +12,7 @@ export const useLoop = (duration: number, reverse = false) => {
   useEffect(() => {
     progress.value = withRepeat(
       withTiming(1, { duration: duration / 2, easing: Easing.linear }),
-      -1, // Infinite repetitions
+      -1,
       reverse
     );
   }, [progress, duration, reverse]);

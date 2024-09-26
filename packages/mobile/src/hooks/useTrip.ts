@@ -4,6 +4,5 @@ import { createContext, useContext } from "react";
 export const TripContext = createContext<Trip.Info>(null!);
 
 export const useTrip = () => {
-	const trip = useContext(TripContext);
-	return trip;
+  return useContext(TripContext);
 };

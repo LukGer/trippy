@@ -8,7 +8,7 @@ import Animated, {
 	withSpring,
 } from "react-native-reanimated";
 import { SPRING } from "../utils/constants";
-import { TrippyCalendar } from "./TrippyCalendar";
+import { TrippyCalendar } from "./trippy-calendar";
 
 interface DateInputProps {
 	label: string;

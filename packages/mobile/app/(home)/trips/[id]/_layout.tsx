@@ -1,7 +1,7 @@
 import { TripContext } from "@/src/hooks/useTrip";
 import { trpc } from "@/src/utils/trpc";
 import { Stack, useLocalSearchParams } from "expo-router";
-import { StatusBar, Text } from "react-native";
+import { StatusBar } from "react-native";
 
 export default function TripLayout() {
 	const params = useLocalSearchParams<{ id: string }>();
@@ -10,7 +10,7 @@ export default function TripLayout() {
 	const { data, isLoading } = trpc.trips.getById.useQuery(tripId);
 
 	if (isLoading || !data) {
-		return <Text>Loading...</Text>;
+		return null;
 	}
 
 	return (

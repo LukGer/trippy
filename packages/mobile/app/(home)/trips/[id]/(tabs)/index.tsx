@@ -1,5 +1,5 @@
 import { useTrip } from "@/src/hooks/useTrip";
-import { TrippyTabs } from "@/src/navigation/TrippyTabs";
+import { TrippyTabs } from "@/src/navigation/trippy-tabs";
 import { trpc } from "@/src/utils/trpc";
 import { Text } from "react-native";
 

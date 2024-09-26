@@ -1,8 +1,8 @@
-import { DateInput } from "@/src/components/DateInput";
-import { TripImageSelector } from "@/src/components/TripImageSelector";
+import { DateInput } from "@/src/components/date-input";
+import { TripImageSelector } from "@/src/components/trip-image-selector";
 import { useTrip } from "@/src/hooks/useTrip";
 import { useTrippyUser } from "@/src/hooks/useTrippyUser";
-import { TrippyTabs } from "@/src/navigation/TrippyTabs";
+import { TrippyTabs } from "@/src/navigation/trippy-tabs";
 import { trpc } from "@/src/utils/trpc";
 import { toDateId } from "@marceloterreiro/flash-calendar";
 import { useQueryClient } from "@tanstack/react-query";
@@ -23,7 +23,13 @@ import {
 	TouchableOpacity,
 	View,
 } from "react-native";
-import Animated, { FadeOut, LinearTransition } from "react-native-reanimated";
+import Animated, {
+	FadeOut,
+	LinearTransition,
+	useAnimatedStyle,
+	withSpring,
+	withTiming,
+} from "react-native-reanimated";
 import { useDebounce } from "use-debounce";
 
 type Trip = RouterOutputs["trips"]["getById"];
@@ -70,11 +76,41 @@ export default function TripSettingsPage() {
 	);
 	const [endDate, setEndDate] = useState(toDateId(trip.endDate ?? new Date()));
 
+	const hasChanges =
+		name !== trip.name ||
+		startDate !== toDateId(trip.startDate) ||
+		endDate !== toDateId(trip.endDate);
+
 	const sortedMembers = trip.members.sort((a, b) => {
 		if (a.id === user.id) return -1;
 		if (b.id === user.id) return 1;
 		return a.name.localeCompare(b.name);
 	});
+
+	const animatedSaveButtonStyle = useAnimatedStyle(() => ({
+		opacity: withTiming(hasChanges ? 1 : 0),
+		transform: [
+			{
+				translateY: withSpring(hasChanges ? -50 : 50),
+			},
+		],
+	}));
+
+	const saveTrip = () => {
+		updateTrip.mutate(
+			{
+				id: trip.id,
+				name,
+				startDate: new Date(startDate),
+				endDate: new Date(endDate),
+			},
+			{
+				onSuccess: () => {
+					utils.trips.getById.invalidate(trip.id);
+				},
+			},
+		);
+	};
 
 	return (
 		<>
@@ -190,6 +226,33 @@ export default function TripSettingsPage() {
 								)}
 							</Fragment>
 						))}
+					</Animated.View>
+				</View>
+
+				<View
+					style={{
+						position: "relative",
+						height: 24,
+						width: "100%",
+						alignItems: "center",
+					}}
+				>
+					<Animated.View
+						style={[
+							{
+								position: "absolute",
+								top: 0,
+							},
+							animatedSaveButtonStyle,
+						]}
+					>
+						<TouchableOpacity
+							activeOpacity={0.66}
+							onPress={() => saveTrip()}
+							style={styles.saveButtonStyle}
+						>
+							<Text style={styles.saveButtonTitle}>Save changes</Text>
+						</TouchableOpacity>
 					</Animated.View>
 				</View>
 			</ScrollView>
@@ -421,5 +484,20 @@ const styles = StyleSheet.create({
 		width: 42,
 		height: 42,
 		borderRadius: 99,
+	},
+	saveButtonStyle: {
+		flexDirection: "row",
+		justifyContent: "center",
+		alignItems: "center",
+		backgroundColor: "#DDF1FF",
+		borderRadius: 99,
+		borderCurve: "continuous",
+		paddingVertical: 12,
+		paddingHorizontal: 36,
+	},
+	saveButtonTitle: {
+		color: "#25AAF6",
+		fontWeight: "bold",
+		fontSize: 16,
 	},
 });

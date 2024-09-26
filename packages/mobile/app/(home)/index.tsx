@@ -1,4 +1,4 @@
-import { GlobeIcon } from "@/src/components/GlobeIcon";
+import { GlobeIcon } from "@/src/components/globe-icon";
 import { useTrippyUser } from "@/src/hooks/useTrippyUser";
 import { trpc } from "@/src/utils/trpc";
 import { Canvas, LinearGradient, Rect } from "@shopify/react-native-skia";
