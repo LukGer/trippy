@@ -1,3 +1,4 @@
+import { Message } from "../message/message";
 import { Trip } from "../trip/trip";
 import { User } from "../user/user";
 
@@ -47,8 +48,26 @@ export namespace Seeder {
         { userId: "usr_01J75RS7MDJV4MWRHE2J9TE4ZM", isAdmin: false },
         { userId: "usr_01J75RS7NGRXV554Y2X12RFDPG", isAdmin: false },
       ],
-      imageUrl:
-        "https://media-cdn.tripadvisor.com/media/photo-m/1280/2c/e0/c7/e6/caption.jpg",
+    });
+  };
+
+  export const seedMessages = async () => {
+    await Message.create({
+      userId: "usr_01J75TKXX6BEBG20A0JTAZXDTY",
+      tripId: "trp_01J7E7RF32D1X039XFBZJ0FEM8",
+      content: "Hello, how are you?",
+    });
+
+    await Message.create({
+      userId: "usr_01J75RS7MDJV4MWRHE2J9TE4ZM",
+      tripId: "trp_01J7E7RF32D1X039XFBZJ0FEM8",
+      content: "I'm fine, thank you!",
+    });
+
+    await Message.create({
+      userId: "usr_01J75RS6Y5XFZ0RXWTRMWX18D7",
+      tripId: "trp_01J7E7RF32D1X039XFBZJ0FEM8",
+      content: "Whazzup?",
     });
   };
 }

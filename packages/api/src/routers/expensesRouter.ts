@@ -4,6 +4,12 @@ import { procedure, router } from "../trpc";
 
 export const expensesRouter = router({
   getByTripId: procedure
-    .input(z.string())
-    .query((opts) => Expense.fromTripId(opts.input)),
+    .input(
+      z.object({
+        tripId: z.string(),
+        start: z.date().default(new Date(2099, 12, 31)),
+        limit: z.number().optional().default(100),
+      })
+    )
+    .query((opts) => Expense.getByTripId(opts.input)),
 });

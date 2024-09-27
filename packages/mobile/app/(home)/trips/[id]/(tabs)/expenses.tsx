@@ -22,9 +22,9 @@ import Animated, { LinearTransition } from "react-native-reanimated";
 export default function ExpensesPage() {
 	const trip = useTrip();
 
-	const { isLoading, data, refetch } = trpc.expenses.getByTripId.useQuery(
-		trip.id,
-	);
+	const { isLoading, data, refetch } = trpc.expenses.getByTripId.useQuery({
+		tripId: trip.id,
+	});
 
 	if (isLoading) {
 		return <Text>Loading...</Text>;

@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, desc, eq, lt } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "../drizzle";
 import { userTable } from "../user/user.sql";
@@ -16,6 +16,7 @@ export namespace Message {
     id: z.string(),
     tripId: z.string(),
     userId: z.string(),
+    type: z.enum(["chat", "expense", "system"]),
     content: z.string().nullable(),
     createdAt: z.date(),
     user: User,
@@ -23,35 +24,49 @@ export namespace Message {
 
   export type Info = z.infer<typeof Info>;
 
-  export const fromTripId = fn(z.string(), async (tripId) => {
-    return db
-      .select()
-      .from(messageTable)
-      .innerJoin(userTable, eq(messageTable.userId, userTable.id))
-      .where(eq(messageTable.tripId, tripId))
-      .orderBy(messageTable.createdAt)
-      .then((results) => {
-        const map = new Map<string, Message.Info>();
+  export const getByTripIdFromTo = fn(
+    z.object({
+      tripId: z.string(),
+      start: z.date(),
+      limit: z.number(),
+    }),
+    async ({ tripId, start, limit }) => {
+      return db
+        .select()
+        .from(messageTable)
+        .innerJoin(userTable, eq(messageTable.userId, userTable.id))
+        .where(
+          and(
+            eq(messageTable.tripId, tripId),
+            lt(messageTable.createdAt, start)
+          )
+        )
+        .orderBy(desc(messageTable.createdAt))
+        .limit(limit)
+        .then((results) => {
+          const map = new Map<string, Message.Info>();
 
-        for (const result of results) {
-          if (!map.has(result.messages.id) && result.users) {
-            map.set(result.messages.id, {
-              id: result.messages.id,
-              tripId: result.messages.tripId,
-              userId: result.messages.userId,
-              content: result.messages.content,
-              createdAt: result.messages.createdAt,
-              user: {
-                id: result.users.id,
-                name: result.users.name,
-              },
-            });
+          for (const result of results) {
+            if (!map.has(result.messages.id) && result.users) {
+              map.set(result.messages.id, {
+                id: result.messages.id,
+                tripId: result.messages.tripId,
+                userId: result.messages.userId,
+                type: result.messages.type,
+                content: result.messages.content,
+                createdAt: result.messages.createdAt,
+                user: {
+                  id: result.users.id,
+                  name: result.users.name,
+                },
+              });
+            }
           }
-        }
 
-        return Array.from(map.values());
-      });
-  });
+          return Array.from(map.values());
+        });
+    }
+  );
 
   export const create = fn(
     z.object({
@@ -66,6 +81,7 @@ export namespace Message {
         id,
         tripId,
         userId,
+        type: "chat",
         content,
         createdAt: new Date(),
       });

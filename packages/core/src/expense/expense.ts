@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, desc, eq, lte } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { z } from "zod";
 import { db } from "../drizzle";
@@ -78,63 +78,77 @@ export namespace Expense {
 
   const payerTable = alias(userTable, "payer");
 
-  export const fromTripId = fn(z.string(), async (tripId) => {
-    return db
-      .select({
-        expense: expenseTable,
-        payer: userTable,
-        recipient: expenseRecipientTable,
-        recipientUser: userTable,
-      })
-      .from(expenseTable)
-      .innerJoin(payerTable, eq(expenseTable.payerId, payerTable.id))
-      .leftJoin(
-        expenseRecipientTable,
-        eq(expenseRecipientTable.expenseId, expenseTable.id)
-      )
-      .leftJoin(userTable, eq(expenseRecipientTable.userId, userTable.id))
-      .where(eq(expenseTable.tripId, tripId))
-      .then((results) => {
-        const map = new Map<string, Expense.Info>();
+  export const getByTripId = fn(
+    z.object({
+      tripId: z.string(),
+      start: z.date(),
+      limit: z.number(),
+    }),
+    async ({ tripId, start, limit }) => {
+      return db
+        .select({
+          expense: expenseTable,
+          payer: userTable,
+          recipient: expenseRecipientTable,
+          recipientUser: userTable,
+        })
+        .from(expenseTable)
+        .innerJoin(payerTable, eq(expenseTable.payerId, payerTable.id))
+        .leftJoin(
+          expenseRecipientTable,
+          eq(expenseRecipientTable.expenseId, expenseTable.id)
+        )
+        .leftJoin(userTable, eq(expenseRecipientTable.userId, userTable.id))
+        .where(
+          and(
+            eq(expenseTable.tripId, tripId),
+            lte(expenseTable.createdAt, start)
+          )
+        )
+        .orderBy(desc(expenseTable.createdAt))
+        .limit(limit)
+        .then((results) => {
+          const map = new Map<string, Expense.Info>();
 
-        for (const result of results) {
-          if (!map.has(result.expense.id) && result.payer) {
-            map.set(result.expense.id, {
-              id: result.expense.id,
-              tripId: result.expense.tripId,
-              payerId: result.expense.payerId,
-              amount: result.expense.amount,
-              description: result.expense.description,
-              createdAt: result.expense.createdAt,
-              recipients: [],
-              payer: {
-                id: result.payer.id,
-                name: result.payer.name,
-                pictureUrl: result.payer.pictureUrl,
-              },
-            });
-          }
-
-          if (result.recipient && result.recipientUser) {
-            const expense = map.get(result.expense.id);
-
-            if (!expense) {
-              continue;
+          for (const result of results) {
+            if (!map.has(result.expense.id) && result.payer) {
+              map.set(result.expense.id, {
+                id: result.expense.id,
+                tripId: result.expense.tripId,
+                payerId: result.expense.payerId,
+                amount: result.expense.amount,
+                description: result.expense.description,
+                createdAt: result.expense.createdAt,
+                recipients: [],
+                payer: {
+                  id: result.payer.id,
+                  name: result.payer.name,
+                  pictureUrl: result.payer.pictureUrl,
+                },
+              });
             }
 
-            expense.recipients.push({
-              userId: result.recipient.userId,
-              amount: result.recipient.amount,
-              user: {
-                id: result.recipientUser.id,
-                name: result.recipientUser.name,
-                pictureUrl: result.recipientUser.pictureUrl,
-              },
-            });
-          }
-        }
+            if (result.recipient && result.recipientUser) {
+              const expense = map.get(result.expense.id);
 
-        return Array.from(map.values());
-      });
-  });
+              if (!expense) {
+                continue;
+              }
+
+              expense.recipients.push({
+                userId: result.recipient.userId,
+                amount: result.recipient.amount,
+                user: {
+                  id: result.recipientUser.id,
+                  name: result.recipientUser.name,
+                  pictureUrl: result.recipientUser.pictureUrl,
+                },
+              });
+            }
+          }
+
+          return Array.from(map.values());
+        });
+    }
+  );
 }

@@ -1,3 +1,3 @@
 import { Seeder } from "./seeder";
 
-await Seeder.seedTrips();
+await Seeder.seedMessages();
