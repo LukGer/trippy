@@ -128,7 +128,7 @@ function LoginButton({
 					},
 				]}
 			>
-				<ActivityIndicator className="h-12" size="small" animating />
+				<ActivityIndicator className="h-12" size="small" />
 				<View className="flex h-12 flex-row items-center gap-2">
 					{icon}
 					<Text style={{ fontWeight: "bold" }}>{text}</Text>

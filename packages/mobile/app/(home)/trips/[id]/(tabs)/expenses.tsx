@@ -1,4 +1,5 @@
 import { ExpenseItem } from "@/src/components/expense-item";
+import { FullscreenLoading } from "@/src/components/fullscreen-loading";
 import {
 	type Transfer,
 	useSmartTransfers,
@@ -27,7 +28,7 @@ export default function ExpensesPage() {
 	});
 
 	if (isLoading) {
-		return <Text>Loading...</Text>;
+		return <FullscreenLoading />;
 	}
 
 	return (

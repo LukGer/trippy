@@ -1,4 +1,5 @@
 import { DateInput } from "@/src/components/date-input";
+import { FullscreenLoading } from "@/src/components/fullscreen-loading";
 import { TripImageSelector } from "@/src/components/trip-image-selector";
 import { useTrip } from "@/src/hooks/useTrip";
 import { useTrippyUser } from "@/src/hooks/useTrippyUser";
@@ -13,7 +14,6 @@ import { router } from "expo-router";
 import { SymbolView } from "expo-symbols";
 import { Fragment, useState } from "react";
 import {
-	ActivityIndicator,
 	Alert,
 	Modal,
 	ScrollView,
@@ -281,6 +281,10 @@ function AddMemberButton({ tripId }: { tripId: string }) {
 		tripId,
 	});
 
+	if (isLoading) {
+		return <FullscreenLoading />;
+	}
+
 	return (
 		<>
 			<Modal
@@ -354,23 +358,19 @@ function AddMemberButton({ tripId }: { tripId: string }) {
 						Add members
 					</Text>
 
-					{isLoading ? (
-						<ActivityIndicator />
-					) : (
-						data?.map((user) => (
-							<UserListItem
-								key={user.id}
-								user={{ ...user, isAdmin: false }}
-								mode="add"
-								action={() => {
-									addMemberMutation.mutate({
-										tripId,
-										userId: user.id,
-									});
-								}}
-							/>
-						))
-					)}
+					{data?.map((user) => (
+						<UserListItem
+							key={user.id}
+							user={{ ...user, isAdmin: false }}
+							mode="add"
+							action={() => {
+								addMemberMutation.mutate({
+									tripId,
+									userId: user.id,
+								});
+							}}
+						/>
+					))}
 				</View>
 			</Modal>
 			<TouchableOpacity style={styles.item} onPress={() => setIsOpen(true)}>

@@ -1,3 +1,4 @@
+import { FullscreenLoading } from "@/src/components/fullscreen-loading";
 import { useTrip } from "@/src/hooks/useTrip";
 import { useTrippyUser } from "@/src/hooks/useTrippyUser";
 import { TrippyTabs } from "@/src/navigation/trippy-tabs";
@@ -35,6 +36,10 @@ export default function TripMessagesPage() {
 		hasNextPage && fetchNextPage();
 	}, [hasNextPage, fetchNextPage]);
 
+	if (isLoading) {
+		return <FullscreenLoading />;
+	}
+
 	return (
 		<>
 			<TrippyTabs.Screen
@@ -42,30 +47,27 @@ export default function TripMessagesPage() {
 					title: "Chat",
 				}}
 			/>
-			{isLoading ? (
-				<Text>Loading...</Text>
-			) : (
-				<View
-					style={{
-						flex: 1,
-						marginBottom: bottom,
-						marginHorizontal: 16,
-					}}
-				>
-					<FlashList
-						data={flattenData}
-						onEndReached={onEndReached}
-						onEndReachedThreshold={0.5}
-						estimatedItemSize={58}
-						keyExtractor={(item) => item.id}
-						inverted
-						renderItem={({ item }) => (
-							<ChatMessage message={item} userId={user.id} />
-						)}
-					/>
-					<View style={styles.input} />
-				</View>
-			)}
+
+			<View
+				style={{
+					flex: 1,
+					marginBottom: bottom,
+					marginHorizontal: 16,
+				}}
+			>
+				<FlashList
+					data={flattenData}
+					onEndReached={onEndReached}
+					onEndReachedThreshold={0.5}
+					estimatedItemSize={58}
+					keyExtractor={(item) => item.id}
+					inverted
+					renderItem={({ item }) => (
+						<ChatMessage message={item} userId={user.id} />
+					)}
+				/>
+				<View style={styles.input} />
+			</View>
 		</>
 	);
 }

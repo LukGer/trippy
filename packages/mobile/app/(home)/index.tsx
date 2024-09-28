@@ -1,3 +1,4 @@
+import { FullscreenLoading } from "@/src/components/fullscreen-loading";
 import { GlobeIcon } from "@/src/components/globe-icon";
 import { useTrippyUser } from "@/src/hooks/useTrippyUser";
 import { trpc } from "@/src/utils/trpc";
@@ -9,7 +10,6 @@ import { Link, Stack } from "expo-router";
 import { SymbolView } from "expo-symbols";
 import type { ReactElement } from "react";
 import {
-	ActivityIndicator,
 	Alert,
 	PlatformColor,
 	RefreshControl,
@@ -29,6 +29,10 @@ export default function HomePage() {
 	const { isLoading, data, refetch } = trpc.trips.getTripsByUserId.useQuery(
 		user.id,
 	);
+
+	if (isLoading) {
+		return <FullscreenLoading />;
+	}
 
 	return (
 		<>
@@ -86,12 +90,6 @@ export default function HomePage() {
 					<RefreshControl refreshing={isLoading} onRefresh={() => refetch()} />
 				}
 			>
-				{isLoading && (
-					<View className="h-full w-full items-center justify-center">
-						<ActivityIndicator size="large" />
-					</View>
-				)}
-
 				{data && <TripList trips={data} />}
 			</Animated.ScrollView>
 		</>

@@ -1,9 +1,10 @@
+import { FullscreenLoading } from "@/src/components/fullscreen-loading";
 import { UserContext } from "@/src/context/user-context";
 import { trpc } from "@/src/utils/trpc";
 import { useAuth } from "@clerk/clerk-expo";
 import { skipToken } from "@tanstack/react-query";
 import { Redirect, Stack } from "expo-router";
-import { ActivityIndicator, Text, View } from "react-native";
+import { Text, View } from "react-native";
 
 export default function HomeLayout() {
 	const { isSignedIn, userId } = useAuth();
@@ -21,11 +22,7 @@ export default function HomeLayout() {
 	}
 
 	if (isLoading) {
-		return (
-			<View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-				<ActivityIndicator />
-			</View>
-		);
+		return <FullscreenLoading />;
 	}
 
 	if (!data) {
