@@ -9,6 +9,7 @@ import { Image } from "expo-image";
 import { Link, Stack } from "expo-router";
 import { SymbolView } from "expo-symbols";
 import type { ReactElement } from "react";
+import React from "react";
 import {
 	Alert,
 	PlatformColor,
@@ -40,6 +41,7 @@ export default function HomePage() {
 			<Stack.Screen
 				options={{
 					title: "Trippy",
+					headerShown: true,
 					headerTransparent: true,
 					headerLargeTitle: true,
 					headerBlurEffect: "prominent",

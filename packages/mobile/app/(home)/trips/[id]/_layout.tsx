@@ -1,6 +1,7 @@
 import { TripContext } from "@/src/hooks/useTrip";
 import { trpc } from "@/src/utils/trpc";
 import { Stack, useLocalSearchParams } from "expo-router";
+import React from "react";
 import { StatusBar } from "react-native";
 
 export default function TripLayout() {

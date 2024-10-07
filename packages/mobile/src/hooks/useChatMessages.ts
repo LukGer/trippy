@@ -2,8 +2,10 @@ import type { Message } from "@trippy/core/src/message/message";
 import dayjs, { type Dayjs } from "dayjs";
 import { useMemo } from "react";
 
-export const useMessagesWithDates = (messages: Message.Info[]) => {
+export const useChatMessages = (messages: Message.Info[]) => {
   return useMemo(() => {
+    messages.reverse();
+
     addDateSystemMessages(messages);
 
     return messages;

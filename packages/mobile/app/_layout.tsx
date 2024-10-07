@@ -10,6 +10,7 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { Stack } from "expo-router";
 import type { ReactNode } from "react";
+import { KeyboardProvider } from "react-native-keyboard-controller";
 import { Toaster } from "sonner-native";
 
 dayjs.extend(relativeTime);
@@ -30,12 +31,14 @@ export default function RootLayout() {
 			<ClerkLoaded>
 				<QueryClientProvider client={QUERY_CLIENT}>
 					<TrpcProvider>
-						<Stack
-							screenOptions={{
-								headerShown: false,
-							}}
-						/>
-						<Toaster position="bottom-center" />
+						<KeyboardProvider>
+							<Stack
+								screenOptions={{
+									headerShown: false,
+								}}
+							/>
+							<Toaster position="bottom-center" />
+						</KeyboardProvider>
 					</TrpcProvider>
 				</QueryClientProvider>
 			</ClerkLoaded>

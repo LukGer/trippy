@@ -1,12 +1,17 @@
+import { Stack } from "expo-router";
+import React from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 
 export function FullscreenLoading(props: { color?: string }) {
 	const color = props.color ?? "#0000ff";
 
 	return (
-		<View style={styles.container}>
-			<ActivityIndicator size="large" color={color} />
-		</View>
+		<>
+			<Stack.Screen options={{ headerShown: false }} />
+			<View style={styles.container}>
+				<ActivityIndicator size="large" color={color} />
+			</View>
+		</>
 	);
 }
 
