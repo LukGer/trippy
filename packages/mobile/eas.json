@@ -14,17 +14,17 @@
       "developmentClient": true,
       "distribution": "internal",
       "env": {
+        "APP_VARIANT": "dev",
         "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_test_cHJlcGFyZWQtYnVubnktMzguY2xlcmsuYWNjb3VudHMuZGV2JA",
-        "EXPO_PUBLIC_BACKEND_URL": "https://qqw6q4njnrz4tq4iulnftr5vxi0tbihy.lambda-url.eu-central-1.on.aws/trpc",
-        "APP_VARIANT": "dev"
+        "EXPO_PUBLIC_BACKEND_URL": "https://qqw6q4njnrz4tq4iulnftr5vxi0tbihy.lambda-url.eu-central-1.on.aws/trpc"
       }
     },
     "preview": {
       "distribution": "internal",
       "env": {
+        "APP_VARIANT": "tst",
         "EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_test_cHJlcGFyZWQtYnVubnktMzguY2xlcmsuYWNjb3VudHMuZGV2JA",
-        "EXPO_PUBLIC_BACKEND_URL": "https://dev.trippy.lukger.dev/trpc",
-        "APP_VARIANT": "tst"
+        "EXPO_PUBLIC_BACKEND_URL": "https://dev.trippy.lukger.dev/trpc"
       }
     },
     "production": {

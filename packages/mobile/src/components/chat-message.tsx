@@ -55,6 +55,7 @@ function ExpenseMessage({ message }: { message: Message.ExpenseMessage }) {
 
 const styles = StyleSheet.create({
 	bubble: {
+		maxWidth: "85%",
 		flexDirection: "column",
 		gap: 4,
 		backgroundColor: "white",

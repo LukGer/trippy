@@ -4,7 +4,7 @@ import { useLoop } from "../hooks/useLoop";
 
 const STROKE_WIDTH = 5;
 
-export function Spinner({ size }: { size: number }) {
+export function Spinner({ size, color }: { size: number; color: string }) {
 	const loop = useLoop(600);
 
 	const transform = useDerivedValue(() => {
@@ -50,7 +50,7 @@ export function Spinner({ size }: { size: number }) {
 					style="stroke"
 					strokeWidth={STROKE_WIDTH}
 					strokeCap="round"
-					color="#25AAF6"
+					color={color}
 				/>
 			</Group>
 		</Canvas>

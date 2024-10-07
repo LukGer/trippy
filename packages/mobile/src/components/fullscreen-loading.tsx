@@ -1,6 +1,7 @@
 import { Stack } from "expo-router";
 import React from "react";
-import { ActivityIndicator, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
+import { Spinner } from "./spinner";
 
 export function FullscreenLoading(props: { color?: string }) {
 	const color = props.color ?? "#0000ff";
@@ -9,7 +10,7 @@ export function FullscreenLoading(props: { color?: string }) {
 		<>
 			<Stack.Screen options={{ headerShown: false }} />
 			<View style={styles.container}>
-				<ActivityIndicator size="large" color={color} />
+				<Spinner size={40} color={color} />
 			</View>
 		</>
 	);

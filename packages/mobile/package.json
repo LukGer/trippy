@@ -3,7 +3,7 @@
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
-    "dev": "expo start",
+    "dev": "expo start --scheme trippy-dev",
     "build": "eas build --local --platform ios",
     "lint": "expo lint",
     "android": "expo run:android",

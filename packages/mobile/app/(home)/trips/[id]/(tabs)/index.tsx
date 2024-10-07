@@ -13,7 +13,6 @@ import { useKeyboardHandler } from "react-native-keyboard-controller";
 import Animated, {
 	type SharedValue,
 	useAnimatedStyle,
-	useDerivedValue,
 	useSharedValue,
 } from "react-native-reanimated";
 
@@ -44,10 +43,6 @@ export default function TripMessagesPage() {
 	const utils = trpc.useUtils();
 
 	const keyboardHeight = useKeyboardHeight();
-
-	useDerivedValue(() => {
-		console.log(keyboardHeight.value);
-	}, [keyboardHeight]);
 
 	const { data, isLoading, hasNextPage, fetchNextPage } =
 		trpc.chats.getByTripId.useInfiniteQuery(
