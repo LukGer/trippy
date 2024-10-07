@@ -25,7 +25,7 @@
         "noArrayIndexKey": "warn"
       },
       "correctness": {
-        "useExhaustiveDependencies": "warn"
+        "useExhaustiveDependencies": "off"
       },
       "nursery": {
         "useSortedClasses": {

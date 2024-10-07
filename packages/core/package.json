@@ -8,10 +8,10 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "seed": "sst shell --stage=dev -- bun src/seeder/index.ts",
-    "db:studio": "sst shell --stage=dev -- drizzle-kit studio",
-    "db:push": "sst shell --stage dev drizzle-kit push",
-    "db:generate": "sst shell --stage dev drizzle-kit generate"
+    "seed": "sst shell -- bun src/seeder/index.ts",
+    "db:studio": "sst shell -- drizzle-kit studio",
+    "db:push": "sst shell drizzle-kit push",
+    "db:generate": "sst shell drizzle-kit generate"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.645.0",

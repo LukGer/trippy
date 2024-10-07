@@ -13,6 +13,8 @@ export namespace Chat {
     async (input) => {
       const start = dayjs(input.cursor ?? "2099-01-01");
 
+      console.log(input);
+
       const messages: Message.Info[] = await Message.getByTripIdFromTo({
         tripId: input.tripId,
         start: start.toDate(),

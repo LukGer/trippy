@@ -1,4 +1,5 @@
 import { usePathProgress } from "@/src/hooks/usePathProgress";
+import { Ionicons } from "@expo/vector-icons";
 import {
 	Canvas,
 	LinearGradient,
@@ -10,12 +11,13 @@ import {
 	type SkPoint,
 } from "@shopify/react-native-skia";
 import * as AppleAuthentication from "expo-apple-authentication";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import {
 	Image,
 	StatusBar,
 	StyleSheet,
 	Text,
+	TouchableOpacity,
 	View,
 	useWindowDimensions,
 } from "react-native";
@@ -236,7 +238,7 @@ const SocialButtons = ({ progress }: { progress: SharedValue<number> }) => {
 			<AppleAuthentication.AppleAuthenticationButton
 				buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
 				buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
-				cornerRadius={5}
+				cornerRadius={8}
 				style={styles.button}
 				onPress={async () => {
 					try {
@@ -252,6 +254,18 @@ const SocialButtons = ({ progress }: { progress: SharedValue<number> }) => {
 					}
 				}}
 			/>
+
+			<TouchableOpacity
+				activeOpacity={0.7}
+				style={styles.googleButton}
+				onPress={() => {
+					// sign in with Google
+				}}
+			>
+				<Ionicons name="logo-google" size={16} color="#000" />
+
+				<Text style={styles.buttonText}>Mit Google anmelden</Text>
+			</TouchableOpacity>
 		</Animated.View>
 	);
 };
@@ -268,14 +282,22 @@ const styles = StyleSheet.create({
 		zIndex: -10,
 	},
 	button: {
-		width: 150,
+		width: 300,
+		height: 40,
+	},
+	buttonText: {
+		fontSize: 15,
+		fontWeight: 500,
+	},
+	googleButton: {
+		width: 300,
+		height: 40,
 		backgroundColor: "white",
-		padding: 10,
-		borderRadius: 10,
-		position: "absolute",
-		bottom: 50,
+		borderRadius: 8,
+		flexDirection: "row",
 		alignItems: "center",
 		justifyContent: "center",
+		gap: 4,
 	},
 	title: {
 		fontFamily: "Quiny",
@@ -308,7 +330,7 @@ const styles = StyleSheet.create({
 	},
 	socialButtons: {
 		position: "absolute",
-		bottom: 100,
+		bottom: 15,
 		flexDirection: "column",
 		gap: 8,
 	},

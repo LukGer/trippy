@@ -9,6 +9,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { Stack } from "expo-router";
+import type { ReactNode } from "react";
 import { Toaster } from "sonner-native";
 
 dayjs.extend(relativeTime);
@@ -42,7 +43,7 @@ export default function RootLayout() {
 	);
 }
 
-function TrpcProvider({ children }: { children: React.ReactNode }) {
+function TrpcProvider({ children }: { children: ReactNode }) {
 	const trpcClient = useTRPCClient();
 
 	return (

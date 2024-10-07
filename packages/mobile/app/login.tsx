@@ -4,7 +4,7 @@ import { useOAuth, useUser } from "@clerk/clerk-expo";
 import { Ionicons } from "@expo/vector-icons";
 import { router, Stack } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
-import { useCallback, useEffect, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useState } from "react";
 import {
 	ActivityIndicator,
 	Pressable,
@@ -41,7 +41,14 @@ export default function LoginPage() {
 				await signIn?.create({});
 			}
 		} catch (err) {
-			console.error("OAuth error", err);
+			if (err instanceof Error && "errors" in err) {
+				const errors = err.errors as Error[];
+				for (const e of errors) {
+					console.error("OAuth error", e.message, e);
+				}
+			} else {
+				console.error("Unexpected error", err);
+			}
 		} finally {
 			setGoogleLoading(false);
 		}
@@ -89,7 +96,7 @@ function LoginButton({
 	loading,
 	onPress,
 }: {
-	icon: React.ReactNode;
+	icon: ReactNode;
 	text: string;
 	loading: boolean;
 	onPress: () => void;

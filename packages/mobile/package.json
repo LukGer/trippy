@@ -3,7 +3,7 @@
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
-    "dev": "expo run:ios",
+    "dev": "expo start",
     "build": "eas build --local --platform ios",
     "lint": "expo lint",
     "android": "expo run:android",
@@ -25,6 +25,7 @@
     "@trippy/core": "workspace:*",
     "@trpc/client": "^11.0.0-rc.532",
     "@trpc/react-query": "^11.0.0-rc.532",
+    "dayjs": "^1.11.13",
     "expo": "^51.0.34",
     "expo-apple-authentication": "~6.4.2",
     "expo-blur": "~13.0.2",
