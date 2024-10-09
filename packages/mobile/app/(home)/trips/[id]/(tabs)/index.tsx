@@ -95,8 +95,13 @@ export default function TripMessagesPage() {
 					}}
 					keyExtractor={(item) => item.id}
 					inverted
-					renderItem={({ item }) => (
-						<ChatMessage message={item} userId={user.id} />
+					renderItem={({ item, index }) => (
+						<ChatMessage
+							index={index}
+							messages={messages}
+							message={item}
+							userId={user.id}
+						/>
 					)}
 				/>
 				<ChatInput

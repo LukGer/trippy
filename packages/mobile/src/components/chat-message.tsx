@@ -1,11 +1,20 @@
 import type { Message } from "@trippy/core/src/message/message";
-import { StyleSheet, Text, View } from "react-native";
+import type { ReactNode } from "react";
+import { Alert, StyleSheet, Text, View } from "react-native";
+import * as Menu from "zeego/context-menu";
 import { stringToColor } from "../utils/colored-name";
 
 export function ChatMessage({
+	index,
+	messages,
 	message,
 	userId,
-}: { message: Message.Info; userId: string }) {
+}: {
+	index: number;
+	messages: Message.Info[];
+	message: Message.Info;
+	userId: string;
+}) {
 	if (message.type === "system") {
 		return <SystemMessage message={message} />;
 	}
@@ -14,26 +23,73 @@ export function ChatMessage({
 		return <ExpenseMessage message={message} />;
 	}
 
+	const prevMessage = messages.at(index - 1);
+
 	const isMe = message.userId === userId;
+
+	const showName =
+		message.userId !== userId ||
+		(prevMessage &&
+			prevMessage.type === "chat" &&
+			prevMessage.userId !== message.userId);
+
 	const usernameColor = stringToColor(message.user.name);
 
 	return (
-		<View
-			style={[
-				styles.bubble,
-				{
-					alignSelf: isMe ? "flex-end" : "flex-start",
-					backgroundColor: isMe ? "#ecfdf5" : "#f8fafc",
-				},
-			]}
-		>
-			{!isMe && (
-				<Text style={[styles.messageUser, { color: usernameColor }]}>
-					{message.user.name}
-				</Text>
-			)}
-			<Text style={styles.message}>{message.content}</Text>
-		</View>
+		<ChatMessageMenu>
+			<View
+				style={[
+					styles.bubble,
+					{
+						alignSelf: isMe ? "flex-end" : "flex-start",
+						backgroundColor: isMe ? "#ecfdf5" : "#f8fafc",
+					},
+				]}
+			>
+				{showName && (
+					<Text style={[styles.messageUser, { color: usernameColor }]}>
+						{message.user.name}
+					</Text>
+				)}
+				<Text style={styles.message}>{message.content}</Text>
+			</View>
+		</ChatMessageMenu>
+	);
+}
+
+function ChatMessageMenu({
+	children,
+	message,
+}: { children: ReactNode; message: Message.UserMessage }) {
+	return (
+		<Menu.Root>
+			<Menu.Trigger>{children}</Menu.Trigger>
+			<Menu.Preview>
+				{() => (
+					<View
+						style={[
+							styles.bubble,
+							{
+								backgroundColor: "#ecfdf5",
+							},
+						]}
+					>
+						<Text style={styles.message}>{message.content}</Text>
+					</View>
+				)}
+			</Menu.Preview>
+			<Menu.Content>
+				<Menu.Label>Trip Menu</Menu.Label>
+				<Menu.Item
+					key="delete"
+					onSelect={() => Alert.alert("Left group")}
+					destructive
+				>
+					<Menu.ItemIcon ios={{ name: "door.left.hand.open" }} />
+					<Menu.ItemTitle>Leave</Menu.ItemTitle>
+				</Menu.Item>
+			</Menu.Content>
+		</Menu.Root>
 	);
 }
 

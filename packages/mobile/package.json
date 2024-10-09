@@ -62,6 +62,7 @@
     "react-native-web": "~0.19.12",
     "sonner-native": "^0.15.0",
     "superjson": "^2.2.1",
+    "swiftui-react-native": "^6.3.0",
     "tailwindcss": "^3.4.13",
     "use-debounce": "^10.0.3",
     "zeego": "^2.0.1"

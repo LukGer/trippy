@@ -1,11 +1,12 @@
 import { DateInput } from "@/src/components/date-input";
+import { Spinner } from "@/src/components/spinner";
 import { useTrippyUser } from "@/src/hooks/useTrippyUser";
 import { trpc } from "@/src/utils/trpc";
 import { fromDateId, toDateId } from "@marceloterreiro/flash-calendar";
-import { useQueryClient } from "@tanstack/react-query";
+import { skipToken, useQueryClient } from "@tanstack/react-query";
 import { getQueryKey } from "@trpc/react-query";
 import { router, Stack } from "expo-router";
-import { useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import {
 	StyleSheet,
 	Text,
@@ -14,6 +15,7 @@ import {
 	View,
 } from "react-native";
 import Animated, { FadeInDown, FadeOutDown } from "react-native-reanimated";
+import { useDebounce } from "use-debounce";
 
 export default function NewTripPage() {
 	const user = useTrippyUser();
@@ -37,6 +39,17 @@ export default function NewTripPage() {
 	const [location, setLocation] = useState<string>("");
 	const [startDate, setStartDate] = useState<string>(toDateId(new Date()));
 	const [endDate, setEndDate] = useState<string>(toDateId(new Date()));
+
+	const [debouncedLocation] = useDebounce(location, 300);
+
+	const { data, isLoading } = trpc.places.searchForPlaces.useQuery(
+		location.search.length > 0
+			? {
+					search: debouncedLocation,
+					locale: "de",
+				}
+			: skipToken,
+	);
 
 	return (
 		<>
@@ -72,7 +85,11 @@ export default function NewTripPage() {
 						exiting={FadeOutDown}
 						style={styles.container}
 					>
-						<Text>Seas</Text>
+						{isLoading && <Spinner size={24} color="#0000ff" />}
+
+						{data?.map((place) => (
+							<Text key={place.placeId}>{place.description}</Text>
+						))}
 					</Animated.View>
 				) : (
 					<Animated.View

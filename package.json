@@ -27,6 +27,8 @@
     "browser-tabs-lock",
     "core-js",
     "esbuild",
+    "keccak",
+    "protobufjs",
     "sharp",
     "workerd"
   ]

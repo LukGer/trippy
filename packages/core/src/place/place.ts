@@ -1,33 +1,48 @@
+import {
+  Client,
+  PlaceAutocompleteType,
+} from "@googlemaps/google-maps-services-js";
+import { Resource } from "sst";
 import { z } from "zod";
-
-const FIND_PLACE_BASE_URL =
-  "https://maps.googleapis.com/maps/api/place/findplacefromtext/json";
-
-const PLACE_PHOTO_BASE_URL = "https://maps.googleapis.com/maps/api/place/photo";
+import { fn } from "../util/fn";
 
 export namespace Place {
-  export const FindPlaceResult = z.object({
-    candidates: z.array(
-      z.object({
-        photos: z.array(
-          z.object({
-            width: z.number(),
-            height: z.number(),
-            html_attributions: z.array(z.string()),
-            photo_reference: z.string(),
-          })
-        ),
-      })
-    ),
-    status: z.enum([
-      "OK",
-      "ZERO_RESULTS",
-      "INVALID_REQUEST",
-      "OVER_QUERY_LIMIT",
-      "REQUEST_DENIED",
-      "UNKNOWN_ERROR",
-    ]),
+  export const PlaceAutocompleteResult = z.object({
+    placeId: z.string(),
+    description: z.string(),
   });
 
-  export const PhotoResult = z.object({});
+  export type PlaceAutocompleteResult = z.infer<typeof PlaceAutocompleteResult>;
+
+  export const searchPlace = fn(
+    z.object({
+      search: z.string(),
+      locale: z.string().optional(),
+    }),
+    async (input): Promise<PlaceAutocompleteResult[]> => {
+      if (input.search.length === 0) {
+        return [];
+      }
+
+      const apiKey = Resource.GoogleApiKey.value;
+
+      const placesClient = new Client();
+
+      return await placesClient
+        .placeAutocomplete({
+          params: {
+            key: apiKey,
+            input: input.search,
+            language: input.locale,
+            types: PlaceAutocompleteType.cities,
+          },
+        })
+        .then((response) => {
+          return response.data.predictions.map((prediction) => ({
+            placeId: prediction.place_id,
+            description: prediction.description,
+          }));
+        });
+    }
+  );
 }

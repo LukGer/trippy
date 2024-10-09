@@ -15,6 +15,10 @@ declare module "sst" {
       "type": "sst.sst.Secret"
       "value": string
     }
+    "GoogleApiKey": {
+      "type": "sst.sst.Secret"
+      "value": string
+    }
     "TrippyBucket": {
       "name": string
       "type": "sst.aws.Bucket"
