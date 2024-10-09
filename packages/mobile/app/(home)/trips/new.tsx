@@ -70,7 +70,7 @@ export default function NewTripPage() {
 						<TextInput
 							ref={input}
 							style={{ flex: 1, textAlign: "right" }}
-							value={location ?? ""}
+							value={location}
 							onChangeText={setLocation}
 							onFocus={() => setLocationSearchShowing(true)}
 							onBlur={() => setLocationSearchShowing(false)}
@@ -85,10 +85,28 @@ export default function NewTripPage() {
 						exiting={FadeOutDown}
 						style={styles.container}
 					>
-						{isLoading && <Spinner size={24} color="#0000ff" />}
+						{isLoading && (
+							<View
+								style={[
+									styles.item,
+									{ justifyContent: "center", paddingVertical: 16 },
+								]}
+							>
+								<Spinner size={24} color="#0000ff" />
+							</View>
+						)}
 
 						{data?.map((place) => (
-							<Text key={place.placeId}>{place.description}</Text>
+							<TouchableOpacity
+								onPress={() => {
+									setLocation(place.description);
+									input.current?.blur();
+								}}
+								key={place.placeId}
+								style={styles.item}
+							>
+								<Text style={styles.itemTitle}>{place.description}</Text>
+							</TouchableOpacity>
 						))}
 					</Animated.View>
 				) : (
@@ -99,12 +117,19 @@ export default function NewTripPage() {
 					>
 						<View style={styles.seperator} />
 						<DateInput
+							instanceId="start-date"
 							label="Start date"
 							date={startDate}
 							setDate={setStartDate}
 						/>
 						<View style={styles.seperator} />
-						<DateInput label="End date" date={endDate} setDate={setEndDate} />
+						<DateInput
+							instanceId="end-date"
+							label="End date"
+							date={endDate}
+							setDate={setEndDate}
+							minDate={startDate}
+						/>
 					</Animated.View>
 				)}
 
@@ -136,6 +161,7 @@ export default function NewTripPage() {
 
 const styles = StyleSheet.create({
 	container: {
+		width: "100%",
 		backgroundColor: "white",
 		borderRadius: 10,
 		borderCurve: "continuous",

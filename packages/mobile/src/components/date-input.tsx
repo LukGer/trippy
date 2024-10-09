@@ -11,6 +11,7 @@ import { SPRING } from "../utils/constants";
 import { TrippyCalendar } from "./trippy-calendar";
 
 interface DateInputProps {
+	instanceId?: string;
 	label: string;
 	date: string;
 	minDate?: string;
@@ -18,7 +19,7 @@ interface DateInputProps {
 }
 
 export function DateInput(props: DateInputProps) {
-	const { date, minDate } = props;
+	const { date, minDate, instanceId } = props;
 
 	const validDate = minDate
 		? fromDateId(minDate) >= fromDateId(date)
@@ -82,6 +83,7 @@ export function DateInput(props: DateInputProps) {
 			</TouchableOpacity>
 			<View className="px-4">
 				<TrippyCalendar
+					calendarInstanceId={instanceId}
 					onNextMonthPress={() => {
 						setCurrentMonth(
 							toDateId(
