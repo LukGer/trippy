@@ -45,4 +45,35 @@ export namespace Place {
         });
     }
   );
+
+  export const getImageForPlace = fn(z.string(), async (placeId) => {
+    const apiKey = Resource.GoogleApiKey.value;
+
+    const placesClient = new Client();
+
+    const details = await placesClient.placeDetails({
+      params: {
+        key: apiKey,
+        place_id: placeId,
+      },
+    });
+
+    const mainPhotoRef = details.data.result.photos?.[0]?.photo_reference;
+
+    if (!mainPhotoRef) {
+      return null;
+    }
+
+    const response = await placesClient.placePhoto({
+      params: {
+        key: apiKey,
+        photoreference: mainPhotoRef,
+        maxheight: 400,
+        maxwidth: 600,
+      },
+      responseType: "arraybuffer",
+    });
+
+    return response.data as ArrayBuffer;
+  });
 }

@@ -8,12 +8,15 @@ export const tripsRouter = router({
     .input(
       z.object({
         name: z.string(),
+        placeId: z.string(),
         startDate: z.date(),
         endDate: z.date(),
-        members: z.array(z.object({
-          userId: z.string(),
-          isAdmin: z.boolean(),
-        })),
+        members: z.array(
+          z.object({
+            userId: z.string(),
+            isAdmin: z.boolean(),
+          })
+        ),
       })
     )
     .mutation(async (opts) => await Trip.create(opts.input)),
@@ -70,14 +73,14 @@ export const tripsRouter = router({
     )
     .mutation(async (opts) => await Trip.leaveTrip(opts.input)),
 
-  uploadImage: procedure
-    .input(
-      z.object({
-        tripId: z.string(),
-        imageData: z.string(),
-        mimeType: z.string(),
-        extension: z.string(),
-      })
-    )
-    .mutation(async (opts) => await Trip.uploadImage(opts.input)),
+  // uploadImage: procedure
+  //   .input(
+  //     z.object({
+  //       tripId: z.string(),
+  //       imageData: z.string(),
+  //       mimeType: z.string(),
+  //       extension: z.string(),
+  //     })
+  //   )
+  //   .mutation(async (opts) => await Trip.uploadImage(opts.input)),
 });

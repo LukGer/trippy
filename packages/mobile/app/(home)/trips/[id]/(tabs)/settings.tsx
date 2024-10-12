@@ -1,6 +1,5 @@
 import { DateInput } from "@/src/components/date-input";
 import { FullscreenLoading } from "@/src/components/fullscreen-loading";
-import { TripImageSelector } from "@/src/components/trip-image-selector";
 import { useTrip } from "@/src/hooks/useTrip";
 import { useTrippyUser } from "@/src/hooks/useTrippyUser";
 import { TrippyTabs } from "@/src/navigation/trippy-tabs";
@@ -12,7 +11,7 @@ import { getQueryKey } from "@trpc/react-query";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import { SymbolView } from "expo-symbols";
-import { Fragment, useState } from "react";
+import React, { Fragment, useState } from "react";
 import {
 	Alert,
 	Modal,
@@ -129,8 +128,6 @@ export default function TripSettingsPage() {
 					alignItems: "center",
 				}}
 			>
-				<TripImageSelector trip={trip} />
-
 				<View style={styles.container}>
 					<View style={styles.item}>
 						<Text style={styles.itemTitle}>Name</Text>

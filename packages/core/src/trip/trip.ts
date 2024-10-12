@@ -1,9 +1,9 @@
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { and, eq, inArray } from "drizzle-orm";
-import sharp from "sharp";
 import { Resource } from "sst";
 import { z } from "zod";
 import { db } from "../drizzle";
+import { Place } from "../place/place";
 import { User } from "../user/user";
 import { usersToTripsTable, userTable } from "../user/user.sql";
 import { fn } from "../util/fn";
@@ -28,37 +28,57 @@ export namespace Trip {
   export const create = fn(
     z.object({
       name: z.string(),
+      placeId: z.string(),
       startDate: z.date(),
       endDate: z.date(),
-      members: z.array(z.object({
-        userId: z.string(),
-        isAdmin: z.boolean(),
-      })),
+      members: z.array(
+        z.object({
+          userId: z.string(),
+          isAdmin: z.boolean(),
+        })
+      ),
     }),
     async (input) => {
       const id = createID("trip");
 
-      const bucketName = Resource.TrippyBucket.name;
+      const imgData = await Place.getImageForPlace(input.placeId);
 
-      const imageUrl = `https://${bucketName}.s3.eu-central-1.amazonaws.com/images/trip/new.avif`;
+      const client = new S3Client({ region: "eu-central-1" });
+
+      const key = `images/places/${input.placeId}`;
+
+      const command = new PutObjectCommand({
+        Key: key,
+        Body: Buffer.from(imgData!),
+        Bucket: Resource.TrippyBucket.name,
+      });
+
+      const response = await client.send(command);
+
+      if (response.$metadata.httpStatusCode !== 200) {
+        throw new Error("Failed to upload image");
+      }
+
+      const imageUrl = `https://${Resource.TrippyBucket.name}.s3.eu-central-1.amazonaws.com/${key}`;
 
       await db
         .insert(tripTable)
         .values({
           id,
           name: input.name,
+          placeId: input.placeId,
           imageUrl,
           startDate: input.startDate,
           endDate: input.endDate,
         })
         .execute();
 
-      input.members.forEach(({userId, isAdmin}) => {
+      input.members.forEach(({ userId, isAdmin }) => {
         db.insert(usersToTripsTable)
           .values({
             tripId: id,
             userId,
-            isAdmin
+            isAdmin,
           })
           .execute();
       });
@@ -256,42 +276,42 @@ export namespace Trip {
     }
   );
 
-  export const uploadImage = fn(
-    z.object({
-      tripId: z.string(),
-      imageData: z.string(),
-      mimeType: z.string(),
-      extension: z.string(),
-    }),
-    async (input) => {
-      const key = `images/trip/${input.tripId}`;
+  // export const uploadImage = fn(
+  //   z.object({
+  //     tripId: z.string(),
+  //     placeId: z.string(),
+  //     mimeType: z.string(),
+  //     extension: z.string(),
+  //   }),
+  //   async (input) => {
+  //     const imgData = await Place.getImageForPlace(input.placeId);
 
-      const buffer = Buffer.from(input.imageData, "base64");
+  //     const key = `images/places/${input.placeId}`;
 
-      const resizedBuffer = await sharp(buffer).resize(600, 300).toBuffer();
+  //     const resizedBuffer = await sharp(imgData).resize(600, 300).toBuffer();
 
-      const client = new S3Client({ region: "eu-central-1" });
+  //     const client = new S3Client({ region: "eu-central-1" });
 
-      const command = new PutObjectCommand({
-        Key: key,
-        Body: resizedBuffer,
-        ContentType: input.mimeType,
-        Bucket: Resource.TrippyBucket.name,
-      });
+  //     const command = new PutObjectCommand({
+  //       Key: key,
+  //       Body: resizedBuffer,
+  //       ContentType: input.mimeType,
+  //       Bucket: Resource.TrippyBucket.name,
+  //     });
 
-      const response = await client.send(command);
+  //     const response = await client.send(command);
 
-      if (response.$metadata.httpStatusCode !== 200) {
-        throw new Error("Failed to upload image");
-      }
+  //     if (response.$metadata.httpStatusCode !== 200) {
+  //       throw new Error("Failed to upload image");
+  //     }
 
-      const imageUrl = `https://${Resource.TrippyBucket.name}.s3.eu-central-1.amazonaws.com/${key}`;
+  //     const imageUrl = `https://${Resource.TrippyBucket.name}.s3.eu-central-1.amazonaws.com/${key}`;
 
-      await db
-        .update(tripTable)
-        .set({ imageUrl })
-        .where(eq(tripTable.id, input.tripId))
-        .execute();
-    }
-  );
+  //     await db
+  //       .update(tripTable)
+  //       .set({ imageUrl })
+  //       .where(eq(tripTable.id, input.tripId))
+  //       .execute();
+  //   }
+  // );
 }

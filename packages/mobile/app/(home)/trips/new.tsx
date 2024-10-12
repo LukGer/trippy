@@ -4,6 +4,7 @@ import { useTrippyUser } from "@/src/hooks/useTrippyUser";
 import { trpc } from "@/src/utils/trpc";
 import { fromDateId, toDateId } from "@marceloterreiro/flash-calendar";
 import { skipToken, useQueryClient } from "@tanstack/react-query";
+import type { Place } from "@trippy/core/src/place/place";
 import { getQueryKey } from "@trpc/react-query";
 import { router, Stack } from "expo-router";
 import React, { useRef, useState } from "react";
@@ -36,16 +37,19 @@ export default function NewTripPage() {
 
 	const [locationSearchShowing, setLocationSearchShowing] = useState(false);
 
-	const [location, setLocation] = useState<string>("");
+	const [search, setSearch] = useState("");
+	const [location, setLocation] = useState<
+		Place.PlaceAutocompleteResult | undefined
+	>(undefined);
 	const [startDate, setStartDate] = useState<string>(toDateId(new Date()));
 	const [endDate, setEndDate] = useState<string>(toDateId(new Date()));
 
-	const [debouncedLocation] = useDebounce(location, 300);
+	const [debouncedSearch] = useDebounce(search, 300);
 
 	const { data, isLoading } = trpc.places.searchForPlaces.useQuery(
-		location.search.length > 0
+		debouncedSearch.length > 0
 			? {
-					search: debouncedLocation,
+					search: debouncedSearch,
 					locale: "de",
 				}
 			: skipToken,
@@ -70,8 +74,8 @@ export default function NewTripPage() {
 						<TextInput
 							ref={input}
 							style={{ flex: 1, textAlign: "right" }}
-							value={location}
-							onChangeText={setLocation}
+							value={search}
+							onChangeText={setSearch}
 							onFocus={() => setLocationSearchShowing(true)}
 							onBlur={() => setLocationSearchShowing(false)}
 							placeholder="Search for a location"
@@ -87,10 +91,12 @@ export default function NewTripPage() {
 					>
 						{isLoading && (
 							<View
-								style={[
-									styles.item,
-									{ justifyContent: "center", paddingVertical: 16 },
-								]}
+								style={{
+									width: "100%",
+									justifyContent: "center",
+									flexDirection: "row",
+									paddingVertical: 16,
+								}}
 							>
 								<Spinner size={24} color="#0000ff" />
 							</View>
@@ -99,7 +105,8 @@ export default function NewTripPage() {
 						{data?.map((place) => (
 							<TouchableOpacity
 								onPress={() => {
-									setLocation(place.description);
+									setLocation(place);
+									setSearch(place.description);
 									input.current?.blur();
 								}}
 								key={place.placeId}
@@ -115,14 +122,15 @@ export default function NewTripPage() {
 						exiting={FadeOutDown}
 						style={styles.container}
 					>
-						<View style={styles.seperator} />
 						<DateInput
 							instanceId="start-date"
 							label="Start date"
 							date={startDate}
 							setDate={setStartDate}
 						/>
+
 						<View style={styles.seperator} />
+
 						<DateInput
 							instanceId="end-date"
 							label="End date"
@@ -135,8 +143,10 @@ export default function NewTripPage() {
 
 				<TouchableOpacity
 					onPress={() => {
+						if (!location) return;
 						addTripMutation.mutate({
-							name: location,
+							name: location.description,
+							placeId: location.placeId,
 							startDate: fromDateId(startDate),
 							endDate: fromDateId(endDate),
 							members: [{ userId: user.id, isAdmin: true }],
@@ -162,6 +172,7 @@ export default function NewTripPage() {
 const styles = StyleSheet.create({
 	container: {
 		width: "100%",
+		minHeight: 44,
 		backgroundColor: "white",
 		borderRadius: 10,
 		borderCurve: "continuous",

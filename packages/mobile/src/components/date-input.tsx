@@ -21,11 +21,8 @@ interface DateInputProps {
 export function DateInput(props: DateInputProps) {
 	const { date, minDate, instanceId } = props;
 
-	const validDate = minDate
-		? fromDateId(minDate) >= fromDateId(date)
-			? minDate
-			: date
-		: date;
+	const validDate =
+		minDate && fromDateId(minDate) >= fromDateId(date) ? minDate : date;
 
 	if (fromDateId(validDate) === fromDateId(date)) {
 		props.setDate(validDate);

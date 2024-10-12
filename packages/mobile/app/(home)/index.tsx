@@ -1,8 +1,8 @@
 import { FullscreenLoading } from "@/src/components/fullscreen-loading";
 import { GlobeIcon } from "@/src/components/globe-icon";
+import { TripCard, TripCardPreview } from "@/src/components/trip-card";
 import { useTrippyUser } from "@/src/hooks/useTrippyUser";
 import { trpc } from "@/src/utils/trpc";
-import { Canvas, LinearGradient, Rect } from "@shopify/react-native-skia";
 import type { RouterOutputs } from "@trippy/api";
 import dayjs from "dayjs";
 import { Image } from "expo-image";
@@ -11,15 +11,15 @@ import { SymbolView } from "expo-symbols";
 import type { ReactElement } from "react";
 import React from "react";
 import {
-	Alert,
 	PlatformColor,
 	RefreshControl,
+	ScrollView,
 	StatusBar,
 	Text,
 	TouchableOpacity,
 	View,
 } from "react-native";
-import Animated, { FadeOut, LinearTransition } from "react-native-reanimated";
+import Animated, { LinearTransition } from "react-native-reanimated";
 import * as Menu from "zeego/context-menu";
 
 type Trips = RouterOutputs["trips"]["getTripsByUserId"];
@@ -80,25 +80,23 @@ export default function HomePage() {
 					),
 				}}
 			/>
-			<Animated.ScrollView
-				layout={LinearTransition.duration(300)}
+			<ScrollView
 				contentInsetAdjustmentBehavior="automatic"
 				contentContainerStyle={{
 					paddingHorizontal: 20,
 					paddingTop: 20,
-					gap: 20,
 				}}
 				refreshControl={
 					<RefreshControl refreshing={isLoading} onRefresh={() => refetch()} />
 				}
 			>
-				{data && <TripList trips={data} />}
-			</Animated.ScrollView>
+				{data && <TripList trips={data} userId={user.id} />}
+			</ScrollView>
 		</>
 	);
 }
 
-function TripList({ trips }: { trips: Trips }) {
+function TripList({ trips, userId }: { trips: Trips; userId: string }) {
 	const sorted = trips.sort((a, b) =>
 		dayjs(b.startDate).isBefore(dayjs(a.startDate)) ? 1 : -1,
 	);
@@ -112,7 +110,7 @@ function TripList({ trips }: { trips: Trips }) {
 	);
 
 	return (
-		<>
+		<Animated.View layout={LinearTransition} style={{ gap: 20 }}>
 			<View className="flex flex-row items-center">
 				<Text className="font-bold text-xl">Upcoming trips</Text>
 
@@ -130,11 +128,9 @@ function TripList({ trips }: { trips: Trips }) {
 				</Link>
 			</View>
 			{upcomingTrips.map((trip) => (
-				<Animated.View exiting={FadeOut.duration(300)} key={trip.id}>
-					<TripCardMenu>
-						<TripCard trip={trip} />
-					</TripCardMenu>
-				</Animated.View>
+				<TripCardMenu key={trip.id} trip={trip} userId={userId}>
+					<TripCard trip={trip} />
+				</TripCardMenu>
 			))}
 
 			{pastTrips.length > 0 && (
@@ -143,167 +139,42 @@ function TripList({ trips }: { trips: Trips }) {
 			{pastTrips.map((trip) => (
 				<TripCard key={trip.id} trip={trip} />
 			))}
-		</>
+		</Animated.View>
 	);
 }
 
-function TripCardMenu({ children }: { children: ReactElement }) {
+function TripCardMenu({
+	children,
+	trip,
+	userId,
+}: { children: ReactElement; trip: Trips[number]; userId: string }) {
+	const utils = trpc.useUtils();
+	const leaveGroupMutation = trpc.trips.leaveTrip.useMutation({
+		onSuccess: () => {
+			utils.trips.invalidate();
+		},
+	});
+
+	const leaveTrip = () => {
+		leaveGroupMutation.mutate({
+			tripId: trip.id,
+			userId,
+		});
+	};
+
 	return (
 		<Menu.Root>
 			<Menu.Trigger>{children}</Menu.Trigger>
-			<Menu.Content
-				loop={false}
-				alignOffset={0}
-				avoidCollisions={true}
-				collisionPadding={0}
-			>
+			<Menu.Content>
+				<Menu.Preview borderRadius={20}>
+					{() => <TripCardPreview trip={trip} />}
+				</Menu.Preview>
 				<Menu.Label>Trip Menu</Menu.Label>
-				<Menu.Item
-					key="leave"
-					onSelect={() => Alert.alert("Left group")}
-					destructive
-				>
+				<Menu.Item key="leave" onSelect={() => leaveTrip()} destructive>
 					<Menu.ItemIcon ios={{ name: "door.left.hand.open" }} />
 					<Menu.ItemTitle>Leave</Menu.ItemTitle>
 				</Menu.Item>
 			</Menu.Content>
 		</Menu.Root>
-	);
-}
-
-const URGENCY_THRESHOLD = 7;
-
-function TripCard({ trip }: { trip: Trips[number] }) {
-	const utils = trpc.useUtils();
-
-	const isUrgent =
-		!dayjs(trip.endDate).isBefore(dayjs()) &&
-		dayjs(trip.startDate).diff(dayjs(), "days") < URGENCY_THRESHOLD;
-
-	return (
-		<Link
-			href={{ pathname: "/(home)/trips/[id]", params: { id: trip.id } }}
-			asChild
-		>
-			<TouchableOpacity
-				activeOpacity={0.8}
-				onPress={() => {
-					utils.trips.getById.setData(trip.id, trip);
-				}}
-			>
-				<View
-					style={{
-						borderRadius: 20,
-						borderCurve: "continuous",
-						height: 200,
-						overflow: "hidden",
-						minWidth: 350,
-					}}
-				>
-					<Image
-						source={{ uri: trip.imageUrl }}
-						style={{
-							position: "absolute",
-							width: "100%",
-							height: "100%",
-							zIndex: 0,
-						}}
-						cachePolicy="none"
-					/>
-
-					<Canvas
-						style={{
-							position: "absolute",
-							width: "100%",
-							height: "100%",
-							zIndex: 1,
-						}}
-					>
-						<Rect width={500} height={200}>
-							<LinearGradient
-								colors={["#00000000", "#000000AA"]}
-								start={{ x: 0, y: 0 }}
-								end={{ x: 0, y: 200 }}
-							/>
-						</Rect>
-					</Canvas>
-
-					<View className="flex-1" />
-
-					<View className="flex flex-row p-5" style={{ zIndex: 10 }}>
-						<View className="flex flex-col">
-							<Text className="mb-2 font-bold text-4xl text-white">
-								{trip.name}
-							</Text>
-
-							<View className="flex flex-row items-center gap-2">
-								{isUrgent && (
-									<SymbolView
-										name="alarm.fill"
-										tintColor="white"
-										size={16}
-										resizeMode="scaleAspectFill"
-									/>
-								)}
-
-								<Text className="font-bold text-white">
-									{dayjs(trip.startDate).fromNow()}
-								</Text>
-							</View>
-						</View>
-
-						<View className="flex-1" />
-
-						<MembersList members={trip.members} />
-					</View>
-				</View>
-			</TouchableOpacity>
-		</Link>
-	);
-}
-
-const MAX_CIRCLES = 3;
-
-function MembersList({ members }: { members: Trips[number]["members"] }) {
-	const visibleMembers = members.slice(0, MAX_CIRCLES);
-
-	const remainingMembers = members.length - MAX_CIRCLES;
-
-	return (
-		<View className="flex flex-row-reverse">
-			{visibleMembers.map((member, i) => (
-				<Image
-					key={member.id}
-					source={{ uri: member.pictureUrl ?? "" }}
-					style={{
-						width: 36,
-						height: 36,
-						borderRadius: 99,
-						alignSelf: "flex-end",
-						borderWidth: 1,
-						borderColor: "#FFF",
-						marginRight: i === 0 ? 0 : -10,
-						zIndex: members.length - i,
-					}}
-				/>
-			))}
-			{remainingMembers > 0 && (
-				<View
-					style={{
-						width: 36,
-						height: 36,
-						borderRadius: 99,
-						alignSelf: "flex-end",
-						backgroundColor: "white",
-						justifyContent: "center",
-						alignItems: "center",
-						marginRight: -10,
-						zIndex: 0,
-					}}
-				>
-					<Text className="font-bold">+{remainingMembers}</Text>
-				</View>
-			)}
-		</View>
 	);
 }
