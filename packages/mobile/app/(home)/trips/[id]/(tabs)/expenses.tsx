@@ -10,7 +10,7 @@ import { TrippyTabs } from "@/src/navigation/trippy-tabs";
 import { trpc } from "@/src/utils/trpc";
 import type { Expense } from "@trippy/core/src/expense/expense";
 import { SymbolView } from "expo-symbols";
-import { Fragment } from "react";
+import React, { Fragment } from "react";
 import {
 	RefreshControl,
 	ScrollView,

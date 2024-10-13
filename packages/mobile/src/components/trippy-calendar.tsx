@@ -75,7 +75,6 @@ export const TrippyCalendar = memo((props: TrippyCalendarProps) => {
 	return (
 		<View style={styles.calendarContainer}>
 			<Calendar.VStack spacing={props.calendarRowVerticalSpacing}>
-				{/* Replaces `Calendar.Row.Month` with a custom implementation */}
 				<Calendar.HStack
 					alignItems="center"
 					justifyContent="space-around"
@@ -90,11 +89,13 @@ export const TrippyCalendar = memo((props: TrippyCalendarProps) => {
 							resizeMode="scaleAspectFit"
 						/>
 					</TouchableOpacity>
+
 					<TouchableOpacity onPress={props.onResetMonthPress}>
 						<Text style={calendarTheme.rowMonth?.content}>
 							{calendarRowMonth}
 						</Text>
 					</TouchableOpacity>
+
 					<TouchableOpacity onPress={props.onNextMonthPress}>
 						<SymbolView
 							name="chevron.right"

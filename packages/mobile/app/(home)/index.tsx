@@ -19,7 +19,11 @@ import {
 	TouchableOpacity,
 	View,
 } from "react-native";
-import Animated, { LinearTransition } from "react-native-reanimated";
+import Animated, {
+	FadeIn,
+	LinearTransition,
+	ZoomOut,
+} from "react-native-reanimated";
 import * as Menu from "zeego/context-menu";
 
 type Trips = RouterOutputs["trips"]["getTripsByUserId"];
@@ -128,16 +132,23 @@ function TripList({ trips, userId }: { trips: Trips; userId: string }) {
 				</Link>
 			</View>
 			{upcomingTrips.map((trip) => (
-				<TripCardMenu key={trip.id} trip={trip} userId={userId}>
-					<TripCard trip={trip} />
-				</TripCardMenu>
+				<Animated.View key={trip.id} entering={FadeIn} exiting={ZoomOut}>
+					<TripCardMenu trip={trip} userId={userId}>
+						<TripCard trip={trip} />
+					</TripCardMenu>
+				</Animated.View>
 			))}
 
 			{pastTrips.length > 0 && (
 				<Text className="font-bold text-xl">Past trips</Text>
 			)}
+
 			{pastTrips.map((trip) => (
-				<TripCard key={trip.id} trip={trip} />
+				<Animated.View key={trip.id} entering={FadeIn} exiting={ZoomOut}>
+					<TripCardMenu trip={trip} userId={userId}>
+						<TripCard trip={trip} />
+					</TripCardMenu>
+				</Animated.View>
 			))}
 		</Animated.View>
 	);

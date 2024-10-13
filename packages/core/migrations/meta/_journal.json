@@ -36,6 +36,13 @@
       "when": 1728549905944,
       "tag": "0004_handy_misty_knight",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1728808472775,
+      "tag": "0005_round_golden_guardian",
+      "breakpoints": true
     }
   ]
 }

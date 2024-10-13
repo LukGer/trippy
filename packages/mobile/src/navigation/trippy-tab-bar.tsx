@@ -9,7 +9,7 @@ import {
 	useWindowDimensions,
 	View,
 } from "react-native";
-import type { TrippyTabBarProps } from "./TrippyTabs";
+import type { TrippyTabBarProps } from "./trippy-tabs";
 
 const DISTANCE_BETWEEN_TABS = 16;
 
@@ -130,10 +130,7 @@ export function TrippyTabBar({
 				}}
 				onPress={onPress}
 			>
-				<Text
-					className="font-bold text-xl"
-					style={{ color: options.isProFeature ? "purple" : "black" }}
-				>
+				<Text className="font-bold text-xl" style={{ color: "black" }}>
 					{options.title}
 				</Text>
 			</Pressable>

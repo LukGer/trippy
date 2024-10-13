@@ -15,7 +15,11 @@ import {
 	TouchableOpacity,
 	View,
 } from "react-native";
-import Animated, { FadeInDown, FadeOutDown } from "react-native-reanimated";
+import Animated, {
+	FadeInUp,
+	FadeOutUp,
+	LinearTransition,
+} from "react-native-reanimated";
 import { useDebounce } from "use-debounce";
 
 export default function NewTripPage() {
@@ -46,18 +50,50 @@ export default function NewTripPage() {
 
 	const [debouncedSearch] = useDebounce(search, 300);
 
-	const { data, isLoading } = trpc.places.searchForPlaces.useQuery(
-		debouncedSearch.length > 0
-			? {
-					search: debouncedSearch,
-					locale: "de",
-				}
-			: skipToken,
-	);
+	const { data, isLoading: placesLoading } =
+		trpc.places.searchForPlaces.useQuery(
+			debouncedSearch.length > 0
+				? {
+						search: debouncedSearch,
+						locale: "de",
+					}
+				: skipToken,
+		);
+
+	const addTrip = () => {
+		if (!location) return;
+
+		addTripMutation.mutate({
+			name: location.description,
+			placeId: location.placeId,
+			startDate: fromDateId(startDate),
+			endDate: fromDateId(endDate),
+			members: [{ userId: user.id, isAdmin: true }],
+		});
+	};
+
+	const saveDisabled = !location || !startDate || !endDate;
 
 	return (
 		<>
-			<Stack.Screen options={{ title: "Create new group trip" }} />
+			<Stack.Screen
+				options={{
+					title: "Create new group trip",
+					headerRight: () => (
+						<TouchableOpacity disabled={saveDisabled} onPress={() => addTrip()}>
+							<Text
+								style={{
+									color: "#007AFF",
+									fontWeight: "bold",
+									opacity: saveDisabled ? 0.5 : 1,
+								}}
+							>
+								Create
+							</Text>
+						</TouchableOpacity>
+					),
+				}}
+			/>
 			<View
 				style={{
 					paddingHorizontal: 16,
@@ -83,13 +119,13 @@ export default function NewTripPage() {
 					</View>
 				</View>
 
-				{locationSearchShowing ? (
+				{locationSearchShowing && (
 					<Animated.View
-						entering={FadeInDown}
-						exiting={FadeOutDown}
+						entering={FadeInUp}
+						exiting={FadeOutUp}
 						style={styles.container}
 					>
-						{isLoading && (
+						{placesLoading && (
 							<View
 								style={{
 									width: "100%",
@@ -116,12 +152,10 @@ export default function NewTripPage() {
 							</TouchableOpacity>
 						))}
 					</Animated.View>
-				) : (
-					<Animated.View
-						entering={FadeInDown}
-						exiting={FadeOutDown}
-						style={styles.container}
-					>
+				)}
+
+				<Animated.View layout={LinearTransition}>
+					<View style={styles.container}>
 						<DateInput
 							instanceId="start-date"
 							label="Start date"
@@ -138,32 +172,8 @@ export default function NewTripPage() {
 							setDate={setEndDate}
 							minDate={startDate}
 						/>
-					</Animated.View>
-				)}
-
-				<TouchableOpacity
-					onPress={() => {
-						if (!location) return;
-						addTripMutation.mutate({
-							name: location.description,
-							placeId: location.placeId,
-							startDate: fromDateId(startDate),
-							endDate: fromDateId(endDate),
-							members: [{ userId: user.id, isAdmin: true }],
-						});
-					}}
-					style={{
-						backgroundColor: "#007AFF",
-						paddingVertical: 12,
-						paddingHorizontal: 24,
-						borderRadius: 999,
-						alignItems: "center",
-					}}
-				>
-					<Text style={{ color: "white", fontWeight: "bold" }}>
-						Create group trip
-					</Text>
-				</TouchableOpacity>
+					</View>
+				</Animated.View>
 			</View>
 		</>
 	);

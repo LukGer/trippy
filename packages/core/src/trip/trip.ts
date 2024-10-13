@@ -275,43 +275,4 @@ export namespace Trip {
         .execute();
     }
   );
-
-  // export const uploadImage = fn(
-  //   z.object({
-  //     tripId: z.string(),
-  //     placeId: z.string(),
-  //     mimeType: z.string(),
-  //     extension: z.string(),
-  //   }),
-  //   async (input) => {
-  //     const imgData = await Place.getImageForPlace(input.placeId);
-
-  //     const key = `images/places/${input.placeId}`;
-
-  //     const resizedBuffer = await sharp(imgData).resize(600, 300).toBuffer();
-
-  //     const client = new S3Client({ region: "eu-central-1" });
-
-  //     const command = new PutObjectCommand({
-  //       Key: key,
-  //       Body: resizedBuffer,
-  //       ContentType: input.mimeType,
-  //       Bucket: Resource.TrippyBucket.name,
-  //     });
-
-  //     const response = await client.send(command);
-
-  //     if (response.$metadata.httpStatusCode !== 200) {
-  //       throw new Error("Failed to upload image");
-  //     }
-
-  //     const imageUrl = `https://${Resource.TrippyBucket.name}.s3.eu-central-1.amazonaws.com/${key}`;
-
-  //     await db
-  //       .update(tripTable)
-  //       .set({ imageUrl })
-  //       .where(eq(tripTable.id, input.tripId))
-  //       .execute();
-  //   }
-  // );
 }

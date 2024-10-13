@@ -12,7 +12,7 @@ export const messageTypeEnum = pgEnum("message_type", [
 export const messageTable = pgTable("messages", {
   ...id,
   tripId: ulid("trip_id")
-    .references(() => tripTable.id)
+    .references(() => tripTable.id, { onDelete: "cascade" })
     .notNull(),
   userId: ulid("user_id")
     .references(() => userTable.id)

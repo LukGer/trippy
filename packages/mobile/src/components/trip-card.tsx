@@ -5,7 +5,6 @@ import { Image } from "expo-image";
 import { Link } from "expo-router";
 import { SymbolView } from "expo-symbols";
 import { Text, TouchableOpacity, View } from "react-native";
-import Animated, { LinearTransition } from "react-native-reanimated";
 import { trpc } from "../utils/trpc";
 
 type Trips = RouterOutputs["trips"]["getTripsByUserId"];
@@ -30,8 +29,7 @@ export function TripCard({ trip }: { trip: Trips[number] }) {
 					utils.trips.getById.setData(trip.id, trip);
 				}}
 			>
-				<Animated.View
-					layout={LinearTransition}
+				<View
 					style={{
 						borderRadius: 20,
 						borderCurve: "continuous",
@@ -99,7 +97,7 @@ export function TripCard({ trip }: { trip: Trips[number] }) {
 							</View>
 						</View>
 					</View>
-				</Animated.View>
+				</View>
 			</TouchableOpacity>
 		</Link>
 	);
