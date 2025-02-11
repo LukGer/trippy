@@ -1,5 +1,6 @@
 import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 import { chatRouter } from "./routers/chatRouter";
+import { documentsRouter } from "./routers/documentsRouter";
 import { expensesRouter } from "./routers/expensesRouter";
 import { placesRouter } from "./routers/placesRouter";
 import { tripsRouter } from "./routers/tripsRouter";
@@ -12,6 +13,7 @@ export const appRouter = router({
   expenses: expensesRouter,
   chats: chatRouter,
   places: placesRouter,
+  documents: documentsRouter,
 });
 
 // export type definition of API

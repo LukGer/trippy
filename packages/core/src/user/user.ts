@@ -6,6 +6,14 @@ import { createID } from "../util/id";
 import { usersToTripsTable, userTable } from "./user.sql";
 
 export namespace User {
+  export const SimpleUser = z.object({
+    id: z.string(),
+    name: z.string(),
+    pictureUrl: z.string().nullable(),
+  });
+
+  export type SimpleUser = z.infer<typeof SimpleUser>;
+
   export const Info = z.object({
     id: z.string(),
     name: z.string(),

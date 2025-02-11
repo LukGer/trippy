@@ -101,6 +101,10 @@ export function TrippyTabBar({
 	const labels = state.routes.map((route, index) => {
 		const { options } = descriptors[route.key];
 
+		if (options.enabled !== undefined && !options.enabled) {
+			return null;
+		}
+
 		const isFocused = state.index === index;
 
 		const onPress = () => {

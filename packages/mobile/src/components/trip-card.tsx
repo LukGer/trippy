@@ -20,7 +20,7 @@ export function TripCard({ trip }: { trip: Trips[number] }) {
 
 	return (
 		<Link
-			href={{ pathname: "/(home)/trips/[id]", params: { id: trip.id } }}
+			href={{ pathname: "/(home)/trips/[id]/chat", params: { id: trip.id } }}
 			asChild
 		>
 			<TouchableOpacity

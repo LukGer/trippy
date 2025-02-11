@@ -1,8 +1,6 @@
 import type { Message } from "@trippy/core/src/message/message";
-import type { ReactNode } from "react";
-import { Alert, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
-import * as Menu from "zeego/context-menu";
 import { stringToColor } from "../utils/colored-name";
 
 export function ChatMessage({
@@ -27,49 +25,52 @@ export function ChatMessage({
 	const usernameColor = stringToColor(message.user.name);
 
 	return (
-		<View style={styles.bubbleContainer}>
-			<ChatMessageMenu message={message}>
-				<View
-					style={[
-						styles.bubble,
-						{
-							alignSelf: isMe ? "flex-end" : "flex-start",
-							backgroundColor: isMe ? "#ecfdf5" : "#f8fafc",
-						},
-					]}
-				>
-					{showName && (
-						<Text style={[styles.messageUser, { color: usernameColor }]}>
-							{message.user.name}
-						</Text>
-					)}
-					<Text style={styles.message}>{message.content}</Text>
-				</View>
-			</ChatMessageMenu>
+		<View
+			style={[
+				styles.bubble,
+				{
+					alignSelf: isMe ? "flex-end" : "flex-start",
+					backgroundColor: isMe ? "#ecfdf5" : "#f8fafc",
+				},
+			]}
+		>
+			{showName && (
+				<Text style={[styles.messageUser, { color: usernameColor }]}>
+					{message.user.name}
+				</Text>
+			)}
+			<Text style={styles.message}>{message.content}</Text>
 		</View>
 	);
 }
 
-function ChatMessageMenu({
-	children,
-	message,
-}: { children: ReactNode; message: Message.UserMessage }) {
-	return (
-		<Menu.Root>
-			<Menu.Trigger>{children}</Menu.Trigger>
-			<Menu.Content>
-				<Menu.Item
-					key="delete"
-					onSelect={() => Alert.alert("Left group")}
-					destructive
-				>
-					<Menu.ItemIcon ios={{ name: "trash" }} />
-					<Menu.ItemTitle>Delete</Menu.ItemTitle>
-				</Menu.Item>
-			</Menu.Content>
-		</Menu.Root>
-	);
-}
+// function ChatMessageMenu({
+// 	children,
+// 	message,
+// }: { children: ReactNode; message: Message.UserMessage }) {
+// 	return (
+// 		<Menu.Root>
+// 			<Menu.Trigger>{children}</Menu.Trigger>
+// 			<Menu.Content>
+// 				<Menu.Preview size={"INHERIT"}>
+// 					{() => (
+// 						<View style={styles.bubblePreview}>
+// 							<Text style={styles.message}>{message.content}</Text>
+// 						</View>
+// 					)}
+// 				</Menu.Preview>
+// 				<Menu.Item
+// 					key="delete"
+// 					onSelect={() => Alert.alert("Left group")}
+// 					destructive
+// 				>
+// 					<Menu.ItemIcon ios={{ name: "trash" }} />
+// 					<Menu.ItemTitle>Delete Message</Menu.ItemTitle>
+// 				</Menu.Item>
+// 			</Menu.Content>
+// 		</Menu.Root>
+// 	);
+// }
 
 function SystemMessage({ message }: { message: Message.SystemMessage }) {
 	return (
@@ -88,11 +89,9 @@ function ExpenseMessage({ message }: { message: Message.ExpenseMessage }) {
 }
 
 const styles = StyleSheet.create({
-	bubbleContainer: {
-		marginVertical: 8,
-	},
 	bubble: {
-		maxWidth: "85%",
+		marginVertical: 8,
+		maxWidth: 300,
 		flexGrow: 0,
 		flexDirection: "column",
 		gap: 4,
@@ -107,6 +106,13 @@ const styles = StyleSheet.create({
 			width: 0,
 			height: 0,
 		},
+	},
+	bubblePreview: {
+		backgroundColor: "#ecfdf5",
+		paddingHorizontal: 12,
+		paddingVertical: 8,
+		borderRadius: 12,
+		maxWidth: 300,
 	},
 	systemBubble: {
 		alignSelf: "center",

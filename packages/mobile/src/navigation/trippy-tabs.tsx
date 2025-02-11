@@ -16,7 +16,9 @@ import type { SceneRendererProps } from "react-native-tab-view";
 
 const { Navigator } = createMaterialTopTabNavigator();
 
-export type TrippyTabsNavigationOptions = MaterialTopTabNavigationOptions & {};
+export type TrippyTabsNavigationOptions = MaterialTopTabNavigationOptions & {
+	enabled?: boolean;
+};
 
 export const TrippyTabs = withLayoutContext<
 	TrippyTabsNavigationOptions,

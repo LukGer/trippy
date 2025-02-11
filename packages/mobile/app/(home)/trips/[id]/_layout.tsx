@@ -19,7 +19,12 @@ export default function TripLayout() {
 			<Stack.Screen options={{ headerShown: false }} />
 			<StatusBar barStyle="light-content" />
 			<TripContext.Provider value={data}>
-				<Stack />
+				<Stack>
+					<Stack.Screen
+						name="addExpense"
+						options={{ presentation: "formSheet", headerShown: false }}
+					/>
+				</Stack>
 			</TripContext.Provider>
 		</>
 	);

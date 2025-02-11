@@ -19,6 +19,10 @@ import Animated, {
 	FadeInUp,
 	FadeOutUp,
 	LinearTransition,
+	useAnimatedStyle,
+	withTiming,
+	ZoomIn,
+	ZoomOut,
 } from "react-native-reanimated";
 import { useDebounce } from "use-debounce";
 
@@ -80,17 +84,11 @@ export default function NewTripPage() {
 				options={{
 					title: "Create new group trip",
 					headerRight: () => (
-						<TouchableOpacity disabled={saveDisabled} onPress={() => addTrip()}>
-							<Text
-								style={{
-									color: "#007AFF",
-									fontWeight: "bold",
-									opacity: saveDisabled ? 0.5 : 1,
-								}}
-							>
-								Create
-							</Text>
-						</TouchableOpacity>
+						<CreateButton
+							onPress={addTrip}
+							isLoading={addTripMutation.isPending}
+							disabled={saveDisabled}
+						/>
 					),
 				}}
 			/>
@@ -138,6 +136,10 @@ export default function NewTripPage() {
 							</View>
 						)}
 
+						{!placesLoading && (data?.length ?? 0) === 0 && (
+							<Text style={{ color: "gray" }}>Search for a city above</Text>
+						)}
+
 						{data?.map((place) => (
 							<TouchableOpacity
 								onPress={() => {
@@ -179,6 +181,41 @@ export default function NewTripPage() {
 	);
 }
 
+const CreateButton = ({
+	onPress,
+	isLoading,
+	disabled,
+}: { onPress: () => void; isLoading: boolean; disabled: boolean }) => {
+	const textStyle = useAnimatedStyle(() => ({
+		opacity: withTiming(disabled ? 0.5 : 1),
+	}));
+
+	return (
+		<TouchableOpacity
+			disabled={disabled}
+			onPress={onPress}
+			style={{
+				width: 50,
+				alignItems: "center",
+				justifyContent: "center",
+			}}
+		>
+			{isLoading ? (
+				<Animated.View entering={ZoomIn}>
+					<Spinner size={24} color="#0000ff" />
+				</Animated.View>
+			) : (
+				<Animated.Text
+					exiting={ZoomOut}
+					style={[{ color: "#007AFF", fontWeight: "bold" }, textStyle]}
+				>
+					Create
+				</Animated.Text>
+			)}
+		</TouchableOpacity>
+	);
+};
+
 const styles = StyleSheet.create({
 	container: {
 		width: "100%",
@@ -187,6 +224,8 @@ const styles = StyleSheet.create({
 		borderRadius: 10,
 		borderCurve: "continuous",
 		overflow: "hidden",
+		alignItems: "center",
+		justifyContent: "center",
 	},
 	seperator: {
 		height: StyleSheet.hairlineWidth,

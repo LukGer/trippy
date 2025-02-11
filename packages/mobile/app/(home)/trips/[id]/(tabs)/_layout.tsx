@@ -1,4 +1,5 @@
 import { useTrip } from "@/src/hooks/useTrip";
+import { useTrippyUser } from "@/src/hooks/useTrippyUser";
 import { TrippyTabBar } from "@/src/navigation/trippy-tab-bar";
 import { TrippyTabs } from "@/src/navigation/trippy-tabs";
 import { Link, Stack } from "expo-router";
@@ -7,7 +8,11 @@ import React from "react";
 import { Text, TouchableOpacity } from "react-native";
 
 export default function TripTabsLayout() {
+	const user = useTrippyUser();
 	const trip = useTrip();
+
+	const isAdmin =
+		trip.members.find((member) => member.id === user.id)?.isAdmin ?? false;
 
 	return (
 		<>
@@ -43,9 +48,10 @@ export default function TripTabsLayout() {
 				}}
 			/>
 			<TrippyTabs tabBar={TrippyTabBar}>
-				<TrippyTabs.Screen name="index" />
+				<TrippyTabs.Screen name="chat" />
 				<TrippyTabs.Screen name="expenses" />
 				<TrippyTabs.Screen name="documents" />
+				<TrippyTabs.Screen name="settings" options={{ enabled: isAdmin }} />
 			</TrippyTabs>
 		</>
 	);
