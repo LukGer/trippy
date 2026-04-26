@@ -1,0 +1,35 @@
+{
+  "name": "@trippy/api",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./router": "./src/trpc/router.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "biome lint .",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy --minify",
+    "cf-typegen": "wrangler types --env-interface CloudflareBindings",
+    "auth:generate": "bunx @better-auth/cli generate --config src/auth/auth.cli.ts --output src/auth/schema.ts -y",
+    "db:generate": "drizzle-kit generate",
+    "db:push": "wrangler d1 migrations apply trippy-db --local"
+  },
+  "dependencies": {
+    "@trippy/contracts": "workspace:*",
+    "@trippy/core": "workspace:*",
+    "@trpc/server": "^11.8.0",
+    "better-auth": "^1.4.4",
+    "drizzle-orm": "^0.45.1",
+    "hono": "^4.12.15",
+    "zod": "^4.2.1"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260426.0",
+    "@trippy/tsconfig": "workspace:*",
+    "@types/node": "^25.6.0",
+    "drizzle-kit": "^0.31.10",
+    "typescript": "~5.9.2",
+    "wrangler": "^4.4.0"
+  }
+}

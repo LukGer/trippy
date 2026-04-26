@@ -1,1 +1,0 @@
-ALTER TABLE "trips" ADD COLUMN "place_id" text NOT NULL;
