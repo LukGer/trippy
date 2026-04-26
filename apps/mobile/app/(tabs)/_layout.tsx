@@ -1,38 +1,32 @@
-import { HapticTab } from "@/components/haptic-tab";
-import { IconSymbol } from "@/components/ui/icon-symbol";
-import { Colors } from "@/constants/theme";
-import { useColorScheme } from "@/hooks/use-color-scheme";
-import { Tabs } from "expo-router";
+import { Icon, Label, NativeTabs } from "expo-router/unstable-native-tabs";
 
-export default function TabLayout() {
-	const colorScheme = useColorScheme();
-
+export default function TabsLayout() {
 	return (
-		<Tabs
-			screenOptions={{
-				tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
-				headerShown: false,
-				tabBarButton: HapticTab,
-			}}
-		>
-			<Tabs.Screen
-				name="index"
-				options={{
-					title: "Home",
-					tabBarIcon: ({ color }) => (
-						<IconSymbol size={28} name="house.fill" color={color} />
-					),
-				}}
-			/>
-			<Tabs.Screen
-				name="explore"
-				options={{
-					title: "Explore",
-					tabBarIcon: ({ color }) => (
-						<IconSymbol size={28} name="paperplane.fill" color={color} />
-					),
-				}}
-			/>
-		</Tabs>
+		<NativeTabs tintColor="#0a7ea4">
+			<NativeTabs.Trigger
+				name="discover"
+			>
+				<Label>Discover</Label>
+				<Icon sf="safari" />
+			</NativeTabs.Trigger>
+			<NativeTabs.Trigger
+				name="plans"
+			>
+				<Label>Plans</Label>
+				<Icon sf="map" />
+			</NativeTabs.Trigger>
+			<NativeTabs.Trigger
+				name="documents"
+			>
+				<Label>Documents</Label>
+				<Icon sf="text.document" />
+			</NativeTabs.Trigger>
+			<NativeTabs.Trigger
+				name="you"
+			>
+				<Label>You</Label>
+				<Icon sf="person" />
+			</NativeTabs.Trigger>
+		</NativeTabs>
 	);
 }

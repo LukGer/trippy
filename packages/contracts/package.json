@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./documents": "./src/documents.ts",
     "./trips": "./src/trips.ts"
   },
   "scripts": {

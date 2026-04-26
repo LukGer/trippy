@@ -1,3 +1,4 @@
+import { documentsRouter } from "../modules/documents/documents.router";
 import { tripsRouter } from "../modules/trips/trips.router";
 import { publicProcedure, router } from "./trpc";
 
@@ -6,6 +7,7 @@ export const appRouter = router({
     ok: true,
     service: "trippy-api",
   })),
+  documents: documentsRouter,
   trips: tripsRouter,
 });
 

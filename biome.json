@@ -29,7 +29,11 @@
 				"noArrayIndexKey": "warn"
 			},
 			"correctness": {
-				"useExhaustiveDependencies": "off"
+				"useExhaustiveDependencies": "off",
+				"noUnusedImports": {
+					"level": "warn",
+					"fix": "safe"
+				}
 			},
 			"nursery": {
 				"useSortedClasses": {
