@@ -1,4 +1,6 @@
 import { ScrollView, StyleSheet, Text } from "react-native";
+import { Colors } from "@/constants/colors";
+import { Fonts } from "@/constants/fonts";
 
 export default function DocumentsScreen() {
 	return (
@@ -13,17 +15,19 @@ export default function DocumentsScreen() {
 
 const styles = StyleSheet.create({
 	container: {
+		backgroundColor: Colors.surface.canvas,
 		flexGrow: 1,
 		justifyContent: "center",
 		padding: 24,
 	},
 	description: {
-		color: "#687076",
+		color: Colors.ink.secondary,
 		fontSize: 16,
 		marginTop: 8,
 	},
 	title: {
+		color: Colors.ink.primary,
+		fontFamily: Fonts.serif.bold,
 		fontSize: 32,
-		fontWeight: "700",
 	},
 });
