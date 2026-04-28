@@ -197,15 +197,17 @@ function MultiStepFlowOutlet() {
 	}, [renderIndex, opacity, translateX]);
 
 	const animatedStyle = useAnimatedStyle(() => ({
-		flex: 1,
-		minHeight: 0,
 		opacity: opacity.value,
 		transform: [{ translateX: translateX.value }],
 	}));
 
 	const body = steps[renderIndex]?.body;
 
-	return <Animated.View style={animatedStyle}>{body}</Animated.View>;
+	return (
+		<Animated.View className="min-h-0 flex-1" style={animatedStyle}>
+			{body}
+		</Animated.View>
+	);
 }
 
 export const MultiStepFlow = Object.assign(MultiStepFlowRoot, {

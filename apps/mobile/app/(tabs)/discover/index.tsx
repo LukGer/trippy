@@ -1,7 +1,6 @@
 import { Stack } from "expo-router";
-import { ScrollView, StyleSheet, Text } from "react-native";
+import { ScrollView, Text } from "react-native";
 import { Colors } from "@/constants/colors";
-import { Fonts } from "@/constants/fonts";
 
 export default function DiscoverScreen() {
 	return (
@@ -20,38 +19,16 @@ export default function DiscoverScreen() {
 				}}
 			/>
 			<ScrollView
+				contentContainerClassName="min-h-full flex-grow bg-surface-canvas px-6 pt-6"
 				contentInsetAdjustmentBehavior="automatic"
-				contentContainerStyle={styles.container}
 			>
-				<Text style={styles.title}>Where should we go next?</Text>
-				<Text style={styles.description}>
+				<Text className="type-large-title max-w-[340px] font-serif-bold text-ink-primary tracking-[-0.8px]">
+					Where should we go next?
+				</Text>
+				<Text className="type-callout mt-4 max-w-[320px] text-ink-secondary">
 					Find ideas, places, and inspiration for your next trip.
 				</Text>
 			</ScrollView>
 		</>
 	);
 }
-
-const styles = StyleSheet.create({
-	container: {
-		backgroundColor: Colors.surface.canvas,
-		flexGrow: 1,
-		paddingHorizontal: 24,
-		paddingTop: 24,
-	},
-	description: {
-		color: Colors.ink.secondary,
-		fontSize: 18,
-		lineHeight: 26,
-		marginTop: 16,
-		maxWidth: 320,
-	},
-	title: {
-		color: Colors.ink.primary,
-		fontFamily: Fonts.serif.bold,
-		fontSize: 40,
-		letterSpacing: -0.8,
-		lineHeight: 44,
-		maxWidth: 340,
-	},
-});

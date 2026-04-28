@@ -7,8 +7,8 @@ export default function PlansModalLayout() {
 	return (
 		<Stack
 			screenOptions={{
-				headerShown: false,
-				presentation: "pageSheet",
+				headerShown: true,
+				presentation: "modal",
 			}}
 		>
 			<Stack.Screen name="create" />

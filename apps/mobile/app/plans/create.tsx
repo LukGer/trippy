@@ -1,10 +1,10 @@
 import { Stack, useRouter } from "expo-router";
 import { MultiStepFlow } from "@/src/components/multi-step-flow";
-import { PlanCreateShell } from "@/src/components/plan-create/plan-create-shell";
-import { PlanCreateStepCreated } from "@/src/components/plan-create/plan-create-step-created";
-import { PlanCreateStepNewPlan } from "@/src/components/plan-create/plan-create-step-new-plan";
-import { PlanCreateStepReading } from "@/src/components/plan-create/plan-create-step-reading";
-import { PlanCreateStepReview } from "@/src/components/plan-create/plan-create-step-review";
+import { PlanCreateShell } from "@/src/components/plan-create/shell";
+import { PlanCreateStepCreated } from "@/src/components/plan-create/step-created";
+import { PlanCreateStepNewPlan } from "@/src/components/plan-create/step-new-plan";
+import { PlanCreateStepReading } from "@/src/components/plan-create/step-reading";
+import { PlanCreateStepReview } from "@/src/components/plan-create/step-review";
 
 export default function CreatePlanScreen() {
 	const router = useRouter();

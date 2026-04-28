@@ -1,20 +1,29 @@
-import type { StyleProp, TextInputProps, TextStyle, ViewStyle } from "react-native";
-import { Platform, StyleSheet, Text, TextInput, View } from "react-native";
-import { Colors } from "@/constants/colors";
-import { Fonts } from "@/constants/fonts";
+import type { ReactNode } from "react";
+import type { TextInputProps } from "react-native";
+import { Platform, Text, TextInput, View } from "react-native";
 
 export type LabeledSingleLineFieldProps = {
 	label: string;
 	value: string;
 	onChangeText: (text: string) => void;
 	placeholder?: string;
-	/** Wraps label + input (default bottom margin for stacked fields) */
-	containerStyle?: StyleProp<ViewStyle>;
-	inputStyle?: StyleProp<TextStyle>;
+	/** Extra container classes (e.g. mb override) */
+	className?: string;
+	/** Extra input classes */
+	inputClassName?: string;
 } & Omit<
 	TextInputProps,
-	"multiline" | "onChangeText" | "style" | "value"
+	"multiline" | "onChangeText" | "style" | "value" | "className"
 >;
+
+/** Uppercase small label — matches {@link LabeledSingleLineField} label typography (e.g. section headers above textarea). */
+export function LabeledFieldLabel({ children }: { children: ReactNode }) {
+	return (
+		<Text className="type-caption-2 mb-2 font-serif-semibold text-ink-tertiary uppercase tracking-[1.2px]">
+			{children}
+		</Text>
+	);
+}
 
 /**
  * Uppercase label + rounded card single-line field (plan-create / forms).
@@ -24,52 +33,23 @@ export function LabeledSingleLineField({
 	value,
 	onChangeText,
 	placeholder,
-	containerStyle,
-	inputStyle,
 	...textInputProps
 }: LabeledSingleLineFieldProps) {
 	return (
-		<View style={[styles.container, containerStyle]}>
-			<Text style={styles.label}>{label}</Text>
+		<View className="mb-6">
+			<LabeledFieldLabel>{label}</LabeledFieldLabel>
 			<TextInput
 				{...textInputProps}
 				multiline={false}
+				className="type-body rounded-[14px] bg-surface-card px-4 py-3.5 font-serif text-ink-primary"
 				placeholder={placeholder}
-				placeholderTextColor={Colors.ink.tertiary}
-				style={[styles.input, inputStyle]}
+				placeholderTextColorClassName="accent-ink-tertiary"
+				style={
+					Platform.OS === "android" ? { includeFontPadding: false } : undefined
+				}
 				value={value}
 				onChangeText={onChangeText}
 			/>
 		</View>
 	);
 }
-
-const styles = StyleSheet.create({
-	container: {
-		marginBottom: 24,
-	},
-	label: {
-		color: Colors.ink.tertiary,
-		fontFamily: Fonts.serif.semibold,
-		fontSize: 11,
-		letterSpacing: 1.2,
-		marginBottom: 8,
-		textTransform: "uppercase",
-	},
-	input: {
-		backgroundColor: Colors.surface.card,
-		borderRadius: 14,
-		color: Colors.ink.primary,
-		fontFamily: Fonts.serif.regular,
-		fontSize: 18,
-		paddingHorizontal: 16,
-		paddingVertical: 14,
-		...Platform.select({
-			android: { includeFontPadding: false },
-			default: {},
-		}),
-	},
-});
-
-/** Same typography as {@link LabeledSingleLineField}’s label — for custom sections (textarea, etc.) */
-export const labeledSingleLineFieldLabelStyle = styles.label;

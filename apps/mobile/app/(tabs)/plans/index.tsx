@@ -1,6 +1,6 @@
 import { Link, Stack } from "expo-router";
 import { SymbolView } from "expo-symbols";
-import { Pressable, ScrollView, StyleSheet, Text } from "react-native";
+import { Pressable, ScrollView, Text } from "react-native";
 import { Colors } from "@/constants/colors";
 import { Fonts } from "@/constants/fonts";
 
@@ -20,6 +20,7 @@ export default function PlansScreen() {
 								accessibilityLabel="Create plan"
 								accessibilityRole="button"
 								hitSlop={12}
+								className="flex items-center justify-center"
 							>
 								<SymbolView
 									name="plus.circle"
@@ -30,22 +31,20 @@ export default function PlansScreen() {
 						</Link>
 					),
 					headerShadowVisible: false,
-					headerTitleStyle: { color: Colors.ink.primary, fontFamily: Fonts.serif.bold },
+					headerTitleStyle: {
+						color: Colors.ink.primary,
+						fontFamily: Fonts.serif.bold,
+					},
 					headerLargeTitleStyle: { fontFamily: Fonts.serif.bold },
 					headerTransparent: true,
 				}}
 			/>
 			<ScrollView
+				contentContainerClassName="flex-grow px-6 pt-6"
 				contentInsetAdjustmentBehavior="automatic"
-				contentContainerStyle={styles.container}
 			>
-				<Text>bla bla bla</Text>
+				<Text className="type-body text-ink-secondary">bla bla bla</Text>
 			</ScrollView>
 		</>
 	);
 }
-
-const styles = StyleSheet.create({
-	container: {
-	}
-});

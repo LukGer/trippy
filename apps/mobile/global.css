@@ -1,0 +1,87 @@
+@import 'tailwindcss';
+@import 'uniwind';
+
+@theme {
+	/* Surfaces & ink — maps to bg-*, text-*, border-* */
+	--color-surface-canvas: #fafaf7;
+	--color-surface-card: #ffffff;
+	--color-surface-timeline-a: #f5efe6;
+	--color-surface-timeline-b: #ede9e0;
+	--color-ink-primary: #1a1a1a;
+	--color-ink-secondary: rgb(0 0 0 / 0.55);
+	--color-ink-body: rgb(0 0 0 / 0.6);
+	--color-ink-tertiary: rgb(0 0 0 / 0.45);
+	--color-ink-inverse: #ffffff;
+	--color-line-soft: rgb(0 0 0 / 0.08);
+	--color-accent-orange: #ff6b35;
+	/* RN serif stack */
+	--font-serif: Newsreader_400Regular, ui-serif, serif;
+	--font-serif-semibold: Newsreader_600SemiBold, ui-serif, serif;
+	--font-serif-bold: Newsreader_700Bold, ui-serif, serif;
+}
+
+@utility type-large-title {
+	font-size: 34pt;
+	line-height: 41pt;
+	font-weight: 400;
+}
+
+@utility type-title-1 {
+	font-size: 28pt;
+	line-height: 34pt;
+	font-weight: 400;
+}
+
+@utility type-title-2 {
+	font-size: 22pt;
+	line-height: 28pt;
+	font-weight: 400;
+}
+
+@utility type-title-3 {
+	font-size: 20pt;
+	line-height: 25pt;
+	font-weight: 400;
+}
+
+@utility type-headline {
+	font-size: 17pt;
+	line-height: 22pt;
+	font-weight: 600;
+}
+
+@utility type-body {
+	font-size: 17pt;
+	line-height: 22pt;
+	font-weight: 400;
+}
+
+@utility type-callout {
+	font-size: 16pt;
+	line-height: 21pt;
+	font-weight: 400;
+}
+
+@utility type-subhead {
+	font-size: 15pt;
+	line-height: 20pt;
+	font-weight: 400;
+}
+
+@utility type-footnote {
+	font-size: 13pt;
+	line-height: 18pt;
+	font-weight: 400;
+}
+
+@utility type-caption-1 {
+	font-size: 12pt;
+	line-height: 16pt;
+	font-weight: 400;
+}
+
+@utility type-caption-2 {
+	font-size: 11pt;
+	line-height: 13pt;
+	font-weight: 400;
+}

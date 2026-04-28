@@ -1,33 +1,12 @@
-import { ScrollView, StyleSheet, Text } from "react-native";
-import { Colors } from "@/constants/colors";
-import { Fonts } from "@/constants/fonts";
+import { ScrollView, Text } from "react-native";
 
 export default function YouScreen() {
 	return (
-		<ScrollView contentContainerStyle={styles.container}>
-			<Text style={styles.title}>You</Text>
-			<Text style={styles.description}>
+		<ScrollView contentContainerClassName="min-h-full flex-grow justify-center bg-surface-canvas p-6">
+			<Text className="type-large-title font-serif-bold text-ink-primary">You</Text>
+			<Text className="type-callout mt-2 text-ink-secondary">
 				Manage your profile, preferences, and account settings.
 			</Text>
 		</ScrollView>
 	);
 }
-
-const styles = StyleSheet.create({
-	container: {
-		backgroundColor: Colors.surface.canvas,
-		flexGrow: 1,
-		justifyContent: "center",
-		padding: 24,
-	},
-	description: {
-		color: Colors.ink.secondary,
-		fontSize: 16,
-		marginTop: 8,
-	},
-	title: {
-		color: Colors.ink.primary,
-		fontFamily: Fonts.serif.bold,
-		fontSize: 32,
-	},
-});
