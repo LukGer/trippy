@@ -21,6 +21,8 @@ export type MultiStepFlowStepProps = {
 	eyebrow?: string;
 	title?: string;
 	subtitle?: string;
+	/** Primary footer action label for this step (e.g. Continue, Create plan) */
+	primaryButtonLabel?: string;
 	children?: ReactNode;
 };
 
@@ -28,6 +30,7 @@ type ParsedStep = {
 	eyebrow?: string;
 	title?: string;
 	subtitle?: string;
+	primaryButtonLabel?: string;
 	body: ReactNode;
 };
 
@@ -63,6 +66,7 @@ function collectSteps(children: ReactNode): ParsedStep[] {
 			eyebrow: child.props.eyebrow,
 			title: child.props.title,
 			subtitle: child.props.subtitle,
+			primaryButtonLabel: child.props.primaryButtonLabel,
 			body: child.props.children,
 		});
 	});
@@ -155,9 +159,6 @@ function MultiStepFlowOutlet() {
 	const translateX = useSharedValue(0);
 	const pendingDir = useRef<1 | -1>(1);
 	const skipInitialEnter = useRef(true);
-	const activeIndexRef = useRef(activeIndex);
-
-	activeIndexRef.current = activeIndex;
 
 	useEffect(() => {
 		setRenderIndex((r) =>
@@ -170,16 +171,17 @@ function MultiStepFlowOutlet() {
 
 		pendingDir.current = activeIndex > renderIndex ? 1 : -1;
 		const dir = pendingDir.current;
+		/** Primitive snapshot — never pass a ref into worklets / scheduleOnRN callbacks */
+		const targetIndex = activeIndex;
 
 		translateX.value = 0;
 		opacity.value = withTiming(0, { duration: STEP_OUT_MS }, (finished) => {
-			if (finished)
-				scheduleOnRN(setRenderIndex, activeIndexRef.current);
+			if (finished) scheduleOnRN(setRenderIndex, targetIndex);
 		});
 		translateX.value = withTiming(-dir * STEP_SLIDE_DP, {
 			duration: STEP_OUT_MS,
 		});
-	}, [activeIndex, opacity, renderIndex, translateX]);
+	}, [activeIndex, renderIndex, opacity, translateX]);
 
 	useEffect(() => {
 		if (skipInitialEnter.current) {
@@ -192,7 +194,7 @@ function MultiStepFlowOutlet() {
 		opacity.value = 0;
 		opacity.value = withTiming(1, { duration: STEP_IN_MS });
 		translateX.value = withTiming(0, { duration: STEP_IN_MS });
-	}, [opacity, renderIndex, translateX]);
+	}, [renderIndex, opacity, translateX]);
 
 	const animatedStyle = useAnimatedStyle(() => ({
 		flex: 1,

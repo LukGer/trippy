@@ -1,7 +1,10 @@
 import { useRouter } from "expo-router";
+import { useEffect, useMemo } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import Animated, {
+	interpolate,
 	useAnimatedStyle,
+	useSharedValue,
 	withTiming,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -10,9 +13,7 @@ import { Fonts } from "@/constants/fonts";
 import {
 	MultiStepFlow,
 	useMultiStepFlow,
-} from "@/src/multi-step-flow/multi-step-flow";
-
-const STEP_DOT_KEYS = ["d0", "d1", "d2", "d3", "d4", "d5", "d6", "d7"] as const;
+} from "@/src/components/multi-step-flow";
 
 export function PlanCreateShell() {
 	const insets = useSafeAreaInsets();
@@ -34,37 +35,82 @@ export function PlanCreateShell() {
 
 function PlanCreateHeader() {
 	const router = useRouter();
-	const { currentStep } = useMultiStepFlow();
+	const { activeIndex, currentStep, goBack, isLastStep, totalSteps } =
+		useMultiStepFlow();
+	const isFirstStep = activeIndex === 0;
+	/** Last step of a multi-step flow: no Cancel/Back (finish via primary action). Single-step still shows Cancel. */
+	const hideTrailingAction = isLastStep && totalSteps > 1;
 
 	return (
 		<View style={styles.header}>
 			<View style={styles.headerRow}>
 				<Text style={styles.eyebrow}>{currentStep?.eyebrow ?? ""}</Text>
-				<Pressable
-					accessibilityLabel="Cancel"
-					accessibilityRole="button"
-					hitSlop={12}
-					onPress={() => router.back()}
-				>
-					<Text style={styles.cancel}>Cancel</Text>
-				</Pressable>
+				{hideTrailingAction ? null : (
+					<Pressable
+						accessibilityLabel={isFirstStep ? "Cancel" : "Back"}
+						accessibilityRole="button"
+						hitSlop={12}
+						onPress={() => {
+							if (isFirstStep) router.back();
+							else goBack();
+						}}
+					>
+						<Text style={styles.headerTrailingAction}>
+							{isFirstStep ? "Cancel" : "Back"}
+						</Text>
+					</Pressable>
+				)}
 			</View>
 		</View>
 	);
 }
 
 function PlanCreateFooter() {
-	const { activeIndex, goNext, totalSteps } = useMultiStepFlow();
+	const {
+		activeIndex,
+		currentStep,
+		goNext,
+		isLastStep,
+		totalSteps,
+	} = useMultiStepFlow();
+
+	const dotKeys = useMemo(
+		() => Array.from({ length: totalSteps }, (_, i) => `plan-dot-${i}`),
+		[totalSteps],
+	);
+
+	const hideDots = isLastStep && totalSteps > 1;
+	const dotsOpacity = useSharedValue(hideDots ? 0 : 1);
+
+	useEffect(() => {
+		dotsOpacity.value = withTiming(hideDots ? 0 : 1, { duration: 260 });
+	}, [hideDots, dotsOpacity]);
+
+	const dotsRowAnimatedStyle = useAnimatedStyle(() => ({
+		opacity: dotsOpacity.value,
+		height: interpolate(dotsOpacity.value, [0, 1], [0, 14]),
+		/** Replaces footer gap so space collapses when dots are hidden */
+		marginBottom: interpolate(dotsOpacity.value, [0, 1], [0, 20]),
+		overflow: "hidden",
+	}));
+
+	const primaryLabel = currentStep?.primaryButtonLabel ?? "Continue";
 
 	return (
 		<View style={styles.footer}>
-			<View style={styles.dots}>
-				{STEP_DOT_KEYS.slice(0, totalSteps).map((dotKey, stepDotIndex) => (
-					<AnimatedDot key={dotKey} active={stepDotIndex === activeIndex} />
+			<Animated.View
+				pointerEvents={hideDots ? "none" : "auto"}
+				style={[styles.dots, dotsRowAnimatedStyle]}
+			>
+				{dotKeys.map((dotKey, stepDotIndex) => (
+					<AnimatedDot
+						key={dotKey}
+						active={stepDotIndex === activeIndex}
+					/>
 				))}
-			</View>
+			</Animated.View>
 			<Pressable
-				accessibilityLabel="Continue"
+				accessibilityLabel={primaryLabel}
 				accessibilityRole="button"
 				onPress={goNext}
 				style={({ pressed }) => [
@@ -72,7 +118,7 @@ function PlanCreateFooter() {
 					pressed && styles.continueBtnPressed,
 				]}
 			>
-				<Text style={styles.continueLabel}>Continue</Text>
+				<Text style={styles.continueLabel}>{primaryLabel}</Text>
 			</Pressable>
 		</View>
 	);
@@ -113,13 +159,12 @@ const styles = StyleSheet.create({
 		letterSpacing: 1.4,
 		textTransform: "uppercase",
 	},
-	cancel: {
+	headerTrailingAction: {
 		color: Colors.ink.tertiary,
 		fontFamily: Fonts.serif.regular,
 		fontSize: 16,
 	},
 	footer: {
-		gap: 20,
 		paddingHorizontal: 24,
 		paddingTop: 8,
 	},
