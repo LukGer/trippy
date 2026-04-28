@@ -15,7 +15,7 @@ export default function PlansScreen() {
 					headerLargeTitle: true,
 					headerLargeTitleShadowVisible: false,
 					headerRight: () => (
-						<Link href="/(tabs)/plans/create" asChild>
+						<Link href="/plans/create" asChild>
 							<Pressable
 								accessibilityLabel="Create plan"
 								accessibilityRole="button"
