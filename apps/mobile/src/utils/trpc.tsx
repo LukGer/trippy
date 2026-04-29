@@ -3,6 +3,7 @@ import type { AppRouter } from "@trippy/api/router";
 import { httpBatchLink } from "@trpc/client";
 import { createTRPCReact } from "@trpc/react-query";
 import { type PropsWithChildren, useState } from "react";
+import { fetch } from "react-native-nitro-fetch";
 import { getApiUrl } from "./api-url";
 
 export const trpc = createTRPCReact<AppRouter>();
@@ -14,6 +15,7 @@ export function TrippyApiProvider({ children }: PropsWithChildren) {
 			links: [
 				httpBatchLink({
 					url: `${getApiUrl()}/trpc`,
+					fetch,
 				}),
 			],
 		}),

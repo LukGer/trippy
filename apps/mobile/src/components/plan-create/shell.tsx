@@ -22,6 +22,7 @@ import {
 	PlanCreateScrollInsetProvider,
 	usePlanCreateScrollInset,
 } from "@/src/components/plan-create/scroll-inset-context";
+import { usePlanCreateWizard } from "@/src/components/plan-create/wizard-context";
 
 export function PlanCreateShell() {
 	const insets = useSafeAreaInsets();
@@ -139,6 +140,7 @@ function PlanCreateHeader() {
 function PlanCreateFooter() {
 	const { activeIndex, currentStep, goNext, isLastStep, totalSteps } =
 		useMultiStepFlow();
+	const { streamStatus } = usePlanCreateWizard();
 
 	const dotKeys = useMemo(
 		() => Array.from({ length: totalSteps }, (_, i) => `plan-dot-${i}`),
@@ -162,6 +164,10 @@ function PlanCreateFooter() {
 
 	const primaryLabel = currentStep?.primaryButtonLabel ?? "Continue";
 
+	const readingContinueBlocked =
+		currentStep?.eyebrow === "Reading" &&
+		(streamStatus === "idle" || streamStatus === "streaming");
+
 	return (
 		<>
 			<Animated.View
@@ -176,7 +182,9 @@ function PlanCreateFooter() {
 			<Pressable
 				accessibilityLabel={primaryLabel}
 				accessibilityRole="button"
-				className="items-center justify-center rounded-full bg-ink-primary py-4 active:opacity-[0.88]"
+				accessibilityState={{ disabled: readingContinueBlocked }}
+				disabled={readingContinueBlocked}
+				className={`items-center justify-center rounded-full py-4 active:opacity-[0.88] ${readingContinueBlocked ? "bg-ink-primary/45" : "bg-ink-primary"}`}
 				onPress={goNext}
 			>
 				<Text className="type-headline text-ink-inverse">{primaryLabel}</Text>

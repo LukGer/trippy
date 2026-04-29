@@ -1,7 +1,7 @@
 import * as DocumentPicker from "expo-document-picker";
 import * as Haptics from "expo-haptics";
 import { SymbolView } from "expo-symbols";
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { Pressable, ScrollView, Text, TextInput, View } from "react-native";
 import { Colors } from "@/constants/colors";
 import {
@@ -9,17 +9,14 @@ import {
 	LabeledSingleLineField,
 } from "@/src/components/labeled-single-line-field";
 import { PlanCreateStepLayout } from "@/src/components/plan-create/step-layout";
-
-export type PlanAttachment = {
-	id: string;
-	name: string;
-	kind: "pdf" | "image" | "other";
-};
+import {
+	type PlanAttachment,
+	usePlanCreateWizard,
+} from "@/src/components/plan-create/wizard-context";
 
 export function PlanCreateStepNewPlan() {
-	const [tripName, setTripName] = useState("Japan, two weeks");
-	const [notes, setNotes] = useState("");
-	const [attachments, setAttachments] = useState<PlanAttachment[]>([]);
+	const { draft, setDraft } = usePlanCreateWizard();
+	const { tripName, notes, attachments } = draft;
 
 	const handleAddAttachment = useCallback(async () => {
 		const result = await DocumentPicker.getDocumentAsync({
@@ -40,21 +37,30 @@ export function PlanCreateStepNewPlan() {
 		)
 			kind = "image";
 
-		setAttachments((prev) => [
+		setDraft((prev) => ({
 			...prev,
-			{
-				id: `${Date.now()}-${prev.length}`,
-				name: asset.name ?? "Attachment",
-				kind,
-			},
-		]);
+			attachments: [
+				...prev.attachments,
+				{
+					id: `${Date.now()}-${prev.attachments.length}`,
+					name: asset.name ?? "Attachment",
+					kind,
+				},
+			],
+		}));
 		void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-	}, []);
+	}, [setDraft]);
 
-	const removeAttachment = useCallback((id: string) => {
-		setAttachments((prev) => prev.filter((a) => a.id !== id));
-		void Haptics.selectionAsync();
-	}, []);
+	const removeAttachment = useCallback(
+		(id: string) => {
+			setDraft((prev) => ({
+				...prev,
+				attachments: prev.attachments.filter((a) => a.id !== id),
+			}));
+			void Haptics.selectionAsync();
+		},
+		[setDraft],
+	);
 
 	return (
 		<PlanCreateStepLayout title="New Plan">
@@ -62,7 +68,9 @@ export function PlanCreateStepNewPlan() {
 				label="Trip name"
 				placeholder="Untitled trip"
 				value={tripName}
-				onChangeText={setTripName}
+				onChangeText={(text) =>
+					setDraft((prev) => ({ ...prev, tripName: text }))
+				}
 			/>
 
 			<View className="mb-6">
@@ -76,7 +84,9 @@ export function PlanCreateStepNewPlan() {
 						scrollEnabled
 						textAlignVertical="top"
 						value={notes}
-						onChangeText={setNotes}
+						onChangeText={(text) =>
+							setDraft((prev) => ({ ...prev, notes: text }))
+						}
 					/>
 					<Text className="type-footnote font-serif text-ink-tertiary italic">
 						Paste emails, lists, links — anything goes.

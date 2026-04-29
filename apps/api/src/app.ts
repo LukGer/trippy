@@ -1,9 +1,9 @@
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-
 import { createAuth } from "./auth/auth";
 import type { ApiEnv } from "./env";
+import { registerItineraryRoutes } from "./routes/itinerary";
 import { createTRPCContext } from "./trpc/context";
 import { appRouter } from "./trpc/router";
 
@@ -18,6 +18,8 @@ app.use(
     credentials: true,
   }),
 );
+
+registerItineraryRoutes(app);
 
 app.get("/", (c) => {
   return c.json({

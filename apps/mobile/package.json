@@ -10,7 +10,8 @@
     "web": "expo start --web",
     "lint": "expo lint",
     "typecheck": "tsc --noEmit",
-    "dev": "expo start --dev-client --ios"
+    "dev": "expo run ios",
+    "postinstall": "node ./scripts/patch-nitro-fetch-ios.js"
   },
   "dependencies": {
     "@expo-google-fonts/newsreader": "^0.4.1",
@@ -44,6 +45,8 @@
     "react-native": "0.81.5",
     "react-native-gesture-handler": "~2.28.0",
     "react-native-keyboard-controller": "^1.21.6",
+    "react-native-nitro-fetch": "^1.1.1",
+    "react-native-nitro-modules": "^0.35.6",
     "react-native-reanimated": "~4.1.1",
     "react-native-safe-area-context": "~5.6.0",
     "react-native-screens": "~4.16.0",
