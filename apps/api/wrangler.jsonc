@@ -33,6 +33,12 @@
       "database_id": "00000000-0000-0000-0000-000000000000",
     },
   ],
+  "r2_buckets": [
+    {
+      "binding": "PLAN_UPLOADS",
+      "bucket_name": "trippy-plan-uploads",
+    },
+  ],
   // "ai": {
   //   "binding": "AI"
   // },

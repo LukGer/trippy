@@ -5,6 +5,7 @@
   "type": "module",
   "exports": {
     "./documents": "./src/documents.ts",
+    "./itinerary": "./src/itinerary.ts",
     "./trips": "./src/trips.ts"
   },
   "scripts": {

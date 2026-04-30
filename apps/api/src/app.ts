@@ -4,6 +4,7 @@ import { cors } from "hono/cors";
 import { createAuth } from "./auth/auth";
 import type { ApiEnv } from "./env";
 import { registerItineraryRoutes } from "./routes/itinerary";
+import { registerPlanUploadRoutes } from "./routes/plan-uploads";
 import { createTRPCContext } from "./trpc/context";
 import { appRouter } from "./trpc/router";
 
@@ -19,6 +20,7 @@ app.use(
   }),
 );
 
+registerPlanUploadRoutes(app);
 registerItineraryRoutes(app);
 
 app.get("/", (c) => {

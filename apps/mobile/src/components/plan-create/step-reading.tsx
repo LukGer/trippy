@@ -1,11 +1,13 @@
 import { useEffect } from "react";
-import { ScrollView, Text, View } from "react-native";
+import { Text, View } from "react-native";
+import { ItineraryPlanPreview } from "@/src/components/plan-create/itinerary-plan-preview";
 import { PlanCreateStepLayout } from "@/src/components/plan-create/step-layout";
 import { usePlanCreateWizard } from "@/src/components/plan-create/wizard-context";
 
 export function PlanCreateStepReading() {
 	const {
-		itineraryText,
+		draft,
+		itineraryPlan,
 		streamStatus,
 		streamError,
 		startItineraryStream,
@@ -41,11 +43,11 @@ export function PlanCreateStepReading() {
 					{streamError}
 				</Text>
 			:	null}
-			<ScrollView className="max-h-[420px]">
-				<Text className="type-body whitespace-pre-wrap font-serif text-ink-primary">
-					{itineraryText}
-				</Text>
-			</ScrollView>
+			<ItineraryPlanPreview
+				plan={itineraryPlan}
+				attachments={draft.attachments}
+				maxHeightClass="max-h-[420px]"
+			/>
 			{streamStatus === "done" ?
 				<View className="mt-4">
 					<Text className="type-caption-1 font-serif text-ink-tertiary">
