@@ -23,6 +23,7 @@ import {
 	usePlanCreateScrollInset,
 } from "@/src/components/plan-create/scroll-inset-context";
 import { usePlanCreateWizard } from "@/src/components/plan-create/wizard-context";
+import { trpc } from "@/src/utils/trpc";
 
 export function PlanCreateShell() {
 	const insets = useSafeAreaInsets();
@@ -140,7 +141,13 @@ function PlanCreateHeader() {
 function PlanCreateFooter() {
 	const { activeIndex, currentStep, goNext, isLastStep, totalSteps } =
 		useMultiStepFlow();
-	const { streamStatus } = usePlanCreateWizard();
+	const { streamStatus, draft, itineraryPlan } = usePlanCreateWizard();
+	const utils = trpc.useUtils();
+	const createTrip = trpc.trips.create.useMutation({
+		onSuccess: () => {
+			void utils.trips.list.invalidate();
+		},
+	});
 
 	const dotKeys = useMemo(
 		() => Array.from({ length: totalSteps }, (_, i) => `plan-dot-${i}`),
@@ -168,6 +175,22 @@ function PlanCreateFooter() {
 		currentStep?.eyebrow === "Reading" &&
 		(streamStatus === "idle" || streamStatus === "streaming");
 
+	const isReviewStep = currentStep?.eyebrow === "Review";
+	const saveBlocked = isReviewStep && createTrip.isPending;
+
+	const onPrimaryPress = () => {
+		if (isReviewStep) {
+			const raw =
+				itineraryPlan?.generatedTripTitle?.trim() ||
+				draft.tripName.trim() ||
+				"Untitled trip";
+			const name = raw.slice(0, 120);
+			void createTrip.mutateAsync({ name }).then(() => goNext());
+			return;
+		}
+		goNext();
+	};
+
 	return (
 		<>
 			<Animated.View
@@ -179,13 +202,20 @@ function PlanCreateFooter() {
 					<AnimatedDot key={dotKey} active={stepDotIndex === activeIndex} />
 				))}
 			</Animated.View>
+			{createTrip.error ? (
+				<Text className="type-callout mb-2 px-1 text-center font-serif text-red-600">
+					{createTrip.error.message}
+				</Text>
+			) : null}
 			<Pressable
 				accessibilityLabel={primaryLabel}
 				accessibilityRole="button"
-				accessibilityState={{ disabled: readingContinueBlocked }}
-				disabled={readingContinueBlocked}
-				className={`items-center justify-center rounded-full py-4 active:opacity-[0.88] ${readingContinueBlocked ? "bg-ink-primary/45" : "bg-ink-primary"}`}
-				onPress={goNext}
+				accessibilityState={{
+					disabled: readingContinueBlocked || saveBlocked,
+				}}
+				disabled={readingContinueBlocked || saveBlocked}
+				className={`items-center justify-center rounded-full py-4 active:opacity-[0.88] ${readingContinueBlocked || saveBlocked ? "bg-ink-primary/45" : "bg-ink-primary"}`}
+				onPress={onPrimaryPress}
 			>
 				<Text className="type-headline text-ink-inverse">{primaryLabel}</Text>
 			</Pressable>

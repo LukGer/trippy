@@ -13,11 +13,11 @@
 	--color-ink-tertiary: rgb(0 0 0 / 0.45);
 	--color-ink-inverse: #ffffff;
 	--color-line-soft: rgb(0 0 0 / 0.08);
-	--color-accent-orange: #ff6b35;
-	/* RN serif stack */
-	--font-serif: Newsreader_400Regular, ui-serif, serif;
-	--font-serif-semibold: Newsreader_600SemiBold, ui-serif, serif;
-	--font-serif-bold: Newsreader_700Bold, ui-serif, serif;
+	--color-accent-orange: #ff7043;
+	/* RN: one PostScript name per token — comma stacks become a single invalid fontFamily */
+	--font-serif: Newsreader_400Regular;
+	--font-serif-semibold: Newsreader_600SemiBold;
+	--font-serif-bold: Newsreader_700Bold;
 }
 
 @utility type-large-title {

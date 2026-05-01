@@ -4,6 +4,9 @@ export const tripSchema = z.object({
   id: z.string(),
   name: z.string(),
   createdAt: z.string(),
+  startsOn: z.iso.datetime().nullable(),
+  endsOn: z.iso.datetime().nullable(),
+  description: z.string().nullable(),
 });
 
 export const createTripInputSchema = z.object({

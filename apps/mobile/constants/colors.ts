@@ -22,6 +22,6 @@ export const Colors = {
 		softHairline: "rgba(0,0,0,0.08)",
 	},
 	accent: {
-		orange: "#FF6B35",
+		orange: "#FF7043",
 	},
 } as const;

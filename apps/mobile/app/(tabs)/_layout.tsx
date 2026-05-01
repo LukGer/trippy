@@ -1,4 +1,4 @@
-import { Icon, Label, NativeTabs } from "expo-router/unstable-native-tabs";
+import {  NativeTabs } from "expo-router/unstable-native-tabs";
 import { Colors } from "@/constants/colors";
 
 export default function TabsLayout() {
@@ -7,26 +7,26 @@ export default function TabsLayout() {
 			<NativeTabs.Trigger
 				name="discover"
 			>
-				<Label>Discover</Label>
-				<Icon sf="safari" />
+				<NativeTabs.Trigger.Label>Discover</NativeTabs.Trigger.Label>
+				<NativeTabs.Trigger.Icon sf="location.north.line.fill" />
 			</NativeTabs.Trigger>
 			<NativeTabs.Trigger
 				name="plans"
 			>
-				<Label>Plans</Label>
-				<Icon sf="map" />
+				<NativeTabs.Trigger.Label>Plans</NativeTabs.Trigger.Label>
+				<NativeTabs.Trigger.Icon sf="calendar" />
 			</NativeTabs.Trigger>
 			<NativeTabs.Trigger
 				name="documents"
 			>
-				<Label>Documents</Label>
-				<Icon sf="text.document" />
+				<NativeTabs.Trigger.Label>Documents</NativeTabs.Trigger.Label>
+				<NativeTabs.Trigger.Icon sf="text.document" />
 			</NativeTabs.Trigger>
 			<NativeTabs.Trigger
 				name="you"
 			>
-				<Label>You</Label>
-				<Icon sf="person" />
+				<NativeTabs.Trigger.Label>You</NativeTabs.Trigger.Label>
+				<NativeTabs.Trigger.Icon sf="person" />
 			</NativeTabs.Trigger>
 		</NativeTabs>
 	);
