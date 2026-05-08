@@ -7,6 +7,9 @@
   "vars": {
     "BETTER_AUTH_URL": "http://localhost:8787",
     "CORS_ORIGIN": "http://localhost:8081",
+    /** Trust Expo Go OAuth redirects in dev; set to false or omit in prod if unused. */
+    "BETTER_AUTH_ALLOW_EXPO_GO": "true"
+    // Google: add GOOGLE_CLIENT_ID here or via dashboard; use `wrangler secret put GOOGLE_CLIENT_SECRET`
   },
   // "compatibility_flags": [
   //   "nodejs_compat"
@@ -31,6 +34,7 @@
       "binding": "DB",
       "database_name": "trippy-db",
       "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "src/db/migrations",
     },
   ],
   "r2_buckets": [

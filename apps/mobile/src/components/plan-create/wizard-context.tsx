@@ -12,6 +12,7 @@ import {
 } from "react";
 import { fetch as nitroFetch } from "react-native-nitro-fetch";
 import { getApiUrl } from "@/src/utils/api-url";
+import { betterAuthCookieHeaders } from "@/src/utils/auth";
 
 export type PlanAttachmentKind = "pdf" | "image" | "text" | "other";
 
@@ -143,7 +144,10 @@ export function PlanCreateWizardProvider({ children }: PropsWithChildren) {
 		try {
 			const res = await nitroFetch(url, {
 				method: "POST",
-				headers: { "Content-Type": "application/json" },
+				headers: {
+					"Content-Type": "application/json",
+					...betterAuthCookieHeaders(),
+				},
 				body,
 				signal: controller.signal,
 				stream: true,

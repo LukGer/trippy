@@ -15,7 +15,7 @@ import "../global.css";
 void SplashScreen.preventAutoHideAsync();
 
 export const unstable_settings = {
-	anchor: "(tabs)",
+	anchor: "(authed)/(tabs)",
 };
 
 export default function RootLayout() {
@@ -39,8 +39,9 @@ export default function RootLayout() {
 		<KeyboardProvider preload={false}>
 			<TrippyApiProvider>
 				<Stack screenOptions={{ headerShown: false }}>
-					<Stack.Screen name="(tabs)" />
-					<Stack.Screen name="plans" options={{ presentation: "formSheet" }} />
+					<Stack.Screen name="index" />
+					<Stack.Screen name="(authed)" />
+					<Stack.Screen name="(unauthed)" />
 				</Stack>
 			</TrippyApiProvider>
 		</KeyboardProvider>

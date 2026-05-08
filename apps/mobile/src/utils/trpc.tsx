@@ -5,6 +5,7 @@ import { createTRPCReact } from "@trpc/react-query";
 import { type PropsWithChildren, useState } from "react";
 import { fetch } from "react-native-nitro-fetch";
 import { getApiUrl } from "./api-url";
+import { betterAuthCookieHeaders } from "./auth";
 
 export const trpc = createTRPCReact<AppRouter>();
 
@@ -16,6 +17,9 @@ export function TrippyApiProvider({ children }: PropsWithChildren) {
 				httpBatchLink({
 					url: `${getApiUrl()}/trpc`,
 					fetch,
+					headers() {
+						return betterAuthCookieHeaders();
+					},
 				}),
 			],
 		}),

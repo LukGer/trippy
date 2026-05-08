@@ -31,7 +31,7 @@ export function PlanCreateStepReading() {
 	return (
 		<PlanCreateStepLayout title="Reading">
 			<Text className="type-body mb-4 font-serif text-ink-secondary">
-				{"We'll parse what you shared and turn it into structured plans."}
+				We&apos;ll parse what you shared and turn it into structured plans.
 			</Text>
 			{statusLabel ?
 				<Text className="type-caption-1 mb-2 font-serif text-ink-tertiary">
@@ -46,7 +46,6 @@ export function PlanCreateStepReading() {
 			<ItineraryPlanPreview
 				plan={itineraryPlan}
 				attachments={draft.attachments}
-				maxHeightClass="max-h-[420px]"
 			/>
 			{streamStatus === "done" ?
 				<View className="mt-4">

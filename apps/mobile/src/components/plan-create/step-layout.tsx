@@ -2,6 +2,7 @@ import { Stack } from "expo-router";
 import type { ReactNode } from "react";
 import { Text } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
+import { Colors } from "@/constants/colors";
 import {
 	PLAN_CREATE_FOOTER_FADE_PX,
 	usePlanCreateScrollInset,
@@ -21,7 +22,22 @@ export function PlanCreateStepLayout({
 
 	return (
 		<>
-			<Stack.Screen options={{ title, headerLargeTitleEnabled: true, headerTransparent: true, headerBlurEffect: "systemChromeMaterial" }} />
+			<Stack.Screen
+				options={{
+					title,
+					headerLargeTitleEnabled: true,
+					headerTitleStyle: {
+						color: Colors.ink.primary,
+						fontFamily: "Newsreader",
+						fontWeight: "600",
+					},
+					headerLargeTitleStyle: {
+						color: Colors.ink.primary,
+						fontFamily: "Newsreader",
+						fontWeight: "600",
+					},
+				}}
+			/>
 			<KeyboardAwareScrollView
 				bottomOffset={footerBlockHeight + PLAN_CREATE_FOOTER_FADE_PX}
 				className="flex-1"

@@ -19,6 +19,10 @@ import {
 	useMultiStepFlow,
 } from "@/src/components/multi-step-flow";
 import {
+	MultiStepPrimaryGateProvider,
+	useMultiStepPrimaryGate,
+} from "@/src/components/multi-step-primary-gate";
+import {
 	PlanCreateScrollInsetProvider,
 	usePlanCreateScrollInset,
 } from "@/src/components/plan-create/scroll-inset-context";
@@ -56,48 +60,52 @@ function PlanCreateChrome({
 	}, [insets.bottom]);
 
 	return (
-		<View className="flex-1 bg-surface-canvas" collapsable={false}>
-			<PlanCreateHeaderToolbar />
-			<View className="relative min-h-0 flex-1" collapsable={false}>
-				<MultiStepFlow.Outlet />
-			</View>
-			<KeyboardStickyView
-				style={{
-					position: "absolute",
-					left: 0,
-					right: 0,
-					bottom: 0,
-				}}
-			>
-				{/* Gradient sits on top edge of footer column (same stack as sticky footer, not the scroll layer) */}
-				<View style={{ position: "relative" }}>
-					<LinearGradient
-						colors={[
-							"rgba(250,250,247,0)",
-							"rgba(250,250,247,0.45)",
-							"rgba(250,250,247,0.92)",
-							Colors.surface.canvas,
-						]}
-						locations={[0, 0.38, 0.78, 1]}
-						pointerEvents="none"
-						style={{
-							position: "absolute",
-							left: 0,
-							right: 0,
-							top: 0,
-							bottom: 0,
-						}}
-					/>
-					<Animated.View
-						className="px-4"
-						style={footerChromeStyle}
-						onLayout={(e) => onFooterBlockLayout(e.nativeEvent.layout.height)}
-					>
-						<PlanCreateFooter />
-					</Animated.View>
+		<MultiStepPrimaryGateProvider>
+			<View className="flex-1 bg-surface-canvas" collapsable={false}>
+				<PlanCreateHeaderToolbar />
+				<View className="relative min-h-0 flex-1" collapsable={false}>
+					<MultiStepFlow.Outlet />
 				</View>
-			</KeyboardStickyView>
-		</View>
+				<KeyboardStickyView
+					style={{
+						position: "absolute",
+						left: 0,
+						right: 0,
+						bottom: 0,
+					}}
+				>
+					{/* Gradient sits on top edge of footer column (same stack as sticky footer, not the scroll layer) */}
+					<View style={{ position: "relative" }}>
+						<LinearGradient
+							colors={[
+								"rgba(250,250,247,0)",
+								"rgba(250,250,247,0.45)",
+								"rgba(250,250,247,0.92)",
+								Colors.surface.canvas,
+							]}
+							locations={[0, 0.38, 0.78, 1]}
+							pointerEvents="none"
+							style={{
+								position: "absolute",
+								left: 0,
+								right: 0,
+								top: 0,
+								bottom: 0,
+							}}
+						/>
+						<Animated.View
+							className="px-4"
+							style={footerChromeStyle}
+							onLayout={(e) =>
+								onFooterBlockLayout(e.nativeEvent.layout.height)
+							}
+						>
+							<PlanCreateFooter />
+						</Animated.View>
+					</View>
+				</KeyboardStickyView>
+			</View>
+		</MultiStepPrimaryGateProvider>
 	);
 }
 
@@ -127,6 +135,7 @@ function PlanCreateHeaderToolbar() {
 }
 
 function PlanCreateFooter() {
+	const { continueDisabled } = useMultiStepPrimaryGate();
 	const { activeIndex, currentStep, goNext, isLastStep, totalSteps } =
 		useMultiStepFlow();
 	const { streamStatus, draft, itineraryPlan } = usePlanCreateWizard();
@@ -165,6 +174,8 @@ function PlanCreateFooter() {
 
 	const isReviewStep = currentStep?.eyebrow === "Review";
 	const saveBlocked = isReviewStep && createTrip.isPending;
+	const blocked =
+		readingContinueBlocked || saveBlocked || continueDisabled;
 
 	const onPrimaryPress = () => {
 		if (isReviewStep) {
@@ -199,10 +210,10 @@ function PlanCreateFooter() {
 				accessibilityLabel={primaryLabel}
 				accessibilityRole="button"
 				accessibilityState={{
-					disabled: readingContinueBlocked || saveBlocked,
+					disabled: blocked,
 				}}
-				disabled={readingContinueBlocked || saveBlocked}
-				className={`items-center justify-center rounded-full py-4 active:opacity-[0.88] ${readingContinueBlocked || saveBlocked ? "bg-ink-primary/45" : "bg-ink-primary"}`}
+				disabled={blocked}
+				className={`items-center justify-center rounded-full py-4 active:opacity-[0.88] ${blocked ? "bg-ink-primary/45" : "bg-ink-primary"}`}
 				onPress={onPrimaryPress}
 			>
 				<Text className="type-headline text-ink-inverse">{primaryLabel}</Text>

@@ -1,7 +1,7 @@
-import { Redirect } from "expo-router";
+import { Redirect, Stack } from "expo-router";
 import { authClient } from "@/src/utils/auth";
 
-export default function Index() {
+export default function UnauthedLayout() {
 	const { data: session, isPending } = authClient.useSession();
 
 	if (isPending) return null;
@@ -10,5 +10,9 @@ export default function Index() {
 		return <Redirect href="/(authed)/(tabs)/discover" />;
 	}
 
-	return <Redirect href="/(unauthed)" />;
+	return (
+		<Stack screenOptions={{ headerShown: false }}>
+			<Stack.Screen name="index" />
+		</Stack>
+	);
 }

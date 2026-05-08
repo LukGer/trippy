@@ -90,14 +90,12 @@ function ItemRow({
 type Props = {
 	plan: ItineraryPlanWithCover | null;
 	attachments?: AttachmentRef[];
-	maxHeightClass?: string;
 };
 
 /** Lightweight timeline-ish preview until pixel-perfect design lands. */
 export function ItineraryPlanPreview({
 	plan,
 	attachments,
-	maxHeightClass,
 }: Props) {
 	if (!plan) {
 		return (
@@ -117,7 +115,7 @@ export function ItineraryPlanPreview({
 	}
 
 	return (
-		<ScrollView className={maxHeightClass ?? "max-h-[520px]"}>
+		<ScrollView>
 			{hasCover ? (
 				<View className="mb-4 overflow-hidden rounded-[14px] border border-line-soft">
 					<Image

@@ -19,7 +19,6 @@ export function PlanCreateStepReview() {
 			<ItineraryPlanPreview
 				plan={itineraryPlan}
 				attachments={draft.attachments}
-				maxHeightClass="max-h-[480px]"
 			/>
 		</PlanCreateStepLayout>
 	);

@@ -70,15 +70,9 @@ export default function PlansScreen() {
 				options={{
 					title: "Plans",
 					headerShown: true,
-					headerStyle: { backgroundColor: Colors.surface.canvas },
 					headerLargeTitle: true,
-					headerLargeTitleShadowVisible: false,
-					headerShadowVisible: false,
-					headerTitleStyle: { color: Colors.ink.primary },
-
-					headerTransparent: true,
-					headerBlurEffect: "systemChromeMaterialLight",
-					headerLargeStyle: { backgroundColor: "transparent" },
+					headerTitleStyle: { color: Colors.ink.primary, fontFamily: "Newsreader", fontWeight: "600" },
+					headerLargeTitleStyle: { color: Colors.ink.primary, fontFamily: "Newsreader", fontWeight: "600" },
 				}}
 			/>
 			<Stack.Toolbar placement="right">
@@ -99,7 +93,7 @@ export default function PlansScreen() {
 						<ActivityIndicator color={Colors.accent.orange} />
 					</View>
 				) : isError ? (
-					<View className="min-h-[50vh] flex-1 px-0 py-8">
+					<View className="min-h-[50vh] flex-1 py-8">
 						<Text className="type-body text-ink-secondary">
 							Unable to load trips. Pull to refresh when you are back online.
 						</Text>

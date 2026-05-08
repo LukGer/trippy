@@ -8,14 +8,9 @@ export default function DiscoverScreen() {
 			<Stack.Screen
 				options={{
 					title: "Discover",
-					headerBlurEffect: "none",
-					headerStyle: { backgroundColor: Colors.surface.canvas },
-					headerLargeStyle: { backgroundColor: "transparent" },
 					headerLargeTitle: true,
-					headerLargeTitleShadowVisible: false,
-					headerShadowVisible: false,
-					headerTitleStyle: { color: Colors.ink.primary },
-					headerTransparent: true,
+					headerTitleStyle: { color: Colors.ink.primary, fontFamily: "Newsreader", fontWeight: "600" },
+					headerLargeTitleStyle: { color: Colors.ink.primary, fontFamily: "Newsreader", fontWeight: "600" },
 				}}
 			/>
 			<ScrollView

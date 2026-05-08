@@ -125,7 +125,7 @@ export function PlansEmptyState() {
 			<Link href="/plans/create" asChild>
 				<TouchableOpacity
 					activeOpacity={0.8}
-					className="mb-4 w-full flex-row items-center justify-center gap-2 rounded-full bg-ink-primary py-4"
+					className="mb-4 flex-row items-center justify-center gap-2 rounded-full bg-black py-4"
 				>
 					<SymbolView name="plus" size={20} tintColor={Colors.ink.inverse} />
 					<Text className="type-body text-ink-inverse uppercase">
@@ -136,16 +136,17 @@ export function PlansEmptyState() {
 
 			<View className="flex-row flex-wrap items-center justify-center gap-x-0">
 				<Text className="type-callout text-ink-secondary">or </Text>
-				<Pressable
-					accessibilityLabel="Browse ideas on Discover"
-					accessibilityRole="link"
-					hitSlop={8}
-					onPress={() => router.push("/(tabs)/discover")}
-				>
-					<Text className="type-callout text-ink-secondary underline">
-						discover new places
-					</Text>
-				</Pressable>
+				<Link href="/(authed)/(tabs)/discover" asChild>
+					<Pressable
+						accessibilityLabel="Browse ideas on Discover"
+						accessibilityRole="link"
+						hitSlop={8}
+					>
+						<Text className="type-callout text-ink-secondary underline">
+							discover new places
+						</Text>
+					</Pressable>
+				</Link>
 			</View>
 		</View>
 	);
