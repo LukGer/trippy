@@ -1,14 +1,6 @@
 import type { Trip } from "@trippy/contracts/trips";
-import { Link, Stack } from "expo-router";
-import { SymbolView } from "expo-symbols";
-import {
-	ActivityIndicator,
-	Pressable,
-	ScrollView,
-	Text,
-	View,
-} from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Stack, useRouter } from "expo-router";
+import { ActivityIndicator, ScrollView, Text, View } from "react-native";
 import { Colors } from "@/constants/colors";
 import { PlansEmptyState } from "@/src/components/plans/plans-empty-state";
 import { TripPlanCard } from "@/src/components/plans/trip-plan-card";
@@ -61,7 +53,7 @@ function SectionHeader({ title, count }: { title: string; count: number }) {
 }
 
 export default function PlansScreen() {
-	const insets = useSafeAreaInsets();
+	const router = useRouter();
 	const { data: trips, isPending, isError } = trpc.trips.list.useQuery();
 	const list = trips ?? [];
 	const { upcoming, planning } = partitionTrips(list);
@@ -74,54 +66,52 @@ export default function PlansScreen() {
 
 	return (
 		<>
-			<Stack.Screen options={{ headerShown: false }} />
-			<View className="min-h-full flex-1 bg-surface-canvas">
-				<View
-					style={{ paddingTop: insets.top + 8 }}
-					className={`border-line-soft px-6 pb-3 ${!isPending && !isError ? "border-b" : ""}`}
-				>
-					<Text className="type-caption-2 mb-1 text-ink-tertiary uppercase tracking-[2px]">
-						YOUR TRIPS · {total === 0 ? "00" : total}
-					</Text>
-					<View className="flex-row items-center justify-between">
-						<Text className="type-large-title font-serif-bold text-ink-primary tracking-[-0.6px]">
-							Plans
-						</Text>
-						<Link href="/plans/create" asChild>
-							<Pressable
-								accessibilityLabel="Create plan"
-								accessibilityRole="button"
-								className="h-11 w-11 items-center justify-center rounded-full bg-ink-primary active:opacity-80"
-								hitSlop={8}
-							>
-								<SymbolView
-									name="plus"
-									resizeMode="scaleAspectFit"
-									size={22}
-									tintColor={Colors.ink.inverse}
-									type="monochrome"
-								/>
-							</Pressable>
-						</Link>
-					</View>
-				</View>
+			<Stack.Screen
+				options={{
+					title: "Plans",
+					headerShown: true,
+					headerStyle: { backgroundColor: Colors.surface.canvas },
+					headerLargeTitle: true,
+					headerLargeTitleShadowVisible: false,
+					headerShadowVisible: false,
+					headerTitleStyle: { color: Colors.ink.primary },
 
+					headerTransparent: true,
+					headerBlurEffect: "systemChromeMaterialLight",
+					headerLargeStyle: { backgroundColor: "transparent" },
+				}}
+			/>
+			<Stack.Toolbar placement="right">
+				<Stack.Toolbar.Button
+					icon="plus"
+					onPress={() => router.push("/plans/create")}
+				/>
+			</Stack.Toolbar>
+
+			<ScrollView
+				className="min-h-full flex-1 bg-surface-canvas"
+				contentContainerClassName={`grow px-4 pb-28 pt-2 ${isPending || isError ? "min-h-full" : ""}`}
+				contentInsetAdjustmentBehavior="automatic"
+				showsVerticalScrollIndicator={false}
+			>
 				{isPending ? (
-					<View className="flex-1 items-center justify-center py-24">
+					<View className="min-h-[50vh] flex-1 items-center justify-center py-24">
 						<ActivityIndicator color={Colors.accent.orange} />
 					</View>
 				) : isError ? (
-					<View className="flex-1 px-6 py-8">
+					<View className="min-h-[50vh] flex-1 px-0 py-8">
 						<Text className="type-body text-ink-secondary">
 							Unable to load trips. Pull to refresh when you are back online.
 						</Text>
 					</View>
 				) : (
-					<ScrollView
-						contentContainerClassName="grow px-6 pb-28 pt-2"
-						contentInsetAdjustmentBehavior="never"
-						showsVerticalScrollIndicator={false}
-					>
+					<>
+						<View className="mb-1 border-line-soft border-b pb-3">
+							<Text className="type-caption-2 text-ink-tertiary uppercase tracking-[2px]">
+								YOUR TRIPS · {total === 0 ? "00" : total}
+							</Text>
+						</View>
+
 						{total === 0 ? <PlansEmptyState /> : null}
 
 						{upcoming.length > 0 ? (
@@ -150,9 +140,9 @@ export default function PlansScreen() {
 								))}
 							</View>
 						) : null}
-					</ScrollView>
+					</>
 				)}
-			</View>
+			</ScrollView>
 		</>
 	);
 }

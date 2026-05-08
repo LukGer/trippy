@@ -1,4 +1,6 @@
 import { Stack, useRouter } from "expo-router";
+import { View } from "react-native";
+import { Colors } from "@/constants/colors";
 import { MultiStepFlow } from "@/src/components/multi-step-flow";
 import { PlanCreateShell } from "@/src/components/plan-create/shell";
 import { PlanCreateStepCreated } from "@/src/components/plan-create/step-created";
@@ -12,24 +14,37 @@ export default function CreatePlanScreen() {
 
 	return (
 		<>
-			<Stack.Screen options={{ headerShown: false }} />
-			<PlanCreateWizardProvider>
-				<MultiStepFlow initialStep={0} onComplete={() => router.back()}>
-					<PlanCreateShell />
-					<MultiStepFlow.Step eyebrow="New plan">
-						<PlanCreateStepNewPlan />
-					</MultiStepFlow.Step>
-					<MultiStepFlow.Step eyebrow="Reading">
-						<PlanCreateStepReading />
-					</MultiStepFlow.Step>
-					<MultiStepFlow.Step eyebrow="Review" primaryButtonLabel="Create plan">
-						<PlanCreateStepReview />
-					</MultiStepFlow.Step>
-					<MultiStepFlow.Step eyebrow="Created" primaryButtonLabel="Open plan">
-						<PlanCreateStepCreated />
-					</MultiStepFlow.Step>
-				</MultiStepFlow>
-			</PlanCreateWizardProvider>
+			<Stack.Screen
+				options={{
+					headerShown: true,
+					headerShadowVisible: false,
+					headerStyle: { backgroundColor: Colors.surface.canvas },
+					headerTransparent: true,
+					headerBlurEffect: "systemChromeMaterialLight",
+					headerLargeTitle: true,
+					headerLargeTitleShadowVisible: false,
+					headerLargeStyle: { backgroundColor: "transparent" },
+				}}
+			/>
+			<View className="flex-1" collapsable={false}>
+				<PlanCreateWizardProvider>
+					<MultiStepFlow initialStep={0} onComplete={() => router.back()}>
+						<PlanCreateShell />
+						<MultiStepFlow.Step eyebrow="New plan">
+							<PlanCreateStepNewPlan />
+						</MultiStepFlow.Step>
+						<MultiStepFlow.Step eyebrow="Reading">
+							<PlanCreateStepReading />
+						</MultiStepFlow.Step>
+						<MultiStepFlow.Step eyebrow="Review" primaryButtonLabel="Create plan">
+							<PlanCreateStepReview />
+						</MultiStepFlow.Step>
+						<MultiStepFlow.Step eyebrow="Created" primaryButtonLabel="Open plan">
+							<PlanCreateStepCreated />
+						</MultiStepFlow.Step>
+					</MultiStepFlow>
+				</PlanCreateWizardProvider>
+			</View>
 		</>
 	);
 }

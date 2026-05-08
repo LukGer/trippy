@@ -1,9 +1,9 @@
-import { LinearGradient } from "expo-linear-gradient";
 import { Link, useRouter } from "expo-router";
+import { SymbolView } from "expo-symbols";
 import {
 	Pressable,
-	StyleSheet,
 	Text,
+	TouchableOpacity,
 	useWindowDimensions,
 	View,
 } from "react-native";
@@ -39,7 +39,7 @@ function EmptyFanMiniCard({
 	const palette = PLAN_CARD_PALETTES[paletteIndex % PLAN_CARD_PALETTES.length];
 	return (
 		<View
-			className="shadow"
+			className="shadow-lg"
 			style={{
 				width,
 				borderRadius: CARD_RADIUS,
@@ -55,19 +55,6 @@ function EmptyFanMiniCard({
 					backgroundColor: palette.bg,
 				}}
 			>
-				<LinearGradient
-					colors={["transparent", palette.stripe, "transparent"]}
-					end={{ x: 1, y: 0.35 }}
-					locations={[0.2, 0.5, 0.85]}
-					start={{ x: 0, y: 0.65 }}
-					style={StyleSheet.absoluteFill}
-				/>
-				<LinearGradient
-					colors={["rgba(0,0,0,0.05)", "transparent"]}
-					end={{ x: 1, y: 1 }}
-					start={{ x: 0, y: 0 }}
-					style={StyleSheet.absoluteFill}
-				/>
 				<View className="flex-1 px-4 py-2">
 					<Text className="type-caption-2 text-ink-tertiary">{title}</Text>
 				</View>
@@ -124,23 +111,27 @@ export function PlansEmptyState() {
 				})}
 			</View>
 
-			<Text className="type-caption-2 mb-2 text-center font-medium text-ink-tertiary uppercase tracking-[2px]">
+			<Text className="type-caption-2 mb-2 text-center text-ink-tertiary uppercase">
 				No plans yet
 			</Text>
 			<Text className="type-title-1 mb-3 text-center font-serif text-ink-primary">
 				Where to first?
 			</Text>
-			<Text className="type-callout mb-8 px-1 text-center font-serif text-ink-secondary italic leading-[22px]">
-				Drop in a confirmation email, a PDF, or a rough idea — I will shape it into a plan.
+			<Text className="type-callout mb-8 px-8 text-center font-serif text-ink-secondary">
+				Drop in an email, a PDF, or a rough idea and I&apos;ll shape it into a
+				plan.
 			</Text>
 
 			<Link href="/plans/create" asChild>
-				<Pressable
-					accessibilityRole="button"
-					className="mb-4 h-[52px] w-full items-center justify-center rounded-full bg-ink-primary active:opacity-80"
+				<TouchableOpacity
+					activeOpacity={0.8}
+					className="mb-4 w-full flex-row items-center justify-center gap-2 rounded-full bg-ink-primary py-4"
 				>
-					<Text className="type-headline text-ink-inverse">+ Start a plan</Text>
-				</Pressable>
+					<SymbolView name="plus" size={20} tintColor={Colors.ink.inverse} />
+					<Text className="type-body text-ink-inverse uppercase">
+						Start a plan
+					</Text>
+				</TouchableOpacity>
 			</Link>
 
 			<View className="flex-row flex-wrap items-center justify-center gap-x-0">

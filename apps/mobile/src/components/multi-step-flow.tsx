@@ -204,7 +204,11 @@ function MultiStepFlowOutlet() {
 	const body = steps[renderIndex]?.body;
 
 	return (
-		<Animated.View className="min-h-0 flex-1" style={animatedStyle}>
+		<Animated.View
+			className="min-h-0 flex-1"
+			collapsable={false}
+			style={animatedStyle}
+		>
 			{body}
 		</Animated.View>
 	);

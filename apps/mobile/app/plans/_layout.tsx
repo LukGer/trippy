@@ -5,12 +5,7 @@ import { Stack } from "expo-router";
  */
 export default function PlansModalLayout() {
 	return (
-		<Stack
-			screenOptions={{
-				headerShown: true,
-				presentation: "modal",
-			}}
-		>
+		<Stack>
 			<Stack.Screen name="create" />
 		</Stack>
 	);

@@ -1,5 +1,5 @@
 import { LinearGradient } from "expo-linear-gradient";
-import { useRouter } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import { useEffect, useMemo } from "react";
 import { Pressable, Text, View } from "react-native";
 import {
@@ -56,12 +56,9 @@ function PlanCreateChrome({
 	}, [insets.bottom]);
 
 	return (
-		<View
-			className="flex-1 bg-surface-canvas"
-			style={{ paddingTop: insets.top + 8 }}
-		>
-			<PlanCreateHeader />
-			<View className="relative min-h-0 flex-1">
+		<View className="flex-1 bg-surface-canvas" collapsable={false}>
+			<PlanCreateHeaderToolbar />
+			<View className="relative min-h-0 flex-1" collapsable={false}>
 				<MultiStepFlow.Outlet />
 			</View>
 			<KeyboardStickyView
@@ -92,7 +89,7 @@ function PlanCreateChrome({
 						}}
 					/>
 					<Animated.View
-						className="px-6"
+						className="px-4"
 						style={footerChromeStyle}
 						onLayout={(e) => onFooterBlockLayout(e.nativeEvent.layout.height)}
 					>
@@ -104,37 +101,28 @@ function PlanCreateChrome({
 	);
 }
 
-function PlanCreateHeader() {
+/** Native toolbar (not headerLeft/headerRight) avoids liquid-glass pill chrome on static labels. */
+function PlanCreateHeaderToolbar() {
 	const router = useRouter();
-	const { activeIndex, currentStep, goBack, isLastStep, totalSteps } =
-		useMultiStepFlow();
+	const { activeIndex, goBack, isLastStep, totalSteps } = useMultiStepFlow();
 	const isFirstStep = activeIndex === 0;
-	/** Last step of a multi-step flow: no Cancel/Back (finish via primary action). Single-step still shows Cancel. */
 	const hideTrailingAction = isLastStep && totalSteps > 1;
 
+	const onTrailingPress = () => {
+		if (isFirstStep) router.back();
+		else goBack();
+	};
+
 	return (
-		<View className="gap-2 px-6 pb-5">
-			<View className="flex-row items-center justify-between">
-				<Text className="type-caption-2 font-serif-semibold text-ink-tertiary uppercase tracking-[1.4px]">
-					{currentStep?.eyebrow ?? ""}
-				</Text>
-				{hideTrailingAction ? null : (
-					<Pressable
-						accessibilityLabel={isFirstStep ? "Cancel" : "Back"}
-						accessibilityRole="button"
-						hitSlop={12}
-						onPress={() => {
-							if (isFirstStep) router.back();
-							else goBack();
-						}}
-					>
-						<Text className="type-body font-serif text-ink-tertiary">
-							{isFirstStep ? "Cancel" : "Back"}
-						</Text>
-					</Pressable>
-				)}
-			</View>
-		</View>
+		<Stack.Toolbar placement="right">
+			<Stack.Toolbar.Button
+				hidden={hideTrailingAction}
+				variant="plain"
+				onPress={onTrailingPress}
+			>
+				{isFirstStep ? "Cancel" : "Back"}
+			</Stack.Toolbar.Button>
+		</Stack.Toolbar>
 	);
 }
 

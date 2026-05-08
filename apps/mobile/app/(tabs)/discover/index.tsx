@@ -19,7 +19,7 @@ export default function DiscoverScreen() {
 				}}
 			/>
 			<ScrollView
-				contentContainerClassName="min-h-full flex-grow bg-surface-canvas px-6 pt-6"
+				contentContainerClassName="min-h-full flex-grow bg-surface-canvas px-4 pt-6"
 				contentInsetAdjustmentBehavior="automatic"
 			>
 				<Text className="type-large-title max-w-[340px] font-serif-bold text-ink-primary tracking-[-0.8px]">
