@@ -4,7 +4,10 @@ import * as Haptics from "expo-haptics";
 import { useCallback } from "react";
 import { Alert } from "react-native";
 import { fetch as nitroFetch } from "react-native-nitro-fetch";
-import type { PlanAttachment, PlanAttachmentKind } from "@/src/components/plan-create/wizard-context";
+import type {
+	PlanAttachment,
+	PlanAttachmentKind,
+} from "@/src/components/plan-create/types";
 import { usePlanCreateWizard } from "@/src/components/plan-create/wizard-context";
 import { getApiUrl } from "@/src/utils/api-url";
 import { betterAuthCookieHeaders } from "@/src/utils/auth";
@@ -16,10 +19,7 @@ function inferAttachmentKind(
 	const m = mime.toLowerCase();
 	const lower = filename.toLowerCase();
 	if (m.includes("pdf") || lower.endsWith(".pdf")) return "pdf";
-	if (
-		m.startsWith("image/") ||
-		/\.(png|jpe?g|gif|webp|heic)$/i.test(lower)
-	) {
+	if (m.startsWith("image/") || /\.(png|jpe?g|gif|webp|heic)$/i.test(lower)) {
 		return "image";
 	}
 	if (
@@ -41,11 +41,13 @@ type UploadVars = {
 
 async function postPlanUpload(vars: UploadVars): Promise<PlanAttachment> {
 	const contentType =
-		vars.mime.trim().length > 0 ?
-			vars.mime
-		: vars.kind === "pdf" ? "application/pdf"
-		: vars.kind === "text" ? "text/plain"
-		: "application/octet-stream";
+		vars.mime.trim().length > 0
+			? vars.mime
+			: vars.kind === "pdf"
+				? "application/pdf"
+				: vars.kind === "text"
+					? "text/plain"
+					: "application/octet-stream";
 
 	const formData = new FormData();
 	formData.append("file", {
@@ -110,12 +112,7 @@ export function usePlanAttachmentUpload() {
 	const pickAndUpload = useCallback(async () => {
 		const result = await DocumentPicker.getDocumentAsync({
 			copyToCacheDirectory: true,
-			type: [
-				"application/pdf",
-				"image/*",
-				"text/plain",
-				"public.plain-text",
-			],
+			type: ["application/pdf", "image/*", "text/plain", "public.plain-text"],
 		});
 
 		if (result.canceled) return;

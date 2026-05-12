@@ -79,7 +79,7 @@ export function createFetchTripCoverImageTool(
 ) {
 	return tool({
 		description:
-			"REQUIRED first step: fetch one Unsplash hero image for this trip. Call exactly once before you output the itinerary JSON. Argument: short geographic search query only (city, country, or region, e.g. \"Lisbon\", \"Norway\"). Never pass URLs.",
+			"Fetch one Unsplash hero image for this trip. If ingestAttachments was required (uploads), call this only after ingest completes. Otherwise call once before you output the itinerary JSON. Exactly once per run. Argument: short geographic query only (city, country, or region). Never pass URLs.",
 		inputSchema: z.object({
 			query: z
 				.string()

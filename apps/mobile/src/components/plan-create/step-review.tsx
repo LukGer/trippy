@@ -7,15 +7,10 @@ export function PlanCreateStepReview() {
 	const { itineraryPlan, draft } = usePlanCreateWizard();
 
 	return (
-		<PlanCreateStepLayout title="Review">
+		<PlanCreateStepLayout headerLargeTitle={false} title="Review">
 			<Text className="type-body mb-4 font-serif text-ink-secondary">
 				Check the itinerary before we save your plan.
 			</Text>
-			{draft.tripName.trim() ?
-				<Text className="type-caption-1 mb-2 font-serif text-ink-tertiary">
-					Your working title: <Text className="italic">{draft.tripName}</Text>
-				</Text>
-			:	null}
 			<ItineraryPlanPreview
 				plan={itineraryPlan}
 				attachments={draft.attachments}

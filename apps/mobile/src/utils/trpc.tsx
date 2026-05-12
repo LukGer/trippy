@@ -3,7 +3,7 @@ import type { AppRouter } from "@trippy/api/router";
 import { httpBatchLink } from "@trpc/client";
 import { createTRPCReact } from "@trpc/react-query";
 import { type PropsWithChildren, useState } from "react";
-import { fetch } from "react-native-nitro-fetch";
+import { fetch as nitroFetch } from "react-native-nitro-fetch";
 import { getApiUrl } from "./api-url";
 import { betterAuthCookieHeaders } from "./auth";
 
@@ -16,7 +16,7 @@ export function TrippyApiProvider({ children }: PropsWithChildren) {
 			links: [
 				httpBatchLink({
 					url: `${getApiUrl()}/trpc`,
-					fetch,
+					fetch: (input, init) => nitroFetch(input, init),
 					headers() {
 						return betterAuthCookieHeaders();
 					},

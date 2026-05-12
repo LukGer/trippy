@@ -13,6 +13,7 @@
     "dev": "expo start --ios"
   },
   "dependencies": {
+    "@ai-sdk/react": "3.0.179",
     "@better-auth/expo": "^1.6.9",
     "@expo-google-fonts/newsreader": "^0.4.1",
     "@expo/ui": "~55.0.15",
@@ -26,6 +27,7 @@
     "@trippy/contracts": "workspace:*",
     "@trpc/client": "^11.8.0",
     "@trpc/react-query": "^11.8.0",
+    "ai": "6.0.169",
     "better-auth": "^1.4.4",
     "check": "^1.0.0",
     "expo": "^55.0.23",

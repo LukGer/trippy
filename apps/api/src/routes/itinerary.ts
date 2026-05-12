@@ -4,7 +4,7 @@ import { createAuth } from "../auth/auth";
 import { getSession } from "../auth/auth-context";
 import type { ApiEnv } from "../env";
 import {
-	createItineraryPlanNdjsonStream,
+	createItineraryPlanStreamResponse,
 	defaultMediaTypeForAttachmentKind,
 } from "../modules/itinerary/agent/itinerary-agent.service";
 import type { ItineraryAttachmentPayload } from "../modules/itinerary/agent/types";
@@ -79,7 +79,7 @@ export function registerItineraryRoutes(app: Hono<ApiEnv>) {
 			});
 		}
 
-		const stream = createItineraryPlanNdjsonStream({
+		const streamResponse = createItineraryPlanStreamResponse({
 			openaiApiKey: apiKey,
 			unsplashAccessKey: c.env.UNSPLASH_ACCESS_KEY,
 			tripName: body.tripName,
@@ -89,13 +89,7 @@ export function registerItineraryRoutes(app: Hono<ApiEnv>) {
 			parentSignal: c.req.raw.signal,
 		});
 
-		return new Response(stream, {
-			status: 200,
-			headers: {
-				"Content-Type": "application/x-ndjson; charset=utf-8",
-				"Cache-Control": "no-cache",
-			},
-		});
+		return streamResponse;
 	});
 
 	app.route("/api/itinerary", itinerary);

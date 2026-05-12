@@ -1,13 +1,39 @@
 import type { ItinerarySystemPromptContext } from "./types";
 
-const SYSTEM_PROMPT = `You turn the traveler's supplied material into one structured trip plan (schema output).
+function workflowSection(ctx: ItinerarySystemPromptContext): string {
+	const lines: string[] = [];
+	let step = 1;
 
-Workflow — complete all parts that apply:
-1. **Cover image:** Your first action must be a single call to \`fetchTripCoverImage\` with a short geographic query (city, country, or region the trip centers on, e.g. "Barcelona", "Japan Alps"). Use natural place names only — never URLs, attachment file names, or full sentences. Wait for the tool result before emitting the final structured object. If the trip has no identifiable place, call it once with the broadest region you can honestly infer from the title or notes; only skip calling if the inputs contain no location clues at all.
-2. **Trip title:** Produce \`generatedTripTitle\` — lightly polish or shorten the working title to match the schema without renaming into a different destination or premise than the inputs imply.
-3. **Itinerary:** Fill \`days\` and timeline \`items\` per the schema, grounded only in what the traveler provided.
+	if (ctx.hasAttachments) {
+		lines.push(
+			`${step}. **Attachments:** Your **first** action must be a single call to \`ingestAttachments\` (no arguments). Do not call other tools before it.\n`,
+		);
+		step++;
+	}
 
-Sources:
+	if (ctx.hasCoverTool) {
+		const before =
+			ctx.hasAttachments ?
+				"After `ingestAttachments` completes, "
+			:	"Your **first** action must be ";
+		lines.push(
+			`${step}. **Cover image:** ${before}call \`fetchTripCoverImage\` exactly once with a short geographic query (city, country, or region the trip centers on, e.g. "Barcelona", "Japan Alps"). Use natural place names only — never URLs, attachment file names, or full sentences. Wait for the tool result before emitting the final structured object. If the trip has no identifiable place, call it once with the broadest region you can honestly infer from the title or notes; only skip calling if the inputs contain no location clues at all.\n`,
+		);
+		step++;
+	}
+
+	lines.push(
+		`${step}. **Trip title:** Produce \`generatedTripTitle\` — lightly polish or shorten the working title to match the schema without renaming into a different destination or premise than the inputs imply.`,
+	);
+	step++;
+	lines.push(
+		`${step}. **Itinerary:** Fill \`days\` and timeline \`items\` per the schema, grounded only in what the traveler provided.`,
+	);
+
+	return `Workflow — complete all parts that apply:\n${lines.join("\n")}`;
+}
+
+const SOURCES_AND_RULES = `Sources:
 - Working trip title and free-text notes (always in the text block).
 - Uploaded files are separate inputs (PDFs, images, plain text, etc.). A list maps each file to its opaque attachmentId.
 
@@ -33,5 +59,5 @@ export function buildItinerarySystemPrompt(
 	ctx: ItinerarySystemPromptContext,
 ): string {
 	const preamble = buildContextPreamble(ctx);
-	return `${preamble}\n\n${SYSTEM_PROMPT}`;
+	return `${preamble}\n\nYou turn the traveler's supplied material into one structured trip plan (schema output).\n\n${workflowSection(ctx)}\n\n${SOURCES_AND_RULES}`;
 }

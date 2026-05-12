@@ -18,6 +18,8 @@ import Animated, {
 import { scheduleOnRN } from "react-native-worklets";
 
 export type MultiStepFlowStepProps = {
+	/** Stable machine id for footer / guards (optional; eyebrow stays human copy). */
+	stepId: string;
 	eyebrow?: string;
 	title?: string;
 	subtitle?: string;
@@ -27,6 +29,7 @@ export type MultiStepFlowStepProps = {
 };
 
 type ParsedStep = {
+	stepId: string;
 	eyebrow?: string;
 	title?: string;
 	subtitle?: string;
@@ -63,6 +66,7 @@ function collectSteps(children: ReactNode): ParsedStep[] {
 		if (!isValidElement<MultiStepFlowStepProps>(child)) return;
 		if (child.type !== MultiStepFlowStep) return;
 		steps.push({
+			stepId: child.props.stepId,
 			eyebrow: child.props.eyebrow,
 			title: child.props.title,
 			subtitle: child.props.subtitle,

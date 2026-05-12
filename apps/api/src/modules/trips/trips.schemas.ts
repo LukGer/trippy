@@ -1,1 +1,5 @@
-export { createTripInputSchema, tripSchema } from "@trippy/contracts/trips";
+export {
+	createTripInputSchema,
+	deleteTripInputSchema,
+	tripSchema,
+} from "@trippy/contracts/trips";

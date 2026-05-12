@@ -20,6 +20,9 @@ export const trips = sqliteTable(
     startsOn: integer("starts_on", { mode: "timestamp" }),
     endsOn: integer("ends_on", { mode: "timestamp" }),
     description: text("description"),
+    coverImageUrl: text("cover_image_url"),
+    coverPhotographerName: text("cover_photographer_name"),
+    coverPhotographerPageUrl: text("cover_photographer_page_url"),
     createdAt: integer("created_at", { mode: "timestamp" })
       .$defaultFn(() => new Date())
       .notNull(),

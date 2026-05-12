@@ -12,10 +12,13 @@ import {
 export function PlanCreateStepLayout({
 	title,
 	subtitle,
+	headerLargeTitle = true,
 	children,
 }: {
 	title: string;
 	subtitle?: string;
+	/** Steps that render their own hero (Reading, Review) suppress the native large title. */
+	headerLargeTitle?: boolean;
 	children?: ReactNode;
 }) {
 	const { scrollPaddingBottom, footerBlockHeight } = usePlanCreateScrollInset();
@@ -25,7 +28,7 @@ export function PlanCreateStepLayout({
 			<Stack.Screen
 				options={{
 					title,
-					headerLargeTitleEnabled: true,
+					headerLargeTitleEnabled: headerLargeTitle,
 					headerTitleStyle: {
 						color: Colors.ink.primary,
 						fontFamily: "Newsreader",

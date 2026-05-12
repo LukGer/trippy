@@ -1,4 +1,6 @@
+import { useChat } from "@ai-sdk/react";
 import type { ItineraryPlanWithCover } from "@trippy/contracts/itinerary";
+import type { UIMessage } from "ai";
 import {
 	createContext,
 	type Dispatch,
@@ -10,35 +12,41 @@ import {
 	useRef,
 	useState,
 } from "react";
-import { fetch as nitroFetch } from "react-native-nitro-fetch";
-import { getApiUrl } from "@/src/utils/api-url";
-import { betterAuthCookieHeaders } from "@/src/utils/auth";
+import { createItineraryChatTransport } from "@/src/components/plan-create/itinerary-chat-transport";
+import {
+	buildPhaseRows,
+	extractCoverFromParts,
+	mergePlanWithCover,
+	type PhaseRow,
+	parseItineraryPlanFromMessage,
+} from "@/src/components/plan-create/itinerary-stream-parse";
+import type { PlanDraft, StreamStatus } from "@/src/components/plan-create/types";
 
-export type PlanAttachmentKind = "pdf" | "image" | "text" | "other";
+function emptyPlanShell(): ItineraryPlanWithCover {
+	return { generatedTripTitle: "", days: [], tips: "" };
+}
 
-export type PlanAttachment = {
-	id: string;
-	name: string;
-	kind: PlanAttachmentKind;
-};
-
-export type PlanDraft = {
-	tripName: string;
-	notes: string;
-	attachments: PlanAttachment[];
-};
-
-export type StreamStatus = "idle" | "streaming" | "done" | "error";
+function lastAssistantMessage(messages: UIMessage[]): UIMessage | undefined {
+	for (let i = messages.length - 1; i >= 0; i--) {
+		if (messages[i].role === "assistant") return messages[i];
+	}
+	return undefined;
+}
 
 type PlanCreateWizardContextValue = {
 	draft: PlanDraft;
 	setDraft: Dispatch<SetStateAction<PlanDraft>>;
 	itineraryPlan: ItineraryPlanWithCover | null;
+	/** During streaming: cover + empty shell for hero preview only. */
+	coverPreviewPlan: ItineraryPlanWithCover | null;
+	streamPhases: PhaseRow[];
 	streamStatus: StreamStatus;
 	streamError: string | null;
 	startItineraryStream: () => Promise<void>;
 	abortItineraryStream: () => void;
 	resetStreamState: () => void;
+	/** Reading step registers navigation for successful `useChat` `onFinish`. */
+	setOnStreamSuccess: (fn: (() => void) | null) => void;
 };
 
 const PlanCreateWizardContext =
@@ -50,182 +58,125 @@ const initialDraft = (): PlanDraft => ({
 	attachments: [],
 });
 
-function parseNdjsonChunks(buffer: string): { lines: string[]; rest: string } {
-	const lastNl = buffer.lastIndexOf("\n");
-	if (lastNl === -1) return { lines: [], rest: buffer };
-	const complete = buffer.slice(0, lastNl);
-	const rest = buffer.slice(lastNl + 1);
-	const lines = complete.split("\n").filter((l) => l.trim().length > 0);
-	return { lines, rest };
-}
-
-/** NDJSON line with only cover fields (from tool result), vs full itinerary partial. */
-function isCoverOnlyStreamPatch(v: Record<string, unknown>): boolean {
-	return (
-		typeof v.coverImageUrl === "string" &&
-		!("generatedTripTitle" in v) &&
-		!("days" in v)
-	);
-}
-
-function emptyPlanShell(): ItineraryPlanWithCover {
-	return { generatedTripTitle: "", days: [], tips: "" };
-}
-
-function applyItineraryStreamLine(
-	prev: ItineraryPlanWithCover | null,
-	data: Record<string, unknown>,
-): ItineraryPlanWithCover {
-	if (isCoverOnlyStreamPatch(data)) {
-		const base = prev ?? emptyPlanShell();
-		return {
-			...base,
-			coverImageUrl: data.coverImageUrl as string,
-			...(typeof data.coverPhotographerName === "string" ?
-				{ coverPhotographerName: data.coverPhotographerName }
-			:	{}),
-			...(typeof data.coverPhotographerPageUrl === "string" ?
-				{ coverPhotographerPageUrl: data.coverPhotographerPageUrl }
-			:	{}),
-		};
-	}
-	const next = data as ItineraryPlanWithCover;
-	/* Schema partials never include cover; keep cover from an earlier tool-result line. */
-	if (prev?.coverImageUrl?.trim() && !next.coverImageUrl?.trim()) {
-		return {
-			...next,
-			coverImageUrl: prev.coverImageUrl,
-			coverPhotographerName: prev.coverPhotographerName,
-			coverPhotographerPageUrl: prev.coverPhotographerPageUrl,
-		};
-	}
-	return next;
-}
-
 export function PlanCreateWizardProvider({ children }: PropsWithChildren) {
-	const [draft, setDraft] = useState<PlanDraft>(initialDraft);
+	const [draft, setDraft] = useState<PlanDraft>(initialDraft());
+	const draftRef = useRef(draft);
+	draftRef.current = draft;
+
 	const [itineraryPlan, setItineraryPlan] =
 		useState<ItineraryPlanWithCover | null>(null);
 	const [streamStatus, setStreamStatus] = useState<StreamStatus>("idle");
 	const [streamError, setStreamError] = useState<string | null>(null);
-	const abortRef = useRef<AbortController | null>(null);
 
-	const abortItineraryStream = useCallback(() => {
-		abortRef.current?.abort();
+	const onStreamSuccessRef = useRef<(() => void) | null>(null);
+	const setOnStreamSuccess = useCallback((fn: (() => void) | null) => {
+		onStreamSuccessRef.current = fn;
 	}, []);
 
-	const resetStreamState = useCallback(() => {
-		abortRef.current?.abort();
-		abortRef.current = null;
-		setItineraryPlan(null);
-		setStreamStatus("idle");
-		setStreamError(null);
-	}, []);
+	const transport = useMemo(
+		() =>
+			createItineraryChatTransport(() => ({
+				tripName: draftRef.current.tripName,
+				notes: draftRef.current.notes,
+				attachments: draftRef.current.attachments,
+			})),
+		[],
+	);
 
-	const startItineraryStream = useCallback(async () => {
-		abortRef.current?.abort();
-		const controller = new AbortController();
-		abortRef.current = controller;
-
-		setStreamStatus("streaming");
-		setStreamError(null);
-		setItineraryPlan(null);
-
-		const url = `${getApiUrl()}/api/itinerary/stream`;
-		const body = JSON.stringify({
-			tripName: draft.tripName.trim(),
-			notes: draft.notes.trim() || undefined,
-			attachments:
-				draft.attachments.length > 0
-					? draft.attachments.map(({ id, name, kind }) => ({ id, name, kind }))
-					: undefined,
-		});
-
-		try {
-			const res = await nitroFetch(url, {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-					...betterAuthCookieHeaders(),
-				},
-				body,
-				signal: controller.signal,
-				stream: true,
-			});
-
-			if (!res.ok) {
-				let message = `Request failed (${res.status})`;
-				try {
-					const errBody = (await res.json()) as { error?: string };
-					if (errBody.error) message = errBody.error;
-				} catch {
-					// ignore
-				}
-				throw new Error(message);
-			}
-
-			const reader = res.body?.getReader();
-			if (!reader) throw new Error("No response body");
-
-			const decoder = new TextDecoder();
-			let carry = "";
-
-			while (true) {
-				const { done, value } = await reader.read();
-				if (done) break;
-				if (controller.signal.aborted) return;
-				carry += decoder.decode(value, { stream: true });
-				const { lines, rest } = parseNdjsonChunks(carry);
-				carry = rest;
-				for (const line of lines) {
-					try {
-						const data = JSON.parse(line) as Record<string, unknown>;
-						setItineraryPlan((prev) => applyItineraryStreamLine(prev, data));
-					} catch {
-						// skip malformed line chunk
-					}
-				}
-			}
-
-			if (carry.trim()) {
-				try {
-					const data = JSON.parse(carry) as Record<string, unknown>;
-					setItineraryPlan((prev) => applyItineraryStreamLine(prev, data));
-				} catch {
-					// ignore trailing garbage
-				}
-			}
-
-			setStreamStatus("done");
-		} catch (e) {
-			if ((e as Error).name === "AbortError") {
+	const { messages, sendMessage, stop, setMessages, clearError } = useChat({
+		transport,
+		onFinish: ({ message, isAbort, isError }) => {
+			if (isAbort) {
 				setStreamStatus("idle");
 				return;
 			}
-			setStreamError(e instanceof Error ? e.message : "Something went wrong");
+			if (isError) {
+				setStreamStatus("error");
+				return;
+			}
+			const basePlan = parseItineraryPlanFromMessage(message);
+			if (!basePlan) {
+				setStreamError("Could not parse itinerary from response");
+				setStreamStatus("error");
+				return;
+			}
+			const coverMeta = extractCoverFromParts(message.parts);
+			setItineraryPlan(mergePlanWithCover(basePlan, coverMeta));
+			setStreamStatus("done");
+			onStreamSuccessRef.current?.();
+		},
+		onError: (err) => {
+			setStreamError(err.message);
 			setStreamStatus("error");
+		},
+	});
+
+	const assistant = useMemo(() => lastAssistantMessage(messages), [messages]);
+
+	const { streamPhases, coverPreviewPlan } = useMemo(() => {
+		if (!assistant) {
+			return {
+				streamPhases: [] as PhaseRow[],
+				coverPreviewPlan: null as ItineraryPlanWithCover | null,
+			};
 		}
-	}, [draft]);
+		const phases = buildPhaseRows(assistant.parts);
+		const cover = extractCoverFromParts(assistant.parts);
+		const coverPreviewPlan =
+			cover?.coverImageUrl?.trim() ?
+				({ ...emptyPlanShell(), ...cover } satisfies ItineraryPlanWithCover)
+			:	null;
+		return { streamPhases: phases, coverPreviewPlan };
+	}, [assistant]);
+
+	const abortItineraryStream = useCallback(async () => {
+		await stop();
+	}, [stop]);
+
+	const resetStreamState = useCallback(async () => {
+		await stop();
+		setMessages([]);
+		clearError();
+		setItineraryPlan(null);
+		setStreamStatus("idle");
+		setStreamError(null);
+	}, [stop, setMessages, clearError]);
+
+	const startItineraryStream = useCallback(async () => {
+		await stop();
+		clearError();
+		setItineraryPlan(null);
+		setStreamError(null);
+		setStreamStatus("streaming");
+		setMessages([]);
+		await sendMessage({ text: " " });
+	}, [stop, clearError, sendMessage, setMessages]);
 
 	const value = useMemo<PlanCreateWizardContextValue>(
 		() => ({
 			draft,
 			setDraft,
 			itineraryPlan,
+			coverPreviewPlan,
+			streamPhases,
 			streamStatus,
 			streamError,
 			startItineraryStream,
 			abortItineraryStream,
 			resetStreamState,
+			setOnStreamSuccess,
 		}),
 		[
 			draft,
 			itineraryPlan,
+			coverPreviewPlan,
+			streamPhases,
 			streamStatus,
 			streamError,
 			startItineraryStream,
 			abortItineraryStream,
 			resetStreamState,
+			setOnStreamSuccess,
 		],
 	);
 

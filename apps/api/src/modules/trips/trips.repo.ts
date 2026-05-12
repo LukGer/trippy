@@ -1,36 +1,57 @@
-import { eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import type { Db } from "../../db/client";
 import { trips } from "../../db/schema";
 
-export type TripsRepo = ReturnType<typeof createTripsRepo>;
+export class TripsRepo {
+	constructor(private readonly db: Db) {}
 
-export function createTripsRepo(db: Db) {
-  return {
-    listByOwner(ownerId: string) {
-      return db.query.trips.findMany({
-        where: eq(trips.ownerId, ownerId),
-        orderBy: (table, { desc }) => [desc(table.createdAt)],
-      });
-    },
+	public async listByOwner(ownerId: string) {
+		return this.db
+			.select()
+			.from(trips)
+			.where(eq(trips.ownerId, ownerId))
+			.orderBy(desc(trips.createdAt));
+	}
 
-    async create(input: { id: string; name: string; ownerId: string }) {
-      const now = new Date();
+	public async create(input: {
+		id: string;
+		name: string;
+		ownerId: string;
+		coverImageUrl?: string | null;
+		coverPhotographerName?: string | null;
+		coverPhotographerPageUrl?: string | null;
+	}) {
+		const now = new Date();
 
-      await db.insert(trips).values({
-        id: input.id,
-        name: input.name,
-        ownerId: input.ownerId,
-        createdAt: now,
-        updatedAt: now,
-      });
+		await this.db.insert(trips).values({
+			id: input.id,
+			name: input.name,
+			ownerId: input.ownerId,
+			coverImageUrl: input.coverImageUrl ?? null,
+			coverPhotographerName: input.coverPhotographerName ?? null,
+			coverPhotographerPageUrl: input.coverPhotographerPageUrl ?? null,
+			createdAt: now,
+			updatedAt: now,
+		});
 
-      return {
-        id: input.id,
-        name: input.name,
-        ownerId: input.ownerId,
-        createdAt: now,
-        updatedAt: now,
-      };
-    },
-  };
+		return {
+			id: input.id,
+			name: input.name,
+			ownerId: input.ownerId,
+			coverImageUrl: input.coverImageUrl ?? null,
+			coverPhotographerName: input.coverPhotographerName ?? null,
+			coverPhotographerPageUrl: input.coverPhotographerPageUrl ?? null,
+			createdAt: now,
+			updatedAt: now,
+		};
+	}
+
+	/** Returns whether a row was deleted (trip existed and belonged to owner). */
+	public async deleteByIdForOwner(tripId: string, ownerId: string) {
+		const removed = await this.db
+			.delete(trips)
+			.where(and(eq(trips.id, tripId), eq(trips.ownerId, ownerId)))
+			.returning({ id: trips.id });
+		return removed.length > 0;
+	}
 }

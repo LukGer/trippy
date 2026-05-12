@@ -50,7 +50,7 @@ export const itineraryPlanSchema = z.object({
 	tips: z
 		.string()
 		.describe(
-			"Brief practical tips (packing, transit passes, etc.); use empty string if none.",
+			"Brief practical tips (packing, transit passes, etc.); use empty string if none. Required for structured output.",
 		),
 });
 

@@ -1,4 +1,5 @@
 import type { Trip } from "@trippy/contracts/trips";
+import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import { PLAN_CARD_PALETTES } from "@/src/components/plans/plan-card-palettes";
@@ -54,6 +55,7 @@ export function TripPlanCard({
 	onPress,
 }: TripPlanCardProps) {
 	const palette = PLAN_CARD_PALETTES[paletteIndex % PLAN_CARD_PALETTES.length];
+	const coverUri = trip.coverImageUrl?.trim();
 	const hasRange = Boolean(trip.startsOn);
 	const daySpan =
 		trip.startsOn && trip.endsOn
@@ -93,32 +95,57 @@ export function TripPlanCard({
 	return (
 		<Pressable
 			accessibilityRole="button"
-			className="mb-4 overflow-hidden rounded-[22px] active:opacity-92"
+			className="overflow-hidden rounded-[22px] active:opacity-92"
 			onPress={onPress}
 		>
 			<View className="bg-surface-card">
 				<View className="h-[132px] overflow-hidden">
-					<View
-						className="absolute inset-0"
-						style={{ backgroundColor: palette.bg }}
-					/>
-					<LinearGradient
-						colors={["transparent", palette.stripe, "transparent"]}
-						end={{ x: 1, y: 0.35 }}
-						locations={[0.2, 0.5, 0.85]}
-						start={{ x: 0, y: 0.65 }}
-						style={StyleSheet.absoluteFillObject}
-					/>
-					<LinearGradient
-						colors={["rgba(0,0,0,0.04)", "transparent"]}
-						end={{ x: 1, y: 1 }}
-						start={{ x: 0, y: 0 }}
-						style={StyleSheet.absoluteFillObject}
-					/>
+					{coverUri ? (
+						<Image
+							source={{ uri: coverUri }}
+							style={StyleSheet.absoluteFill}
+							contentFit="cover"
+							transition={200}
+						/>
+					) : (
+						<>
+							<View
+								className="absolute inset-0"
+								style={{ backgroundColor: palette.bg }}
+							/>
+							<LinearGradient
+								colors={["transparent", palette.stripe, "transparent"]}
+								end={{ x: 1, y: 0.35 }}
+								locations={[0.2, 0.5, 0.85]}
+								start={{ x: 0, y: 0.65 }}
+								style={StyleSheet.absoluteFill}
+							/>
+							<LinearGradient
+								colors={["rgba(0,0,0,0.04)", "transparent"]}
+								end={{ x: 1, y: 1 }}
+								start={{ x: 0, y: 0 }}
+								style={StyleSheet.absoluteFill}
+							/>
+						</>
+					)}
+					{coverUri ? (
+						<LinearGradient
+							colors={[
+								"rgba(0,0,0,0.45)",
+								"rgba(0,0,0,0.08)",
+								"transparent",
+							]}
+							end={{ x: 0.5, y: 1 }}
+							locations={[0, 0.55, 1]}
+							pointerEvents="none"
+							start={{ x: 0.5, y: 0 }}
+							style={StyleSheet.absoluteFill}
+						/>
+					) : null}
 					<View className="flex-1 justify-between px-4 py-3.5">
 						{nextUpLabel ? (
 							<Text
-								className="text-[11px] text-ink-primary uppercase tracking-[1.2px]"
+								className={`text-[11px] uppercase tracking-[1.2px] ${coverUri ? "text-white" : "text-ink-primary"}`}
 								style={{ fontFamily: mono }}
 							>
 								{nextUpLabel}
@@ -129,7 +156,7 @@ export function TripPlanCard({
 						<View className="flex-row items-end justify-end">
 							{metaRight ? (
 								<Text
-									className="text-[11px] text-ink-primary/75"
+									className={`text-[11px] ${coverUri ? "text-white/80" : "text-ink-primary/75"}`}
 									style={{ fontFamily: mono }}
 								>
 									{metaRight}

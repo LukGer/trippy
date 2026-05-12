@@ -11,7 +11,7 @@ export type ItineraryAttachmentPayload = ItineraryAttachmentRef & {
 	mediaType: string;
 };
 
-export type CreateItineraryPlanNdjsonStreamInput = {
+export type CreateItineraryPlanStreamInput = {
 	openaiApiKey: string;
 	unsplashAccessKey?: string;
 	tripName: string;
@@ -27,6 +27,10 @@ export type ItinerarySystemPromptContext = {
 	serverNowIso: string;
 	/** Optional display name when the request is authenticated */
 	userDisplayName?: string;
+	/** Uploaded files are present (ingestAttachments tool is registered). */
+	hasAttachments: boolean;
+	/** Unsplash-backed fetchTripCoverImage tool is registered. */
+	hasCoverTool: boolean;
 };
 
 export type FetchTripCoverImageToolOutput =

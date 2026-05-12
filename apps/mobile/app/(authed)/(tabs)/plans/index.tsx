@@ -1,10 +1,18 @@
 import type { Trip } from "@trippy/contracts/trips";
 import { Stack, useRouter } from "expo-router";
 import { ActivityIndicator, ScrollView, Text, View } from "react-native";
+import Animated, {
+	FadeInDown,
+	LinearTransition,
+} from "react-native-reanimated";
 import { Colors } from "@/constants/colors";
 import { PlansEmptyState } from "@/src/components/plans/plans-empty-state";
-import { TripPlanCard } from "@/src/components/plans/trip-plan-card";
+import { SwipeableTripPlanCard } from "@/src/components/plans/swipeable-trip-plan-card";
 import { trpc } from "@/src/utils/trpc";
+
+/** Shared spec so a freshly-created card slides in and neighbors reflow in sync. */
+const CARD_LAYOUT = LinearTransition.springify().damping(20).stiffness(180);
+const CARD_ENTER = FadeInDown.springify().damping(20).stiffness(180);
 
 function startOfDay(d: Date) {
 	const x = new Date(d);
@@ -54,7 +62,13 @@ function SectionHeader({ title, count }: { title: string; count: number }) {
 
 export default function PlansScreen() {
 	const router = useRouter();
+	const utils = trpc.useUtils();
 	const { data: trips, isPending, isError } = trpc.trips.list.useQuery();
+	const deleteTrip = trpc.trips.delete.useMutation({
+		onSuccess: () => {
+			void utils.trips.list.invalidate();
+		},
+	});
 	const list = trips ?? [];
 	const { upcoming, planning } = partitionTrips(list);
 	const total = list.length;
@@ -112,12 +126,20 @@ export default function PlansScreen() {
 							<View className="mt-2">
 								<SectionHeader count={upcoming.length} title="Upcoming" />
 								{upcoming.map((trip, i) => (
-									<TripPlanCard
+									<Animated.View
 										key={trip.id}
-										paletteIndex={i}
-										showNextUp={firstUpcomingIsFuture && i === 0}
-										trip={trip}
-									/>
+										entering={CARD_ENTER}
+										layout={CARD_LAYOUT}
+									>
+										<SwipeableTripPlanCard
+											paletteIndex={i}
+											showNextUp={firstUpcomingIsFuture && i === 0}
+											trip={trip}
+											onDeleteConfirm={() =>
+												deleteTrip.mutate({ tripId: trip.id })
+											}
+										/>
+									</Animated.View>
 								))}
 							</View>
 						) : null}
@@ -126,11 +148,19 @@ export default function PlansScreen() {
 							<View className={upcoming.length > 0 ? "mt-6" : "mt-2"}>
 								<SectionHeader count={planning.length} title="Planning" />
 								{planning.map((trip, i) => (
-									<TripPlanCard
+									<Animated.View
 										key={trip.id}
-										paletteIndex={i + upcoming.length}
-										trip={trip}
-									/>
+										entering={CARD_ENTER}
+										layout={CARD_LAYOUT}
+									>
+										<SwipeableTripPlanCard
+											paletteIndex={i + upcoming.length}
+											trip={trip}
+											onDeleteConfirm={() =>
+												deleteTrip.mutate({ tripId: trip.id })
+											}
+										/>
+									</Animated.View>
 								))}
 							</View>
 						) : null}

@@ -13,7 +13,7 @@ export default function AuthedLayout() {
 	return (
 		<Stack screenOptions={{ headerShown: false }}>
 			<Stack.Screen name="(tabs)" />
-			<Stack.Screen name="plans" options={{ presentation: "formSheet" }} />
+			<Stack.Screen name="plans" options={{ presentation: "formSheet", gestureEnabled: false }} />
 		</Stack>
 	);
 }

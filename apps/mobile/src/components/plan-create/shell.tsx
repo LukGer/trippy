@@ -22,6 +22,8 @@ import {
 	MultiStepPrimaryGateProvider,
 	useMultiStepPrimaryGate,
 } from "@/src/components/multi-step-primary-gate";
+import { PLAN_CREATE_STEP_ID } from "@/src/components/plan-create/flow-ids";
+import { PlanCreateHero } from "@/src/components/plan-create/hero";
 import {
 	PlanCreateScrollInsetProvider,
 	usePlanCreateScrollInset,
@@ -63,6 +65,7 @@ function PlanCreateChrome({
 		<MultiStepPrimaryGateProvider>
 			<View className="flex-1 bg-surface-canvas" collapsable={false}>
 				<PlanCreateHeaderToolbar />
+				<PlanCreateHero />
 				<View className="relative min-h-0 flex-1" collapsable={false}>
 					<MultiStepFlow.Outlet />
 				</View>
@@ -168,11 +171,12 @@ function PlanCreateFooter() {
 
 	const primaryLabel = currentStep?.primaryButtonLabel ?? "Continue";
 
+	const stepId = currentStep?.stepId;
 	const readingContinueBlocked =
-		currentStep?.eyebrow === "Reading" &&
+		stepId === PLAN_CREATE_STEP_ID.reading &&
 		(streamStatus === "idle" || streamStatus === "streaming");
 
-	const isReviewStep = currentStep?.eyebrow === "Review";
+	const isReviewStep = stepId === PLAN_CREATE_STEP_ID.review;
 	const saveBlocked = isReviewStep && createTrip.isPending;
 	const blocked =
 		readingContinueBlocked || saveBlocked || continueDisabled;
@@ -184,7 +188,19 @@ function PlanCreateFooter() {
 				draft.tripName.trim() ||
 				"Untitled trip";
 			const name = raw.slice(0, 120);
-			void createTrip.mutateAsync({ name }).then(() => goNext());
+			const coverUrl = itineraryPlan?.coverImageUrl?.trim();
+			void createTrip
+				.mutateAsync({
+					name,
+					coverImageUrl: coverUrl ? coverUrl : undefined,
+					coverPhotographerName: coverUrl
+						? itineraryPlan?.coverPhotographerName?.trim() || undefined
+						: undefined,
+					coverPhotographerPageUrl: coverUrl
+						? itineraryPlan?.coverPhotographerPageUrl?.trim() || undefined
+						: undefined,
+				})
+				.then(() => goNext());
 			return;
 		}
 		goNext();

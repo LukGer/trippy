@@ -7,18 +7,13 @@
     "db:generate": "bun run --cwd apps/api db:generate",
     "db:push": "bun run --cwd apps/api db:push",
     "dev": "turbo run dev",
-    "sso": "aws sso login --sso-session=lukger",
-    "lint": "turbo run lint",
-    "lint:infra": "biome lint ./infra"
+    "lint": "turbo run lint"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.13",
     "turbo": "^2.9.6"
   },
   "packageManager": "bun@1.1.26",
-  "dependencies": {
-    "sst": "4.12.2"
-  },
   "workspaces": [
     "apps/*",
     "packages/*"

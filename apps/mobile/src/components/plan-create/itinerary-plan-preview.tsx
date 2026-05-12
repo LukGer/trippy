@@ -3,9 +3,7 @@ import type {
 	ItineraryItem,
 	ItineraryPlanWithCover,
 } from "@trippy/contracts/itinerary";
-import { Image } from "expo-image";
-import * as Linking from "expo-linking";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import { ScrollView, Text, View } from "react-native";
 
 type AttachmentRef = { id: string; name: string };
 
@@ -35,20 +33,20 @@ function DayCard({
 					<Text className="type-body font-serif text-ink-primary">
 						{day.dateLabel ?? "…"}
 					</Text>
-					{day.locationLabel ?
+					{day.locationLabel ? (
 						<Text className="type-body font-serif text-ink-secondary italic">
 							· {day.locationLabel}
 						</Text>
-					:	null}
+					) : null}
 				</View>
 				<Text className="type-caption-2 shrink-0 font-semibold text-ink-tertiary uppercase tracking-wide">
 					{day.dayIndexLabel ?? `DAY ${String(index + 1).padStart(2, "0")}`}
 				</Text>
 			</View>
 
-			{(day.items ?? []).map((item, i) => (
+			{day.items.map((item) => (
 				<ItemRow
-					key={`${day.dayIndexLabel ?? index}-${i}-${item.title ?? String(i)}`}
+					key={`${day.dayIndexLabel}-${item.title}`}
 					item={item}
 					attachments={attachments}
 				/>
@@ -73,16 +71,16 @@ function ItemRow({
 			<Text className="type-subhead mb-0.5 font-serif-semibold text-ink-primary">
 				{item.title ?? "…"}
 			</Text>
-			{item.subtitle ?
+			{item.subtitle ? (
 				<Text className="type-footnote font-serif text-ink-secondary italic">
 					{item.subtitle}
 				</Text>
-			:	null}
-			{src ?
+			) : null}
+			{src ? (
 				<Text className="type-caption-2 mt-1 font-serif text-ink-tertiary">
 					Source: {src}
 				</Text>
-			:	null}
+			) : null}
 		</View>
 	);
 }
@@ -93,22 +91,17 @@ type Props = {
 };
 
 /** Lightweight timeline-ish preview until pixel-perfect design lands. */
-export function ItineraryPlanPreview({
-	plan,
-	attachments,
-}: Props) {
+export function ItineraryPlanPreview({ plan, attachments }: Props) {
 	if (!plan) {
 		return (
 			<Text className="type-body font-serif text-ink-tertiary">{"—"}</Text>
 		);
 	}
 
-	const hasTitle = Boolean(plan.generatedTripTitle?.trim());
 	const hasDays = (plan.days?.length ?? 0) > 0;
 	const hasTips = Boolean(plan.tips?.trim());
-	const hasCover = Boolean(plan.coverImageUrl?.trim());
 
-	if (!hasTitle && !hasDays && !hasTips && !hasCover) {
+	if (!hasDays && !hasTips) {
 		return (
 			<Text className="type-body font-serif text-ink-tertiary">{"—"}</Text>
 		);
@@ -116,42 +109,15 @@ export function ItineraryPlanPreview({
 
 	return (
 		<ScrollView>
-			{hasCover ? (
-				<View className="mb-4 overflow-hidden rounded-[14px] border border-line-soft">
-					<Image
-						source={{ uri: plan.coverImageUrl }}
-						style={{ width: "100%", aspectRatio: 16 / 9 }}
-						contentFit="cover"
-						transition={200}
-					/>
-					{plan.coverPhotographerName && plan.coverPhotographerPageUrl ? (
-						<Pressable
-							onPress={() =>
-								void Linking.openURL(plan.coverPhotographerPageUrl!)
-							}
-							className="px-3 py-2"
-						>
-							<Text className="type-caption-2 font-serif text-ink-tertiary">
-								Photo by {plan.coverPhotographerName} on Unsplash
-							</Text>
-						</Pressable>
-					) :	null}
-				</View>
-			) :	null}
-			{plan.generatedTripTitle ?
-				<Text className="type-subhead mb-4 font-serif-semibold text-ink-primary">
-					{plan.generatedTripTitle}
-				</Text>
-			:	null}
-			{(plan.days ?? []).map((day, idx) => (
+			{plan.days.map((day, idx) => (
 				<DayCard
-					key={`${day.dateLabel}-${idx}`}
+					key={`${String(idx)}-${day.dayIndexLabel ?? day.dateLabel ?? "day"}`}
 					day={day}
 					index={idx}
 					attachments={attachments}
 				/>
 			))}
-			{plan.tips ?
+			{plan.tips ? (
 				<View className="rounded-[14px] bg-surface-timeline-a/60 px-4 py-3">
 					<Text className="type-caption-2 mb-1 font-semibold text-ink-tertiary uppercase">
 						Tips
@@ -160,7 +126,7 @@ export function ItineraryPlanPreview({
 						{plan.tips}
 					</Text>
 				</View>
-			:	null}
+			) : null}
 		</ScrollView>
 	);
 }

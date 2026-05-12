@@ -1,21 +1,24 @@
 import { createOpenAI } from "@ai-sdk/openai";
 import { itineraryPlanSchema } from "@trippy/contracts/itinerary";
-import { type ModelMessage, Output, stepCountIs, streamText } from "ai";
+import {
+	type ModelMessage,
+	Output,
+	stepCountIs,
+	streamText,
+	type ToolSet,
+	UI_MESSAGE_STREAM_HEADERS,
+} from "ai";
 import { buildItinerarySystemPrompt } from "./sytem-prompt.service";
 import {
 	createFetchTripCoverImageTool,
 	FETCH_TRIP_COVER_IMAGE_TOOL_NAME,
 } from "./tools/cover-image.tool";
+import {
+	createIngestAttachmentsTool,
+	INGEST_ATTACHMENTS_TOOL_NAME,
+} from "./tools/ingest-attachments.tool";
 import type {
-	CreateItineraryPlanNdjsonStreamInput,
-	FetchTripCoverImageToolOutput,
-	ItineraryAttachmentRef,
-} from "./types";
-
-export type {
-	CreateItineraryPlanNdjsonStreamInput,
-	FetchTripCoverImageToolOutput,
-	ItineraryAttachmentPayload,
+	CreateItineraryPlanStreamInput,
 	ItineraryAttachmentRef,
 } from "./types";
 
@@ -66,22 +69,32 @@ export function buildItineraryUserPromptText(params: {
 function createItineraryAgentToolset(
 	unsplashAccessKey: string | undefined,
 	signal: AbortSignal,
-) {
-	if (!unsplashAccessKey) return undefined;
-	return {
-		[FETCH_TRIP_COVER_IMAGE_TOOL_NAME]: createFetchTripCoverImageTool(
+	attachmentRefs: ItineraryAttachmentRef[],
+): ToolSet | undefined {
+	const tools: ToolSet = {};
+
+	if (attachmentRefs.length > 0) {
+		tools[INGEST_ATTACHMENTS_TOOL_NAME] =
+			createIngestAttachmentsTool(attachmentRefs);
+	}
+
+	if (unsplashAccessKey?.trim()) {
+		tools[FETCH_TRIP_COVER_IMAGE_TOOL_NAME] = createFetchTripCoverImageTool(
 			unsplashAccessKey,
 			signal,
-		),
-	};
+		);
+	}
+
+	return Object.keys(tools).length > 0 ? tools : undefined;
 }
 
 /**
- * NDJSON stream: optional early cover line(s), then partial itinerary objects.
+ * AI SDK UI message stream (SSE). Tool parts drive checklist phases; itinerary JSON is in
+ * the assistant text part (client parses after stream completes).
  */
-export function createItineraryPlanNdjsonStream(
-	input: CreateItineraryPlanNdjsonStreamInput,
-): ReadableStream<Uint8Array> {
+export function createItineraryPlanStreamResponse(
+	input: CreateItineraryPlanStreamInput,
+): Response {
 	const {
 		openaiApiKey,
 		unsplashAccessKey,
@@ -92,10 +105,16 @@ export function createItineraryPlanNdjsonStream(
 		parentSignal,
 	} = input;
 
+	const attachmentRefs: ItineraryAttachmentRef[] = attachments.map((a) => ({
+		id: a.id,
+		name: a.name,
+		kind: a.kind,
+	}));
+
 	const promptText = buildItineraryUserPromptText({
 		tripName,
 		notes,
-		attachments,
+		attachments: attachmentRefs,
 	});
 
 	const parts: Array<
@@ -124,77 +143,46 @@ export function createItineraryPlanNdjsonStream(
 	const openai = createOpenAI({ apiKey: openaiApiKey });
 
 	const ac = new AbortController();
-	const forwardAbort = () => ac.abort();
 	if (parentSignal) {
-		if (parentSignal.aborted) forwardAbort();
-		else parentSignal.addEventListener("abort", forwardAbort, { once: true });
+		if (parentSignal.aborted) ac.abort();
+		else
+			parentSignal.addEventListener("abort", () => ac.abort(), { once: true });
 	}
 
-	const encoder = new TextEncoder();
-	const tools = createItineraryAgentToolset(unsplashAccessKey, ac.signal);
+	const hasCoverTool = Boolean(unsplashAccessKey?.trim());
+	const tools = createItineraryAgentToolset(
+		unsplashAccessKey,
+		ac.signal,
+		attachmentRefs,
+	);
 
 	const system = buildItinerarySystemPrompt({
 		serverNowIso: new Date().toISOString(),
 		userDisplayName,
+		hasAttachments: attachmentRefs.length > 0,
+		hasCoverTool,
 	});
 
-	return new ReadableStream({
-		async start(controller) {
-			const result = streamText({
-				model: openai("gpt-4o-mini"),
-				system,
-				messages,
-				abortSignal: ac.signal,
-				...(tools
-					? {
-							tools,
-							stopWhen: itineraryAgentStopWhen,
-						}
-					: {}),
-				output: Output.object({
-					schema: itineraryPlanSchema,
-					name: "TrippyItinerary",
-					description:
-						"Structured multi-day trip plan with timeline rows per day (flight, transit, stay, etc.).",
-				}),
-				onChunk: ({ chunk }) => {
-					if (!tools) return;
-					if (chunk.type !== "tool-result") return;
-					if (chunk.toolName !== FETCH_TRIP_COVER_IMAGE_TOOL_NAME) return;
-					if (chunk.preliminary) return;
-					const out = chunk.output as FetchTripCoverImageToolOutput;
-					if (!out.ok) return;
-					try {
-						controller.enqueue(
-							encoder.encode(
-								`${JSON.stringify({
-									coverImageUrl: out.coverImageUrl,
-									coverPhotographerName: out.coverPhotographerName,
-									coverPhotographerPageUrl: out.coverPhotographerPageUrl,
-								})}\n`,
-							),
-						);
-					} catch {
-						// controller may be closed
-					}
-				},
-			});
-
-			try {
-				for await (const partial of result.partialOutputStream) {
-					if (partial !== undefined) {
-						controller.enqueue(encoder.encode(`${JSON.stringify(partial)}\n`));
-					}
+	const result = streamText({
+		model: openai("gpt-4o-mini"),
+		system,
+		messages,
+		abortSignal: ac.signal,
+		...(tools
+			? {
+					tools,
+					stopWhen: itineraryAgentStopWhen,
 				}
-				controller.close();
-			} catch (err) {
-				controller.error(err);
-			} finally {
-				parentSignal?.removeEventListener("abort", forwardAbort);
-			}
-		},
-		cancel() {
-			ac.abort();
-		},
+			: {}),
+		output: Output.object({
+			schema: itineraryPlanSchema,
+			name: "TrippyItinerary",
+			description:
+				"Structured multi-day trip plan with timeline rows per day (flight, transit, stay, etc.).",
+		}),
+	});
+
+	return result.toUIMessageStreamResponse({
+		headers: { ...UI_MESSAGE_STREAM_HEADERS },
 	});
 }
