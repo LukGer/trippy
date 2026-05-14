@@ -3,7 +3,10 @@ import { Text } from "react-native";
 import { useMultiStepFlow } from "@/src/components/multi-step-flow";
 import { PlanCreatePhaseChecklist } from "@/src/components/plan-create/phase-checklist";
 import { PlanCreateStepLayout } from "@/src/components/plan-create/step-layout";
-import { usePlanCreateWizard } from "@/src/components/plan-create/wizard-context";
+import {
+	usePlanCreateWizard,
+	useStreamingPhases,
+} from "@/src/components/plan-create/wizard-context";
 
 /**
  * One-shot stream when this step mounts. Refs avoid restarting the request if
@@ -13,13 +16,13 @@ import { usePlanCreateWizard } from "@/src/components/plan-create/wizard-context
  */
 export function PlanCreateStepReading() {
 	const {
-		streamPhases,
 		streamStatus,
 		streamError,
 		startItineraryStream,
 		abortItineraryStream,
 		setOnStreamSuccess,
 	} = usePlanCreateWizard();
+	const streamPhases = useStreamingPhases();
 
 	const { goNext } = useMultiStepFlow();
 

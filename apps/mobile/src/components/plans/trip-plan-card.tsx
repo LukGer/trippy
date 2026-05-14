@@ -93,12 +93,21 @@ export function TripPlanCard({
 			: "Dates to be set";
 
 	return (
-		<Pressable
-			accessibilityRole="button"
-			className="overflow-hidden rounded-[22px] active:opacity-92"
-			onPress={onPress}
+		<View
+			className="rounded-3xl"
+			style={{
+				shadowColor: "#000",
+				shadowOpacity: 0.06,
+				shadowRadius: 12,
+				shadowOffset: { width: 0, height: 4 },
+			}}
 		>
-			<View className="bg-surface-card">
+			<Pressable
+				accessibilityRole="button"
+				className="overflow-hidden rounded-3xl"
+				onPress={onPress}
+			>
+				<View className="bg-surface-card">
 				<View className="h-[132px] overflow-hidden">
 					{coverUri ? (
 						<Image
@@ -183,5 +192,6 @@ export function TripPlanCard({
 				</View>
 			</View>
 		</Pressable>
+		</View>
 	);
 }

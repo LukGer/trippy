@@ -1,5 +1,5 @@
 import { Image } from "expo-image";
-import { Text, View } from "react-native";
+import { View } from "react-native";
 import Animated, {
 	FadeIn,
 	FadeOut,
@@ -7,7 +7,10 @@ import Animated, {
 } from "react-native-reanimated";
 import { useMultiStepFlow } from "@/src/components/multi-step-flow";
 import { PLAN_CREATE_STEP_ID } from "@/src/components/plan-create/flow-ids";
-import { usePlanCreateWizard } from "@/src/components/plan-create/wizard-context";
+import {
+	usePlanCreateWizard,
+	useStreamingCoverPreview,
+} from "@/src/components/plan-create/wizard-context";
 
 /** Layout transition reused on hero container, image card, and title so they move in sync. */
 const TRANSITION = LinearTransition.springify()
@@ -23,7 +26,8 @@ const TRANSITION = LinearTransition.springify()
  */
 export function PlanCreateHero() {
 	const { currentStep } = useMultiStepFlow();
-	const { itineraryPlan, coverPreviewPlan, draft } = usePlanCreateWizard();
+	const { itineraryPlan, draft } = usePlanCreateWizard();
+	const coverPreview = useStreamingCoverPreview();
 
 	const stepId = currentStep?.stepId;
 	const isReading = stepId === PLAN_CREATE_STEP_ID.reading;
@@ -32,7 +36,7 @@ export function PlanCreateHero() {
 
 	const coverUrl =
 		itineraryPlan?.coverImageUrl?.trim() ||
-		coverPreviewPlan?.coverImageUrl?.trim() ||
+		coverPreview?.coverImageUrl?.trim() ||
 		null;
 	const title =
 		itineraryPlan?.generatedTripTitle?.trim() ||
@@ -52,7 +56,7 @@ export function PlanCreateHero() {
 		>
 			<Animated.View
 				layout={TRANSITION}
-				className="overflow-hidden border border-line-soft border-continuous"
+				className="overflow-hidden border border-continuous border-line-soft"
 				style={
 					isReading
 						? { width: "100%", aspectRatio: 16 / 9, borderRadius: 22 }

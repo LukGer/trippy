@@ -8,9 +8,11 @@ import {
 	type SetStateAction,
 	useCallback,
 	useContext,
+	useEffect,
 	useMemo,
 	useRef,
 	useState,
+	useSyncExternalStore,
 } from "react";
 import { createItineraryChatTransport } from "@/src/components/plan-create/itinerary-chat-transport";
 import {
@@ -20,11 +22,16 @@ import {
 	type PhaseRow,
 	parseItineraryPlanFromMessage,
 } from "@/src/components/plan-create/itinerary-stream-parse";
+import {
+	createStreamingStore,
+	type StreamingStore,
+} from "@/src/components/plan-create/streaming-store";
 import type { PlanDraft, StreamStatus } from "@/src/components/plan-create/types";
 
-function emptyPlanShell(): ItineraryPlanWithCover {
-	return { generatedTripTitle: "", days: [], tips: "" };
-}
+type CoverPreview = Pick<
+	ItineraryPlanWithCover,
+	"coverImageUrl" | "coverPhotographerName" | "coverPhotographerPageUrl"
+>;
 
 function lastAssistantMessage(messages: UIMessage[]): UIMessage | undefined {
 	for (let i = messages.length - 1; i >= 0; i--) {
@@ -33,13 +40,32 @@ function lastAssistantMessage(messages: UIMessage[]): UIMessage | undefined {
 	return undefined;
 }
 
+function arePhaseRowsEqual(a: PhaseRow[], b: PhaseRow[]): boolean {
+	if (a === b) return true;
+	if (a.length !== b.length) return false;
+	for (let i = 0; i < a.length; i++) {
+		const x = a[i];
+		const y = b[i];
+		if (x.id !== y.id || x.status !== y.status || x.label !== y.label) {
+			return false;
+		}
+	}
+	return true;
+}
+
+function areCoverPreviewsEqual(
+	a: CoverPreview | null,
+	b: CoverPreview | null,
+): boolean {
+	if (a === b) return true;
+	if (!a || !b) return false;
+	return a.coverImageUrl === b.coverImageUrl;
+}
+
 type PlanCreateWizardContextValue = {
 	draft: PlanDraft;
 	setDraft: Dispatch<SetStateAction<PlanDraft>>;
 	itineraryPlan: ItineraryPlanWithCover | null;
-	/** During streaming: cover + empty shell for hero preview only. */
-	coverPreviewPlan: ItineraryPlanWithCover | null;
-	streamPhases: PhaseRow[];
 	streamStatus: StreamStatus;
 	streamError: string | null;
 	startItineraryStream: () => Promise<void>;
@@ -47,6 +73,9 @@ type PlanCreateWizardContextValue = {
 	resetStreamState: () => void;
 	/** Reading step registers navigation for successful `useChat` `onFinish`. */
 	setOnStreamSuccess: (fn: (() => void) | null) => void;
+	/** Pub/sub stores for stream-derived state — subscribe via the hooks below. */
+	streamPhasesStore: StreamingStore<PhaseRow[]>;
+	streamCoverPreviewStore: StreamingStore<CoverPreview | null>;
 };
 
 const PlanCreateWizardContext =
@@ -72,6 +101,15 @@ export function PlanCreateWizardProvider({ children }: PropsWithChildren) {
 	const setOnStreamSuccess = useCallback((fn: (() => void) | null) => {
 		onStreamSuccessRef.current = fn;
 	}, []);
+
+	const streamPhasesStore = useMemo(
+		() => createStreamingStore<PhaseRow[]>([], arePhaseRowsEqual),
+		[],
+	);
+	const streamCoverPreviewStore = useMemo(
+		() => createStreamingStore<CoverPreview | null>(null, areCoverPreviewsEqual),
+		[],
+	);
 
 	const transport = useMemo(
 		() =>
@@ -111,23 +149,19 @@ export function PlanCreateWizardProvider({ children }: PropsWithChildren) {
 		},
 	});
 
-	const assistant = useMemo(() => lastAssistantMessage(messages), [messages]);
-
-	const { streamPhases, coverPreviewPlan } = useMemo(() => {
+	useEffect(() => {
+		const assistant = lastAssistantMessage(messages);
 		if (!assistant) {
-			return {
-				streamPhases: [] as PhaseRow[],
-				coverPreviewPlan: null as ItineraryPlanWithCover | null,
-			};
+			streamPhasesStore.set([]);
+			streamCoverPreviewStore.set(null);
+			return;
 		}
-		const phases = buildPhaseRows(assistant.parts);
+		streamPhasesStore.set(buildPhaseRows(assistant.parts));
 		const cover = extractCoverFromParts(assistant.parts);
-		const coverPreviewPlan =
-			cover?.coverImageUrl?.trim() ?
-				({ ...emptyPlanShell(), ...cover } satisfies ItineraryPlanWithCover)
-			:	null;
-		return { streamPhases: phases, coverPreviewPlan };
-	}, [assistant]);
+		streamCoverPreviewStore.set(
+			cover?.coverImageUrl?.trim() ? cover : null,
+		);
+	}, [messages, streamPhasesStore, streamCoverPreviewStore]);
 
 	const abortItineraryStream = useCallback(async () => {
 		await stop();
@@ -157,26 +191,26 @@ export function PlanCreateWizardProvider({ children }: PropsWithChildren) {
 			draft,
 			setDraft,
 			itineraryPlan,
-			coverPreviewPlan,
-			streamPhases,
 			streamStatus,
 			streamError,
 			startItineraryStream,
 			abortItineraryStream,
 			resetStreamState,
 			setOnStreamSuccess,
+			streamPhasesStore,
+			streamCoverPreviewStore,
 		}),
 		[
 			draft,
 			itineraryPlan,
-			coverPreviewPlan,
-			streamPhases,
 			streamStatus,
 			streamError,
 			startItineraryStream,
 			abortItineraryStream,
 			resetStreamState,
 			setOnStreamSuccess,
+			streamPhasesStore,
+			streamCoverPreviewStore,
 		],
 	);
 
@@ -195,4 +229,22 @@ export function usePlanCreateWizard(): PlanCreateWizardContextValue {
 		);
 	}
 	return ctx;
+}
+
+/** Subscribes only the calling component to streamed phase rows. */
+export function useStreamingPhases(): PhaseRow[] {
+	const { streamPhasesStore } = usePlanCreateWizard();
+	return useSyncExternalStore(
+		streamPhasesStore.subscribe,
+		streamPhasesStore.get,
+	);
+}
+
+/** Subscribes only the calling component to the streamed cover preview. */
+export function useStreamingCoverPreview(): CoverPreview | null {
+	const { streamCoverPreviewStore } = usePlanCreateWizard();
+	return useSyncExternalStore(
+		streamCoverPreviewStore.subscribe,
+		streamCoverPreviewStore.get,
+	);
 }

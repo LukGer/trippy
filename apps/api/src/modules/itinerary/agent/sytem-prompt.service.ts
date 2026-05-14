@@ -43,11 +43,29 @@ Rules for timeline rows:
 - Include a day in \`days\` only when that calendar day has at least one such grounded item. Do not emit days with empty \`items\` or vague rows that only restate the trip title.
 - Never invent confirmation numbers, PNRs, or exact prices; if timing is implied but uncertain, use clear estimated wording.
 
+Rules for dates:
+- Resolve every date against the current date in the preamble above. Use that as "today".
+- When the traveler gives a date without a year (e.g. "20 May", "May 20th", "Friday", "next weekend"), pick the nearest plausible future occurrence relative to today. If that would land within ~30 days in the past, assume the same year as today instead; otherwise roll forward to the next year.
+- Relative phrases ("next Friday", "in two weeks", "the weekend after Easter") must be resolved to concrete ISO calendar dates using today as the anchor.
+- Never emit a day whose date is in the past relative to today unless the inputs explicitly anchor the trip to a past year.
+- If the inputs give a clear date range, every day in \`days\` must fall inside that range and be sequential. If only a start date is given, fill subsequent days by adding one calendar day each.
+
 Follow the structured output schema; field descriptions define the timeline UI.`;
 
 function buildContextPreamble(ctx: ItinerarySystemPromptContext): string {
+	const now = new Date(ctx.serverNowIso);
+	const humanDate = Number.isNaN(now.getTime())
+		? ctx.serverNowIso
+		: now.toLocaleDateString("en-US", {
+				weekday: "long",
+				year: "numeric",
+				month: "long",
+				day: "numeric",
+				timeZone: "UTC",
+			});
 	const lines = [
-		`Current date and time (server, ISO 8601): ${ctx.serverNowIso}`,
+		`Today is ${humanDate} (UTC). Current date and time (ISO 8601): ${ctx.serverNowIso}.`,
+		`Treat that as "today" when resolving any date the traveler mentions.`,
 		ctx.userDisplayName ?
 			`Authenticated traveler display name: ${ctx.userDisplayName}`
 		:	null,
