@@ -1,8 +1,8 @@
 import type {
 	ItineraryPlan,
 	ItineraryPlanWithCover,
-} from "@trippy/contracts/itinerary";
-import { itineraryPlanSchema } from "@trippy/contracts/itinerary";
+} from "@trippy/core/itinerary";
+import { itineraryPlanSchema } from "@trippy/core/itinerary";
 import type { TextUIPart, UIMessage } from "ai";
 
 export const TOOL_INGEST_ATTACHMENTS = "ingestAttachments" as const;

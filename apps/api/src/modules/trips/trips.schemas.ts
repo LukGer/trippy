@@ -2,4 +2,4 @@ export {
 	createTripInputSchema,
 	deleteTripInputSchema,
 	tripSchema,
-} from "@trippy/contracts/trips";
+} from "@trippy/core/trips";

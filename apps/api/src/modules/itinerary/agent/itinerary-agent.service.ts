@@ -1,5 +1,5 @@
 import { createOpenAI } from "@ai-sdk/openai";
-import { itineraryPlanSchema } from "@trippy/contracts/itinerary";
+import { itineraryPlanSchema } from "@trippy/core/itinerary";
 import {
 	type ModelMessage,
 	Output,

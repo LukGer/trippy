@@ -1,18 +1,12 @@
 import { z } from "zod";
 import { protectedProcedure, router } from "../../trpc/trpc";
-import { createDocumentsRepo } from "./documents.repo";
 import { createDocumentInputSchema } from "./documents.schemas";
-import { createDocumentsService } from "./documents.service";
 
 const documentsRouterDefinition = {
   list: protectedProcedure
     .input(z.object({ tripId: z.string().min(1) }))
     .query(({ ctx, input }) => {
-      const service = createDocumentsService({
-        documentsRepo: createDocumentsRepo(ctx.db),
-      });
-
-      return service.listForTrip({
+      return ctx.services.documents.listForTrip({
         tripId: input.tripId,
         userId: ctx.user.id,
       });
@@ -21,11 +15,7 @@ const documentsRouterDefinition = {
   create: protectedProcedure
     .input(createDocumentInputSchema)
     .mutation(({ ctx, input }) => {
-      const service = createDocumentsService({
-        documentsRepo: createDocumentsRepo(ctx.db),
-      });
-
-      return service.create({
+      return ctx.services.documents.create({
         ...input,
         userId: ctx.user.id,
       });

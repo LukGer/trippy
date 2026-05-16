@@ -2,4 +2,4 @@ export {
   createDocumentInputSchema,
   documentKinds,
   documentSchema,
-} from "@trippy/contracts/documents";
+} from "@trippy/core/documents";

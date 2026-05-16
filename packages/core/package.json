@@ -4,14 +4,20 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./trips": "./src/trips.ts",
+    "./itinerary": "./src/itinerary.ts",
+    "./documents": "./src/documents.ts"
   },
   "scripts": {
     "lint": "biome lint .",
     "typecheck": "tsc --noEmit"
   },
+  "dependencies": {
+    "zod": "^4.2.1"
+  },
   "devDependencies": {
     "@trippy/tsconfig": "workspace:*",
-    "typescript": "~5.9.2"
+    "typescript": "~6.0.3"
   }
 }

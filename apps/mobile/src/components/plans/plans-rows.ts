@@ -1,4 +1,4 @@
-import type { Trip } from "@trippy/contracts/trips";
+import type { Trip } from "@trippy/core/trips";
 
 export type PlansRow =
 	| { kind: "intro"; id: "intro"; total: number }

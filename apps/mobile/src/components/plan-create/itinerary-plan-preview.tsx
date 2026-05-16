@@ -2,7 +2,7 @@ import type {
 	ItineraryDay,
 	ItineraryItem,
 	ItineraryPlanWithCover,
-} from "@trippy/contracts/itinerary";
+} from "@trippy/core/itinerary";
 import { ScrollView, Text, View } from "react-native";
 
 type AttachmentRef = { id: string; name: string };

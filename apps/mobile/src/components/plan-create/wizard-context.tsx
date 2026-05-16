@@ -1,5 +1,5 @@
 import { useChat } from "@ai-sdk/react";
-import type { ItineraryPlanWithCover } from "@trippy/contracts/itinerary";
+import type { ItineraryPlanWithCover } from "@trippy/core/itinerary";
 import type { UIMessage } from "ai";
 import {
 	createContext,

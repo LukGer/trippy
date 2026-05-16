@@ -1,8 +1,6 @@
-import { tripSchema } from "@trippy/contracts/trips";
+import { tripSchema } from "@trippy/core/trips";
 import { protectedProcedure, router } from "../../trpc/trpc";
-import { TripsRepo } from "./trips.repo";
 import { createTripInputSchema, deleteTripInputSchema } from "./trips.schemas";
-import { TripsService } from "./trips.service";
 
 function toTripDto(row: {
 	id: string;
@@ -30,21 +28,17 @@ function toTripDto(row: {
 
 export const tripsRouter = router({
 	list: protectedProcedure.query(async ({ ctx }) => {
-		const service = new TripsService(new TripsRepo(ctx.db));
-
 		const userId = ctx.session.user.id;
 		if (!userId) return [];
 
-		const rows = await service.listForUser(userId);
+		const rows = await ctx.services.trips.listForUser(userId);
 		return rows.map(toTripDto);
 	}),
 
 	create: protectedProcedure
 		.input(createTripInputSchema)
 		.mutation(({ ctx, input }) => {
-			const service = new TripsService(new TripsRepo(ctx.db));
-
-			return service.createForOwner({
+			return ctx.services.trips.createForOwner({
 				name: input.name,
 				ownerId: ctx.user.id,
 				coverImageUrl: input.coverImageUrl?.trim() || null,
@@ -56,7 +50,6 @@ export const tripsRouter = router({
 	delete: protectedProcedure
 		.input(deleteTripInputSchema)
 		.mutation(async ({ ctx, input }) => {
-			const service = new TripsService(new TripsRepo(ctx.db));
-			return service.deleteForOwner(input.tripId, ctx.user.id);
+			return ctx.services.trips.deleteForOwner(input.tripId, ctx.user.id);
 		}),
 });

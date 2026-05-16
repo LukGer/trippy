@@ -1,6 +1,6 @@
 import { Button, ContextMenu, Host } from "@expo/ui/swift-ui";
 import { LegendList } from "@legendapp/list";
-import type { Trip } from "@trippy/contracts/trips";
+import type { Trip } from "@trippy/core/trips";
 import { Text, View } from "react-native";
 import Animated, {
 	FadeIn,
