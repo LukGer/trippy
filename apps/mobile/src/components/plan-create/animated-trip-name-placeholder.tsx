@@ -13,7 +13,7 @@ const SUGGESTIONS = [
 	"Morocco road trip",
 ] as const;
 
-const ROTATION_MS = 5000;
+const ROTATION_MS = 3000;
 const ENTER_MS = 500;
 const EXIT_MS = 500;
 const CHAR_STAGGER_MS = 8;

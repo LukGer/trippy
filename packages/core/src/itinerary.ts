@@ -46,6 +46,16 @@ export const itineraryPlanSchema = z.object({
 		.describe(
 			"Polished trip title synthesized from the user's working title and notes (~≤80 chars).",
 		),
+	startsOnIso: z
+		.string()
+		.describe(
+			'Trip start as an ISO calendar date in YYYY-MM-DD form, matching the first day in `days`. Required — never empty.',
+		),
+	endsOnIso: z
+		.string()
+		.describe(
+			'Trip end as an ISO calendar date in YYYY-MM-DD form, matching the last day in `days`. Use the same value as startsOnIso for single-day trips. Required — never empty.',
+		),
 	days: z.array(itineraryDaySchema).describe("Chronological trip days."),
 	tips: z
 		.string()

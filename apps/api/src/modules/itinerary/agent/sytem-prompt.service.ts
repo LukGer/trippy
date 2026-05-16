@@ -49,6 +49,7 @@ Rules for dates:
 - Relative phrases ("next Friday", "in two weeks", "the weekend after Easter") must be resolved to concrete ISO calendar dates using today as the anchor.
 - Never emit a day whose date is in the past relative to today unless the inputs explicitly anchor the trip to a past year.
 - If the inputs give a clear date range, every day in \`days\` must fall inside that range and be sequential. If only a start date is given, fill subsequent days by adding one calendar day each.
+- Always emit \`startsOnIso\` and \`endsOnIso\` as YYYY-MM-DD calendar dates corresponding to the first and last entries in \`days\` (use the same value for a single-day trip). The day labels in \`days\` stay human-readable; these ISO fields are the machine-readable source of truth.
 
 Follow the structured output schema; field descriptions define the timeline UI.`;
 

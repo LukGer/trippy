@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { TextInputProps } from "react-native";
-import { Platform, Text, TextInput, View } from "react-native";
+import { Text, TextInput, View } from "react-native";
 
 export type LabeledSingleLineFieldProps = {
 	label: string;
@@ -47,20 +47,15 @@ export function LabeledSingleLineField({
 					{...textInputProps}
 					multiline={false}
 					className="type-body h-12 rounded-2xl bg-surface-card px-4 font-serif text-ink-primary"
-					placeholder={placeholderNode != null ? undefined : placeholder}
-					placeholderTextColorClassName="accent-ink-tertiary"
-					style={
-						Platform.OS === "android"
-							? { includeFontPadding: false }
-							: undefined
-					}
+					style={{ includeFontPadding: false }}
 					value={value}
 					onChangeText={onChangeText}
 				/>
-				{showPlaceholderNode ? (
+				{placeholderNode != null ? (
 					<View
 						pointerEvents="none"
-						className="absolute inset-0 justify-center overflow-hidden px-4"
+						style={{ opacity: showPlaceholderNode ? 1 : 0 }}
+						className="absolute inset-0 justify-center overflow-hidden px-4 pt-[2px]"
 					>
 						{placeholderNode}
 					</View>

@@ -180,22 +180,33 @@ function PlanCreateFooter() {
 
 	const onPrimaryPress = () => {
 		if (isReviewStep) {
+			if (!itineraryPlan) return;
 			const raw =
-				itineraryPlan?.generatedTripTitle?.trim() ||
+				itineraryPlan.generatedTripTitle?.trim() ||
 				draft.tripName.trim() ||
 				"Untitled trip";
 			const name = raw.slice(0, 120);
-			const coverUrl = itineraryPlan?.coverImageUrl?.trim();
+			const coverUrl = itineraryPlan.coverImageUrl?.trim();
+			const planForApi = {
+				generatedTripTitle: itineraryPlan.generatedTripTitle,
+				startsOnIso: itineraryPlan.startsOnIso,
+				endsOnIso: itineraryPlan.endsOnIso,
+				tips: itineraryPlan.tips,
+				days: itineraryPlan.days,
+			};
 			void createTrip
 				.mutateAsync({
 					name,
+					startsOnIso: itineraryPlan.startsOnIso,
+					endsOnIso: itineraryPlan.endsOnIso,
 					coverImageUrl: coverUrl ? coverUrl : undefined,
 					coverPhotographerName: coverUrl
-						? itineraryPlan?.coverPhotographerName?.trim() || undefined
+						? itineraryPlan.coverPhotographerName?.trim() || undefined
 						: undefined,
 					coverPhotographerPageUrl: coverUrl
-						? itineraryPlan?.coverPhotographerPageUrl?.trim() || undefined
+						? itineraryPlan.coverPhotographerPageUrl?.trim() || undefined
 						: undefined,
+					itineraryPlan: planForApi,
 				})
 				.then(() => goNext());
 			return;

@@ -13,10 +13,21 @@ export class TripsRepo {
 			.orderBy(desc(trips.createdAt));
 	}
 
+	public async getByIdForOwner(tripId: string, ownerId: string) {
+		const [row] = await this.db
+			.select()
+			.from(trips)
+			.where(and(eq(trips.id, tripId), eq(trips.ownerId, ownerId)))
+			.limit(1);
+		return row ?? null;
+	}
+
 	public async create(input: {
 		id: string;
 		name: string;
 		ownerId: string;
+		startsOn: Date;
+		endsOn: Date;
 		coverImageUrl?: string | null;
 		coverPhotographerName?: string | null;
 		coverPhotographerPageUrl?: string | null;
@@ -30,6 +41,8 @@ export class TripsRepo {
 			coverImageUrl: input.coverImageUrl ?? null,
 			coverPhotographerName: input.coverPhotographerName ?? null,
 			coverPhotographerPageUrl: input.coverPhotographerPageUrl ?? null,
+			startsOn: input.startsOn,
+			endsOn: input.endsOn,
 			createdAt: now,
 			updatedAt: now,
 		});
@@ -41,6 +54,8 @@ export class TripsRepo {
 			coverImageUrl: input.coverImageUrl ?? null,
 			coverPhotographerName: input.coverPhotographerName ?? null,
 			coverPhotographerPageUrl: input.coverPhotographerPageUrl ?? null,
+			startsOn: input.startsOn,
+			endsOn: input.endsOn,
 			createdAt: now,
 			updatedAt: now,
 		};

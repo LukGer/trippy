@@ -1,6 +1,10 @@
-import { tripSchema } from "@trippy/core/trips";
+import { tripDetailSchema, tripSchema } from "@trippy/core/trips";
 import { protectedProcedure, router } from "../../trpc/trpc";
-import { createTripInputSchema, deleteTripInputSchema } from "./trips.schemas";
+import {
+	createTripInputSchema,
+	deleteTripInputSchema,
+	getTripByIdInputSchema,
+} from "./trips.schemas";
 
 function toTripDto(row: {
 	id: string;
@@ -35,15 +39,32 @@ export const tripsRouter = router({
 		return rows.map(toTripDto);
 	}),
 
+	getById: protectedProcedure
+		.input(getTripByIdInputSchema)
+		.query(async ({ ctx, input }) => {
+			const { trip, itinerary } = await ctx.services.trips.getByIdForOwner(
+				input.tripId,
+				ctx.user.id,
+			);
+			return tripDetailSchema.parse({
+				...toTripDto(trip),
+				itinerary,
+			});
+		}),
+
 	create: protectedProcedure
 		.input(createTripInputSchema)
 		.mutation(({ ctx, input }) => {
 			return ctx.services.trips.createForOwner({
 				name: input.name,
 				ownerId: ctx.user.id,
+				startsOn: new Date(`${input.startsOnIso}T00:00:00.000Z`),
+				endsOn: new Date(`${input.endsOnIso}T00:00:00.000Z`),
 				coverImageUrl: input.coverImageUrl?.trim() || null,
 				coverPhotographerName: input.coverPhotographerName?.trim() || null,
-				coverPhotographerPageUrl: input.coverPhotographerPageUrl?.trim() || null,
+				coverPhotographerPageUrl:
+					input.coverPhotographerPageUrl?.trim() || null,
+				itineraryPlan: input.itineraryPlan,
 			});
 		}),
 

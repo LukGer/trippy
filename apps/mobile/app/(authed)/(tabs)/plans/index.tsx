@@ -55,6 +55,7 @@ export default function PlansScreen() {
 			) : (
 				<PlansList
 					rows={buildPlansRows(trips ?? [])}
+					onTripPress={(tripId) => router.push(`/plans/${tripId}`)}
 					onTripDelete={(tripId) => deleteTrip.mutate({ tripId })}
 					emptyState={<PlansEmptyState />}
 				/>
