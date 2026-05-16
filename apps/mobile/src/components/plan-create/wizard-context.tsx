@@ -82,7 +82,7 @@ const PlanCreateWizardContext =
 	createContext<PlanCreateWizardContextValue | null>(null);
 
 const initialDraft = (): PlanDraft => ({
-	tripName: "Japan, two weeks",
+	tripName: "",
 	notes: "",
 	attachments: [],
 });

@@ -7,6 +7,8 @@ export type LabeledSingleLineFieldProps = {
 	value: string;
 	onChangeText: (text: string) => void;
 	placeholder?: string;
+	/** Custom node rendered as the placeholder while `value` is empty. Suppresses the native `placeholder` string. */
+	placeholderNode?: ReactNode;
 	/** Extra container classes (e.g. mb override) */
 	className?: string;
 	/** Extra input classes */
@@ -19,7 +21,7 @@ export type LabeledSingleLineFieldProps = {
 /** Uppercase small label — matches {@link LabeledSingleLineField} label typography (e.g. section headers above textarea). */
 export function LabeledFieldLabel({ children }: { children: ReactNode }) {
 	return (
-		<Text className="type-caption-2 mb-2 font-serif-semibold text-ink-tertiary uppercase tracking-[1.2px]">
+		<Text className="type-caption-2 mb-2 px-4 font-serif-semibold text-ink-tertiary uppercase tracking-[1.2px]">
 			{children}
 		</Text>
 	);
@@ -33,23 +35,37 @@ export function LabeledSingleLineField({
 	value,
 	onChangeText,
 	placeholder,
+	placeholderNode,
 	...textInputProps
 }: LabeledSingleLineFieldProps) {
+	const showPlaceholderNode = placeholderNode != null && value.length === 0;
 	return (
-		<View className="mb-6">
+		<View>
 			<LabeledFieldLabel>{label}</LabeledFieldLabel>
-			<TextInput
-				{...textInputProps}
-				multiline={false}
-				className="type-body rounded-[14px] bg-surface-card px-4 py-3.5 font-serif text-ink-primary"
-				placeholder={placeholder}
-				placeholderTextColorClassName="accent-ink-tertiary"
-				style={
-					Platform.OS === "android" ? { includeFontPadding: false } : undefined
-				}
-				value={value}
-				onChangeText={onChangeText}
-			/>
+			<View>
+				<TextInput
+					{...textInputProps}
+					multiline={false}
+					className="type-body h-12 rounded-2xl bg-surface-card px-4 font-serif text-ink-primary"
+					placeholder={placeholderNode != null ? undefined : placeholder}
+					placeholderTextColorClassName="accent-ink-tertiary"
+					style={
+						Platform.OS === "android"
+							? { includeFontPadding: false }
+							: undefined
+					}
+					value={value}
+					onChangeText={onChangeText}
+				/>
+				{showPlaceholderNode ? (
+					<View
+						pointerEvents="none"
+						className="absolute inset-0 justify-center overflow-hidden px-4"
+					>
+						{placeholderNode}
+					</View>
+				) : null}
+			</View>
 		</View>
 	);
 }

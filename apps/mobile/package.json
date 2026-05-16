@@ -10,7 +10,10 @@
     "web": "expo start --web",
     "lint": "expo lint",
     "typecheck": "tsc --noEmit",
-    "dev": "expo start --ios"
+    "dev": "VARIANT=development expo start --ios",
+    "build:dev": "eas build --profile development --platform ios",
+    "build:dev:device": "eas build --profile development-device --platform ios",
+    "build:prod": "eas build --profile production --platform ios"
   },
   "dependencies": {
     "@ai-sdk/react": "3.0.186",
@@ -66,6 +69,7 @@
   "devDependencies": {
     "@expo/metro-config": "~55.0.9",
     "@types/react": "~19.2.10",
+    "eas-cli": "^18.13.0",
     "eslint": "^10.4.0",
     "eslint-config-expo": "~55.0.1",
     "typescript": "~5.9.2"

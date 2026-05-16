@@ -99,9 +99,7 @@ function PlanCreateChrome({
 						<Animated.View
 							className="px-4"
 							style={footerChromeStyle}
-							onLayout={(e) =>
-								onFooterBlockLayout(e.nativeEvent.layout.height)
-							}
+							onLayout={(e) => onFooterBlockLayout(e.nativeEvent.layout.height)}
 						>
 							<PlanCreateFooter />
 						</Animated.View>
@@ -178,8 +176,7 @@ function PlanCreateFooter() {
 
 	const isReviewStep = stepId === PLAN_CREATE_STEP_ID.review;
 	const saveBlocked = isReviewStep && createTrip.isPending;
-	const blocked =
-		readingContinueBlocked || saveBlocked || continueDisabled;
+	const blocked = readingContinueBlocked || saveBlocked || continueDisabled;
 
 	const onPrimaryPress = () => {
 		if (isReviewStep) {
@@ -229,7 +226,7 @@ function PlanCreateFooter() {
 					disabled: blocked,
 				}}
 				disabled={blocked}
-				className={`items-center justify-center rounded-full py-4 active:opacity-[0.88] ${blocked ? "bg-ink-primary/45" : "bg-ink-primary"}`}
+				className="items-center justify-center rounded-full bg-ink-primary py-4 active:opacity-[0.88] disabled:bg-ink-primary/45"
 				onPress={onPrimaryPress}
 			>
 				<Text className="type-headline text-ink-inverse">{primaryLabel}</Text>

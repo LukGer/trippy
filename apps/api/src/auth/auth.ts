@@ -11,6 +11,7 @@ function buildTrustedOrigins(env: ApiEnv["Bindings"]): string[] {
 	const origins = new Set<string>([
 		env.CORS_ORIGIN.replace(/\/+$/, ""),
 		"trippy://",
+		"trippy-dev://",
 	]);
 	/** Expo Go OAuth redirects (`exp://…`). Disable in production Workers config if unused. */
 	if (env.BETTER_AUTH_ALLOW_EXPO_GO === "true") {
